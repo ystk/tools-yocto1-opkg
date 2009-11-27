@@ -33,11 +33,14 @@
 #include <errno.h>
 #include <glob.h>
 
+static opkg_conf_t _conf;
+opkg_conf_t *conf = &_conf;
+
+
 static int opkg_conf_parse_file(opkg_conf_t *conf, const char *filename,
 				pkg_src_list_t *pkg_src_list,
 				nv_pair_list_t *tmp_dest_nv_pair_list);
-static int opkg_conf_set_option(const opkg_option_t *options,
-				const char *name, const char *value);
+static int opkg_conf_set_option(const char *name, const char *value);
 static int opkg_conf_set_default_dest(opkg_conf_t *conf,
 				      const char *default_dest_name);
 static int set_and_load_pkg_src_list(opkg_conf_t *conf,
@@ -45,56 +48,53 @@ static int set_and_load_pkg_src_list(opkg_conf_t *conf,
 static int set_and_load_pkg_dest_list(opkg_conf_t *conf,
 				      nv_pair_list_t *nv_pair_list);
 
-void opkg_init_options_array(const opkg_conf_t *conf, opkg_option_t **options)
-{
-     opkg_option_t tmp[] = {
-	  { "cache", OPKG_OPT_TYPE_STRING, &conf->cache},
-	  { "force_defaults", OPKG_OPT_TYPE_BOOL, &conf->force_defaults },
-          { "force_maintainer", OPKG_OPT_TYPE_BOOL, &conf->force_maintainer }, 
-	  { "force_depends", OPKG_OPT_TYPE_BOOL, &conf->force_depends },
-	  { "force_overwrite", OPKG_OPT_TYPE_BOOL, &conf->force_overwrite },
-	  { "force_downgrade", OPKG_OPT_TYPE_BOOL, &conf->force_downgrade },
-	  { "force_reinstall", OPKG_OPT_TYPE_BOOL, &conf->force_reinstall },
-	  { "force_space", OPKG_OPT_TYPE_BOOL, &conf->force_space },
-          { "check_signature", OPKG_OPT_TYPE_INT, &conf->check_signature }, 
-	  { "ftp_proxy", OPKG_OPT_TYPE_STRING, &conf->ftp_proxy },
-	  { "http_proxy", OPKG_OPT_TYPE_STRING, &conf->http_proxy },
-	  { "no_proxy", OPKG_OPT_TYPE_STRING, &conf->no_proxy },
-	  { "test", OPKG_OPT_TYPE_INT, &conf->noaction },
-	  { "noaction", OPKG_OPT_TYPE_INT, &conf->noaction },
-	  { "nodeps", OPKG_OPT_TYPE_BOOL, &conf->nodeps },
-	  { "offline_root", OPKG_OPT_TYPE_STRING, &conf->offline_root },
-	  { "offline_root_path", OPKG_OPT_TYPE_STRING, &conf->offline_root_path },
-	  { "offline_root_post_script_cmd", OPKG_OPT_TYPE_STRING, &conf->offline_root_post_script_cmd },
-	  { "offline_root_pre_script_cmd", OPKG_OPT_TYPE_STRING, &conf->offline_root_pre_script_cmd },
-	  { "proxy_passwd", OPKG_OPT_TYPE_STRING, &conf->proxy_passwd },
-	  { "proxy_user", OPKG_OPT_TYPE_STRING, &conf->proxy_user },
-	  { "query-all", OPKG_OPT_TYPE_BOOL, &conf->query_all },
-	  { "tmp_dir", OPKG_OPT_TYPE_STRING, &conf->tmp_dir },
-	  { "verbosity", OPKG_OPT_TYPE_BOOL, &conf->verbosity },
+/*
+ * Config file options
+ */
+opkg_option_t options[] = {
+	  { "cache", OPKG_OPT_TYPE_STRING, &_conf.cache},
+	  { "force_defaults", OPKG_OPT_TYPE_BOOL, &_conf.force_defaults },
+          { "force_maintainer", OPKG_OPT_TYPE_BOOL, &_conf.force_maintainer }, 
+	  { "force_depends", OPKG_OPT_TYPE_BOOL, &_conf.force_depends },
+	  { "force_overwrite", OPKG_OPT_TYPE_BOOL, &_conf.force_overwrite },
+	  { "force_downgrade", OPKG_OPT_TYPE_BOOL, &_conf.force_downgrade },
+	  { "force_reinstall", OPKG_OPT_TYPE_BOOL, &_conf.force_reinstall },
+	  { "force_space", OPKG_OPT_TYPE_BOOL, &_conf.force_space },
+          { "check_signature", OPKG_OPT_TYPE_INT, &_conf.check_signature }, 
+	  { "ftp_proxy", OPKG_OPT_TYPE_STRING, &_conf.ftp_proxy },
+	  { "http_proxy", OPKG_OPT_TYPE_STRING, &_conf.http_proxy },
+	  { "no_proxy", OPKG_OPT_TYPE_STRING, &_conf.no_proxy },
+	  { "test", OPKG_OPT_TYPE_INT, &_conf.noaction },
+	  { "noaction", OPKG_OPT_TYPE_INT, &_conf.noaction },
+	  { "nodeps", OPKG_OPT_TYPE_BOOL, &_conf.nodeps },
+	  { "offline_root", OPKG_OPT_TYPE_STRING, &_conf.offline_root },
+	  { "offline_root_path", OPKG_OPT_TYPE_STRING, &_conf.offline_root_path },
+	  { "offline_root_post_script_cmd", OPKG_OPT_TYPE_STRING, &_conf.offline_root_post_script_cmd },
+	  { "offline_root_pre_script_cmd", OPKG_OPT_TYPE_STRING, &_conf.offline_root_pre_script_cmd },
+	  { "proxy_passwd", OPKG_OPT_TYPE_STRING, &_conf.proxy_passwd },
+	  { "proxy_user", OPKG_OPT_TYPE_STRING, &_conf.proxy_user },
+	  { "query-all", OPKG_OPT_TYPE_BOOL, &_conf.query_all },
+	  { "tmp_dir", OPKG_OPT_TYPE_STRING, &_conf.tmp_dir },
+	  { "verbosity", OPKG_OPT_TYPE_BOOL, &_conf.verbosity },
 #if defined(HAVE_OPENSSL)
-	  { "signature_ca_file", OPKG_OPT_TYPE_STRING, &conf->signature_ca_file },
-	  { "signature_ca_path", OPKG_OPT_TYPE_STRING, &conf->signature_ca_path },
+	  { "signature_ca_file", OPKG_OPT_TYPE_STRING, &_conf.signature_ca_file },
+	  { "signature_ca_path", OPKG_OPT_TYPE_STRING, &_conf.signature_ca_path },
 #endif
 #if defined(HAVE_PATHFINDER)
-          { "check_x509_path", OPKG_OPT_TYPE_INT, &conf->check_x509_path }, 
+          { "check_x509_path", OPKG_OPT_TYPE_INT, &_conf.check_x509_path }, 
 #endif
 #if defined(HAVE_SSLCURL) && defined(HAVE_CURL)
-          { "ssl_engine", OPKG_OPT_TYPE_STRING, &conf->ssl_engine },
-          { "ssl_cert", OPKG_OPT_TYPE_STRING, &conf->ssl_cert },
-          { "ssl_cert_type", OPKG_OPT_TYPE_STRING, &conf->ssl_cert_type },
-          { "ssl_key", OPKG_OPT_TYPE_STRING, &conf->ssl_key },
-          { "ssl_key_type", OPKG_OPT_TYPE_STRING, &conf->ssl_key_type },
-          { "ssl_key_passwd", OPKG_OPT_TYPE_STRING, &conf->ssl_key_passwd },
-          { "ssl_ca_file", OPKG_OPT_TYPE_STRING, &conf->ssl_ca_file },
-          { "ssl_ca_path", OPKG_OPT_TYPE_STRING, &conf->ssl_ca_path },
-          { "ssl_dont_verify_peer", OPKG_OPT_TYPE_BOOL, &conf->ssl_dont_verify_peer },
+          { "ssl_engine", OPKG_OPT_TYPE_STRING, &_conf.ssl_engine },
+          { "ssl_cert", OPKG_OPT_TYPE_STRING, &_conf.ssl_cert },
+          { "ssl_cert_type", OPKG_OPT_TYPE_STRING, &_conf.ssl_cert_type },
+          { "ssl_key", OPKG_OPT_TYPE_STRING, &_conf.ssl_key },
+          { "ssl_key_type", OPKG_OPT_TYPE_STRING, &_conf.ssl_key_type },
+          { "ssl_key_passwd", OPKG_OPT_TYPE_STRING, &_conf.ssl_key_passwd },
+          { "ssl_ca_file", OPKG_OPT_TYPE_STRING, &_conf.ssl_ca_file },
+          { "ssl_ca_path", OPKG_OPT_TYPE_STRING, &_conf.ssl_ca_path },
+          { "ssl_dont_verify_peer", OPKG_OPT_TYPE_BOOL, &_conf.ssl_dont_verify_peer },
 #endif
 	  { NULL }
-     };
-
-     *options = xcalloc(1, sizeof(tmp));
-     memcpy(*options, tmp, sizeof(tmp));
 };
 
 static void opkg_conf_override_string(char **conf_str, char *arg_str) 
@@ -498,19 +498,15 @@ static int opkg_conf_parse_file(opkg_conf_t *conf, const char *filename,
 				nv_pair_list_t *tmp_dest_nv_pair_list)
 {
      int err;
-     opkg_option_t * options;
      FILE *file;
      regex_t valid_line_re, comment_re;
 #define regmatch_size 12
      regmatch_t regmatch[regmatch_size];
 
-     opkg_init_options_array(conf, &options);
-
      file = fopen(filename, "r");
      if (file == NULL) {
 	  fprintf(stderr, "%s: failed to open %s: %s\n",
 		  __FUNCTION__, filename, strerror(errno));
-	  free(options);
 	  return -1;
      }
      opkg_message(conf, OPKG_NOTICE, "loading conf file %s\n", filename);
@@ -519,12 +515,10 @@ static int opkg_conf_parse_file(opkg_conf_t *conf, const char *filename,
 		    "^[[:space:]]*(#.*|[[:space:]]*)$",
 		    REG_EXTENDED);
      if (err) {
-	  free(options);
 	  return -1;
      }
      err = xregcomp(&valid_line_re, "^[[:space:]]*(\"([^\"]*)\"|([^[:space:]]*))[[:space:]]*(\"([^\"]*)\"|([^[:space:]]*))[[:space:]]*(\"([^\"]*)\"|([^[:space:]]*))([[:space:]]+([^[:space:]]+))?[[:space:]]*$", REG_EXTENDED);
      if (err) {
-	  free(options);
 	  return -1;
      }
 
@@ -584,7 +578,7 @@ static int opkg_conf_parse_file(opkg_conf_t *conf, const char *filename,
 	     pkg_dest_list_init. (We do a similar thing with
 	     tmp_src_nv_pair_list for sake of symmetry.) */
 	  if (strcmp(type, "option") == 0) {
-	       opkg_conf_set_option(options, name, value);
+	       opkg_conf_set_option(name, value);
 	  } else if (strcmp(type, "src") == 0) {
 	       if (!nv_pair_list_find((nv_pair_list_t*) pkg_src_list, name)) {
 		    pkg_src_list_append (pkg_src_list, name, value, extra, 0);
@@ -613,7 +607,6 @@ static int opkg_conf_parse_file(opkg_conf_t *conf, const char *filename,
 	  } else {
 	       fprintf(stderr, "WARNING: Ignoring unknown configuration "
 		       "parameter: %s %s %s\n", type, name, value);
-	       free(options);
 	       return -1;
 	  }
 
@@ -627,7 +620,6 @@ static int opkg_conf_parse_file(opkg_conf_t *conf, const char *filename,
 	  free(line);
      }
 
-     free(options);
      regfree(&comment_re);
      regfree(&valid_line_re);
      fclose(file);
@@ -635,8 +627,8 @@ static int opkg_conf_parse_file(opkg_conf_t *conf, const char *filename,
      return 0;
 }
 
-static int opkg_conf_set_option(const opkg_option_t *options,
-				const char *name, const char *value)
+static int
+opkg_conf_set_option(const char *name, const char *value)
 {
      int i = 0;
      while (options[i].name) {

@@ -38,7 +38,6 @@ struct _opkg_t
 {
   args_t *args;
   opkg_conf_t *conf;
-  opkg_option_t *options;
 };
 
 #define opkg_assert(expr) if (!(expr)) { \
@@ -202,7 +201,6 @@ opkg_new ()
     return NULL;
   }
 
-  opkg_init_options_array (opkg->conf, &opkg->options);
   return opkg;
 }
 
@@ -216,7 +214,6 @@ opkg_free (opkg_t *opkg)
 #endif
   opkg_conf_deinit (opkg->conf);
   args_deinit (opkg->args);
-  free (opkg->options);
   free (opkg->args);
   free (opkg->conf);
   free (opkg);
@@ -279,7 +276,7 @@ opkg_re_read_config_files (opkg_t *opkg)
   opkg_conf_deinit (opkg->conf);
   opkg_conf_init (opkg->conf, opkg->args);
 
-  free (opkg->options);
+  /* XXX */
   opkg_init_options_array (opkg->conf, &opkg->options);
 
   return 0;
@@ -289,11 +286,7 @@ void
 opkg_get_option (opkg_t *opkg, char *option, void **value)
 {
   int i = 0;
-  opkg_option_t *options;
-
-  opkg_assert (opkg != NULL);
-  opkg_assert (option != NULL);
-  opkg_assert (value != NULL);
+  extern opkg_option_t options[];
 
   options = opkg->options;
 
@@ -331,13 +324,11 @@ void
 opkg_set_option (opkg_t *opkg, char *option, void *value)
 {
   int i = 0, found = 0;
-  opkg_option_t *options;
+  extern opkg_option_t options[];
 
   opkg_assert (opkg != NULL);
   opkg_assert (option != NULL);
   opkg_assert (value != NULL);
-
-  options = opkg->options;
 
   /* look up the option
    * TODO: this would be much better as a hash table

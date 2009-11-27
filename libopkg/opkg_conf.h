@@ -19,6 +19,7 @@
 #define OPKG_CONF_H
 
 typedef struct opkg_conf opkg_conf_t;
+extern opkg_conf_t *conf;
 
 #include "hash_table.h"
 #include "args.h"
@@ -126,8 +127,5 @@ void opkg_conf_deinit(opkg_conf_t *conf);
 
 int opkg_conf_write_status_files(opkg_conf_t *conf);
 char *root_filename_alloc(opkg_conf_t *conf, char *filename);
-
-
-void opkg_init_options_array(const opkg_conf_t *conf, opkg_option_t **options);
 
 #endif

@@ -34,7 +34,6 @@ opkg_op (int argc, char *argv[])
 	args_t args;
 	char *cmd_name;
 	opkg_cmd_t *cmd;
-	opkg_conf_t opkg_conf;
 
 	args_init (&args);
 
@@ -70,7 +69,7 @@ opkg_op (int argc, char *argv[])
            args.noreadfeedsfile = 1;
 
 
-	err = opkg_conf_init (&opkg_conf, &args);
+	err = opkg_conf_init (conf, &args);
 	args_deinit (&args);
 	if (err)
 	{
@@ -95,12 +94,12 @@ opkg_op (int argc, char *argv[])
 		args_usage (NULL);
 	}
 
-	err = opkg_cmd_exec (cmd, &opkg_conf, argc - optind, (const char **) (argv + optind), NULL);
+	err = opkg_cmd_exec (cmd, conf, argc - optind, (const char **) (argv + optind), NULL);
 
 #ifdef HAVE_CURL
 	opkg_curl_cleanup();
 #endif
-	opkg_conf_deinit (&opkg_conf);
+	opkg_conf_deinit (conf);
 
 	return err;
 }
