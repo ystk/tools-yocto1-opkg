@@ -42,34 +42,6 @@
 #include "libopkg.h"
 #include "xsystem.h"
 
-/*
-static int opkg_update_cmd(opkg_conf_t *conf, int argc, char **argv);
-static int opkg_upgrade_cmd(opkg_conf_t *conf, int argc, char **argv);
-static int opkg_list_cmd(opkg_conf_t *conf, int argc, char **argv);
-static int opkg_info_cmd(opkg_conf_t *conf, int argc, char **argv);
-static int opkg_status_cmd(opkg_conf_t *conf, int argc, char **argv);
-static int opkg_install_cmd(opkg_conf_t *conf, int argc, char **argv);
-static int opkg_list_installed_cmd(opkg_conf_t *conf, int argc, char **argv);
-static int opkg_list_upgradable_cmd(opkg_conf_t *conf, int argc, char **argv);
-static int opkg_remove_cmd(opkg_conf_t *conf, int argc, char **argv);
-static int opkg_flag_cmd(opkg_conf_t *conf, int argc, char **argv);
-static int opkg_files_cmd(opkg_conf_t *conf, int argc, char **argv);
-static int opkg_search_cmd(opkg_conf_t *conf, int argc, char **argv);
-static int opkg_download_cmd(opkg_conf_t *conf, int argc, char **argv);
-static int opkg_depends_cmd(opkg_conf_t *conf, int argc, char **argv);
-static int opkg_whatdepends_cmd(opkg_conf_t *conf, int argc, char **argv);
-static int opkg_whatdepends_recursively_cmd(opkg_conf_t *conf, int argc, char **argv);
-static int opkg_whatsuggests_cmd(opkg_conf_t *conf, int argc, char **argv);
-static int opkg_whatrecommends_cmd(opkg_conf_t *conf, int argc, char **argv);
-static int opkg_whatprovides_cmd(opkg_conf_t *conf, int argc, char **argv);
-static int opkg_whatconflicts_cmd(opkg_conf_t *conf, int argc, char **argv);
-static int opkg_whatreplaces_cmd(opkg_conf_t *conf, int argc, char **argv);
-static int opkg_compare_versions_cmd(opkg_conf_t *conf, int argc, char **argv);
-static int opkg_print_architecture_cmd(opkg_conf_t *conf, int argc, char **argv);
-static int opkg_configure_cmd(opkg_conf_t *conf, int argc, char **argv);
-static int pkg_mark_provides(pkg_t *pkg);
-*/
-
 static void
 print_pkg(pkg_t *pkg)
 {
