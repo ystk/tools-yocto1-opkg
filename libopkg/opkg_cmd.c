@@ -441,7 +441,7 @@ opkg_configure_packages(char *pkg_name)
 	       opkg_message(conf, OPKG_NOTICE,
 			    "Configuring %s\n", pkg->name);
 	       fflush( stdout );
-	       r = opkg_configure(conf, pkg);
+	       r = opkg_configure(pkg);
 	       if (r == 0) {
 		    pkg->state_status = SS_INSTALLED;
 		    pkg->parent->state_status = SS_INSTALLED;
