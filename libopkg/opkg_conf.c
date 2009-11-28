@@ -658,7 +658,6 @@ opkg_conf_deinit(void)
 
 	rm_r(conf->tmp_dir);
 
-	free(conf->tmp_dir);
 	free(conf->lists_dir);
 
 	pkg_src_list_deinit(&conf->pkg_src_list);
