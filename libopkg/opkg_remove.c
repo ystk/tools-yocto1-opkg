@@ -33,7 +33,7 @@
  * Every package implicitly provides itself.
  */
 int
-pkg_has_installed_dependents(opkg_conf_t *conf, abstract_pkg_t *parent_apkg, pkg_t *pkg, abstract_pkg_t *** pdependents)
+pkg_has_installed_dependents(abstract_pkg_t *parent_apkg, pkg_t *pkg, abstract_pkg_t *** pdependents)
 {
      int nprovides = pkg->provides_count;
      abstract_pkg_t **provides = pkg->provides;
@@ -82,7 +82,7 @@ pkg_has_installed_dependents(opkg_conf_t *conf, abstract_pkg_t *parent_apkg, pkg
 }
 
 static int
-opkg_remove_dependent_pkgs (opkg_conf_t *conf, pkg_t *pkg, abstract_pkg_t **dependents)
+opkg_remove_dependent_pkgs(pkg_t *pkg, abstract_pkg_t **dependents)
 {
     int i;
     int a;
@@ -138,7 +138,7 @@ opkg_remove_dependent_pkgs (opkg_conf_t *conf, pkg_t *pkg, abstract_pkg_t **depe
     
     int err=0;
     for (i = 0; i < dependent_pkgs->len; i++) {
-        err = opkg_remove_pkg(conf, dependent_pkgs->pkgs[i],0);
+        err = opkg_remove_pkg(dependent_pkgs->pkgs[i],0);
         if (err) {
             pkg_vec_free(dependent_pkgs);
             break;
@@ -149,7 +149,7 @@ opkg_remove_dependent_pkgs (opkg_conf_t *conf, pkg_t *pkg, abstract_pkg_t **depe
 }
 
 static void
-print_dependents_warning(opkg_conf_t *conf, abstract_pkg_t *abpkg, pkg_t *pkg, abstract_pkg_t **dependents)
+print_dependents_warning(abstract_pkg_t *abpkg, pkg_t *pkg, abstract_pkg_t **dependents)
 {
     abstract_pkg_t *dep_ab_pkg;
     opkg_message(conf, OPKG_ERROR, "Package %s is depended upon by packages:\n", pkg->name);
@@ -169,7 +169,7 @@ print_dependents_warning(opkg_conf_t *conf, abstract_pkg_t *abpkg, pkg_t *pkg, a
  * by the removal of pkg.
  */
 static int
-remove_autoinstalled(opkg_conf_t *conf, pkg_t *pkg)
+remove_autoinstalled(pkg_t *pkg)
 {
 	int i, j;
 	int n_deps;
@@ -200,14 +200,14 @@ remove_autoinstalled(opkg_conf_t *conf, pkg_t *pkg)
 			if (!p->auto_installed)
 				continue;
 
-			n_deps = pkg_has_installed_dependents(conf, NULL, p,
+			n_deps = pkg_has_installed_dependents(NULL, p,
 					&dependents);
 			if (n_deps == 0) {
 				 opkg_message(conf, OPKG_NOTICE,
 				               "%s was autoinstalled and is "
 					       "now orphaned, removing\n",
 					       p->name);
-			         opkg_remove_pkg(conf, p, 0);
+			         opkg_remove_pkg(p, 0);
 			} else
 				opkg_message(conf, OPKG_INFO,
 						"%s was autoinstalled and is "
@@ -224,7 +224,7 @@ remove_autoinstalled(opkg_conf_t *conf, pkg_t *pkg)
 }
 
 int
-opkg_remove_pkg(opkg_conf_t *conf, pkg_t *pkg, int from_upgrade)
+opkg_remove_pkg(pkg_t *pkg, int from_upgrade)
 {
      int err;
      abstract_pkg_t *parent_pkg = NULL;
@@ -259,7 +259,7 @@ opkg_remove_pkg(opkg_conf_t *conf, pkg_t *pkg, int from_upgrade)
 	 && !(pkg->state_flag & SF_REPLACE)) {
 	  abstract_pkg_t **dependents;
 	  int has_installed_dependents = 
-	       pkg_has_installed_dependents(conf, parent_pkg, pkg, &dependents);
+	       pkg_has_installed_dependents(parent_pkg, pkg, &dependents);
 
 	  if (has_installed_dependents) {
 	       /*
@@ -268,13 +268,13 @@ opkg_remove_pkg(opkg_conf_t *conf, pkg_t *pkg, int from_upgrade)
 		*/
 
 	       if (!conf->force_removal_of_dependent_packages) {
-		    print_dependents_warning(conf, parent_pkg, pkg, dependents);
+		    print_dependents_warning(parent_pkg, pkg, dependents);
 		    free(dependents);
 		    return -1;
 	       }
 
 	       /* remove packages depending on this package - Karthik */
-	       err = opkg_remove_dependent_pkgs (conf, pkg, dependents);
+	       err = opkg_remove_dependent_pkgs(pkg, dependents);
 	       if (err) {
 	         free(dependents);
                  return err;
@@ -300,11 +300,11 @@ opkg_remove_pkg(opkg_conf_t *conf, pkg_t *pkg, int from_upgrade)
 	like a big pain, and I don't see that that should make a big
 	difference, but for anyone who wants tighter compatibility,
 	feel free to fix this. */
-     remove_data_files_and_list(conf, pkg);
+     remove_data_files_and_list(pkg);
 
      pkg_run_script(conf, pkg, "postrm", "remove");
 
-     remove_maintainer_scripts(conf, pkg);
+     remove_maintainer_scripts(pkg);
      pkg->state_status = SS_NOT_INSTALLED;
 
      if (parent_pkg) 
@@ -312,13 +312,13 @@ opkg_remove_pkg(opkg_conf_t *conf, pkg_t *pkg, int from_upgrade)
 
      /* remove autoinstalled packages that are orphaned by the removal of this one */
      if (conf->autoremove)
-       remove_autoinstalled (conf, pkg);
+       remove_autoinstalled(pkg);
 
      return 0;
 }
 
 void
-remove_data_files_and_list(opkg_conf_t *conf, pkg_t *pkg)
+remove_data_files_and_list(pkg_t *pkg)
 {
      str_list_t installed_dirs;
      str_list_t *installed_files;
@@ -405,7 +405,7 @@ remove_data_files_and_list(opkg_conf_t *conf, pkg_t *pkg)
 }
 
 void
-remove_maintainer_scripts(opkg_conf_t *conf, pkg_t *pkg)
+remove_maintainer_scripts(pkg_t *pkg)
 {
 	int i, err;
 	char *globpattern;

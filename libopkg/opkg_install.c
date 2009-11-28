@@ -363,7 +363,7 @@ pkg_remove_orphan_dependent(pkg_t *pkg, pkg_t *old_pkg)
 			if (!p->auto_installed)
 				continue;
 
-			n_deps = pkg_has_installed_dependents(conf, NULL, p,
+			n_deps = pkg_has_installed_dependents(NULL, p,
 					&dependents);
 			n_deps--; /* don't count old_pkg */
 
@@ -377,7 +377,7 @@ pkg_remove_orphan_dependent(pkg_t *pkg, pkg_t *old_pkg)
 				 * which we need to ignore during removal. */
 				p->state_flag |= SF_REPLACE;
 
-				opkg_remove_pkg(conf, p, 0);
+				opkg_remove_pkg(p, 0);
 			} else 
 				opkg_message(conf, OPKG_INFO,
 						"%s was autoinstalled and is "
@@ -424,7 +424,7 @@ pkg_remove_installed_replacees(pkg_vec_t *replacees)
 	  pkg_t *replacee = replacees->pkgs[i];
 	  int err;
 	  replacee->state_flag |= SF_REPLACE; /* flag it so remove won't complain */
-	  err = opkg_remove_pkg(conf, replacee,0);
+	  err = opkg_remove_pkg(replacee, 0);
 	  if (err)
 	       return err;
      }
@@ -1493,8 +1493,8 @@ opkg_install_pkg(pkg_t *pkg, int from_upgrade)
 	       }
 
                /* removing files from old package, to avoid ghost files */ 
-               remove_data_files_and_list(conf, old_pkg);
-               remove_maintainer_scripts(conf, old_pkg);
+               remove_data_files_and_list(old_pkg);
+               remove_maintainer_scripts(old_pkg);
 	  }
 
 

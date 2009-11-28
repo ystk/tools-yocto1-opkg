@@ -757,7 +757,7 @@ opkg_remove_cmd(int argc, char **argv)
 	         opkg_message(conf, OPKG_ERROR, "Package seems to be %s not installed (STATUS = NOT_INSTALLED).\n", pkg->name);
                  continue;
             }
-            opkg_remove_pkg(conf, pkg_to_remove, 0);
+            opkg_remove_pkg(pkg_to_remove, 0);
             done = 1;
         }
      }
