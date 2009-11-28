@@ -163,7 +163,7 @@ opkg_update_cmd(int argc, char **argv)
 	      FILE *in, *out;
 	      
 	      sprintf_alloc (&tmp_file_name, "%s/%s.gz", tmp, src->name);
-	      err = opkg_download(conf, url, tmp_file_name, NULL, NULL);
+	      err = opkg_download(url, tmp_file_name, NULL, NULL);
 	      if (err == 0) {
 		   opkg_message (conf, OPKG_NOTICE, "Inflating %s\n", url);
 		   in = fopen (tmp_file_name, "r");
@@ -180,7 +180,7 @@ opkg_update_cmd(int argc, char **argv)
 	      }
 	      free(tmp_file_name);
 	  } else
-	      err = opkg_download(conf, url, list_file_name, NULL, NULL);
+	      err = opkg_download(url, list_file_name, NULL, NULL);
 	  if (err) {
 	       failures++;
 	  } else {
@@ -205,13 +205,13 @@ opkg_update_cmd(int argc, char **argv)
               /* Put the signature in the right place */
               sprintf_alloc (&tmp_file_name, "%s/%s.sig", lists_dir, src->name);
 
-              err = opkg_download(conf, url, tmp_file_name, NULL, NULL);
+              err = opkg_download(url, tmp_file_name, NULL, NULL);
               if (err) {
                   failures++;
                   opkg_message (conf, OPKG_NOTICE, "Signature check failed\n");
               } else {
                   int err;
-                  err = opkg_verify_file (conf, list_file_name, tmp_file_name);
+                  err = opkg_verify_file (list_file_name, tmp_file_name);
                   if (err == 0)
                       opkg_message (conf, OPKG_NOTICE, "Signature check passed\n");
                   else
@@ -481,7 +481,7 @@ opkg_install_cmd(int argc, char **argv)
 	  arg = argv[i];
 
           opkg_message(conf, OPKG_DEBUG2, "Debug install_cmd: %s  \n",arg );
-          err = opkg_prepare_url_for_install(conf, arg, &argv[i]);
+          err = opkg_prepare_url_for_install(arg, &argv[i]);
           if (err)
               return err;
      }
@@ -515,7 +515,7 @@ opkg_upgrade_cmd(int argc, char **argv)
 	  for (i=0; i < argc; i++) {
 	       char *arg = argv[i];
 
-               err = opkg_prepare_url_for_install(conf, arg, &arg);
+               err = opkg_prepare_url_for_install(arg, &arg);
                if (err)
                    return err;
 	  }
@@ -583,7 +583,7 @@ opkg_download_cmd(int argc, char **argv)
 	       continue;
 	  }
 
-	  err = opkg_download_pkg(conf, pkg, ".");
+	  err = opkg_download_pkg(pkg, ".");
 
 	  if (err) {
 	       opkg_message(conf, OPKG_ERROR,

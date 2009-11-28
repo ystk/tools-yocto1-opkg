@@ -58,7 +58,7 @@ static void openssl_init(void);
 #endif
 
 #ifdef HAVE_OPENSSL
-static X509_STORE *setup_verify(opkg_conf_t *conf, char *CAfile, char *CApath);
+static X509_STORE *setup_verify(char *CAfile, char *CApath);
 #endif
 
 #ifdef HAVE_CURL
@@ -67,7 +67,7 @@ static X509_STORE *setup_verify(opkg_conf_t *conf, char *CAfile, char *CApath);
  * each time
  */
 static CURL *curl = NULL;
-static CURL *opkg_curl_init(opkg_conf_t *conf, curl_progress_func cb, void *data);
+static CURL *opkg_curl_init(curl_progress_func cb, void *data);
 #endif
 
 static int
@@ -76,8 +76,9 @@ str_starts_with(const char *str, const char *prefix)
     return (strncmp(str, prefix, strlen(prefix)) == 0);
 }
 
-int opkg_download(opkg_conf_t *conf, const char *src,
-  const char *dest_file_name, curl_progress_func cb, void *data)
+int
+opkg_download(const char *src, const char *dest_file_name,
+	curl_progress_func cb, void *data)
 {
     int err = 0;
 
@@ -123,7 +124,7 @@ int opkg_download(opkg_conf_t *conf, const char *src,
     CURLcode res;
     FILE * file = fopen (tmp_file_location, "w");
 
-    curl = opkg_curl_init (conf, cb, data);
+    curl = opkg_curl_init (cb, data);
     if (curl)
     {
 	curl_easy_setopt (curl, CURLOPT_URL, src);
@@ -183,15 +184,16 @@ int opkg_download(opkg_conf_t *conf, const char *src,
     return err;
 }
 
-static int opkg_download_cache(opkg_conf_t *conf, const char *src,
-  const char *dest_file_name, curl_progress_func cb, void *data)
+static int
+opkg_download_cache(const char *src, const char *dest_file_name,
+	curl_progress_func cb, void *data)
 {
     char *cache_name = xstrdup(src);
     char *cache_location, *p;
     int err = 0;
 
     if (!conf->cache || str_starts_with(src, "file:")) {
-	err = opkg_download(conf, src, dest_file_name, cb, data);
+	err = opkg_download(src, dest_file_name, cb, data);
 	goto out1;
     }
 
@@ -203,7 +205,7 @@ static int opkg_download_cache(opkg_conf_t *conf, const char *src,
     if (file_exists(cache_location))
 	opkg_message(conf, OPKG_NOTICE, "Copying %s\n", cache_location);
     else {
-	err = opkg_download(conf, src, cache_location, cb, data);
+	err = opkg_download(src, cache_location, cb, data);
 	if (err) {
 	    (void) unlink(cache_location);
 	    goto out2;
@@ -220,7 +222,8 @@ out1:
     return err;
 }
 
-int opkg_download_pkg(opkg_conf_t *conf, pkg_t *pkg, const char *dir)
+int
+opkg_download_pkg(pkg_t *pkg, const char *dir)
 {
     int err;
     char *url;
@@ -249,7 +252,7 @@ int opkg_download_pkg(opkg_conf_t *conf, pkg_t *pkg, const char *dir)
 
     sprintf_alloc(&pkg->local_filename, "%s/%s", dir, stripped_filename);
 
-    err = opkg_download_cache(conf, url, pkg->local_filename, NULL, NULL);
+    err = opkg_download_cache(url, pkg->local_filename, NULL, NULL);
     free(url);
 
     return err;
@@ -258,7 +261,8 @@ int opkg_download_pkg(opkg_conf_t *conf, pkg_t *pkg, const char *dir)
 /*
  * Downloads file from url, installs in package database, return package name. 
  */
-int opkg_prepare_url_for_install(opkg_conf_t *conf, const char *url, char **namep)
+int
+opkg_prepare_url_for_install(const char *url, char **namep)
 {
      int err = 0;
      pkg_t *pkg;
@@ -272,7 +276,7 @@ int opkg_prepare_url_for_install(opkg_conf_t *conf, const char *url, char **name
 	  char *file_base = basename(file_basec);
 
 	  sprintf_alloc(&tmp_file, "%s/%s", conf->tmp_dir, file_base);
-	  err = opkg_download(conf, url, tmp_file, NULL, NULL);
+	  err = opkg_download(url, tmp_file, NULL, NULL);
 	  if (err)
 	       return err;
 
@@ -316,7 +320,7 @@ int opkg_prepare_url_for_install(opkg_conf_t *conf, const char *url, char **name
 }
 
 int
-opkg_verify_file (opkg_conf_t *conf, char *text_file, char *sig_file)
+opkg_verify_file (char *text_file, char *sig_file)
 {
 #if defined HAVE_GPGME
     if (conf->check_signature == 0 )
@@ -477,7 +481,9 @@ static void openssl_init(void){
 
 
 #if defined HAVE_OPENSSL
-static X509_STORE *setup_verify(opkg_conf_t *conf, char *CAfile, char *CApath){
+static X509_STORE *
+setup_verify(char *CAfile, char *CApath)
+{
     X509_STORE *store = NULL;
     X509_LOOKUP *lookup = NULL;
 
@@ -541,7 +547,9 @@ void opkg_curl_cleanup(void){
     }
 }
 
-static CURL *opkg_curl_init(opkg_conf_t *conf, curl_progress_func cb, void *data){
+static CURL *
+opkg_curl_init(curl_progress_func cb, void *data)
+{
 
     if(curl == NULL){
 	curl = curl_easy_init();
