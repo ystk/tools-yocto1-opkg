@@ -21,7 +21,7 @@
 #include "opkg_message.h"
 
 int
-opkg_upgrade_pkg(opkg_conf_t *conf, pkg_t *old)
+opkg_upgrade_pkg(pkg_t *old)
 {
      pkg_t *new;
      int cmp;
@@ -101,7 +101,7 @@ pkg_hash_check_installed_pkg_helper(const char *pkg_name, void *entry,
 }
 
 struct active_list *
-prepare_upgrade_list(opkg_conf_t *conf)
+prepare_upgrade_list(void)
 {
     struct active_list *head = active_list_head_new();
     struct active_list *all = active_list_head_new();

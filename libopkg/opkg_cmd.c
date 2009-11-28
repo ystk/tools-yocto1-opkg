@@ -510,7 +510,7 @@ opkg_upgrade_cmd(int argc, char **argv)
 							   argv[i]);
 	       }
 	       if (pkg)
-		    opkg_upgrade_pkg(conf, pkg);
+		    opkg_upgrade_pkg(pkg);
 	       else {
 		    opkg_install_by_name(arg);
                }
@@ -523,7 +523,7 @@ opkg_upgrade_cmd(int argc, char **argv)
 	  pkg_hash_fetch_all_installed(&conf->pkg_hash, installed);
 	  for (i = 0; i < installed->len; i++) {
 	       pkg = installed->pkgs[i];
-	       opkg_upgrade_pkg(conf, pkg);
+	       opkg_upgrade_pkg(pkg);
 	  }
 	  pkg_vec_free(installed);
      }
@@ -628,7 +628,7 @@ opkg_list_installed_cmd(int argc, char **argv)
 static int
 opkg_list_upgradable_cmd(int argc, char **argv) 
 {
-    struct active_list *head = prepare_upgrade_list(conf);
+    struct active_list *head = prepare_upgrade_list();
     struct active_list *node=NULL;
     pkg_t *_old_pkg, *_new_pkg;
     char *old_v, *new_v;
