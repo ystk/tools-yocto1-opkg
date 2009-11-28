@@ -94,7 +94,7 @@ opkg_op (int argc, char *argv[])
 		args_usage (NULL);
 	}
 
-	err = opkg_cmd_exec (cmd, conf, argc - optind, (const char **) (argv + optind), NULL);
+	err = opkg_cmd_exec (cmd, argc - optind, (const char **) (argv + optind), NULL);
 
 #ifdef HAVE_CURL
 	opkg_curl_cleanup();

@@ -18,7 +18,7 @@
 #ifndef OPKG_CMD_H
 #define OPKG_CMD_H
 
-typedef int (*opkg_cmd_fun_t)(opkg_conf_t *conf, int argc, const char **argv);
+typedef int (*opkg_cmd_fun_t)(int argc, const char **argv);
 
 struct opkg_cmd
 {
@@ -29,8 +29,7 @@ struct opkg_cmd
 typedef struct opkg_cmd opkg_cmd_t;
 
 opkg_cmd_t *opkg_cmd_find(const char *name);
-int opkg_cmd_exec(opkg_cmd_t *cmd, opkg_conf_t *conf, int argc, 
-                  const char **argv, void *userdata);
+int opkg_cmd_exec(opkg_cmd_t *cmd, int argc, const char **argv, void *userdata);
 
 extern int opkg_state_changed;
 #endif
