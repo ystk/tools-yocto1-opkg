@@ -76,7 +76,7 @@ opkg_upgrade_pkg(opkg_conf_t *conf, pkg_t *old)
     free(old_version);
     free(new_version);
     new->state_flag |= SF_USER;
-    return opkg_install_pkg(conf, new,1);
+    return opkg_install_pkg(new,1);
 }
 
 

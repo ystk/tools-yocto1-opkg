@@ -461,7 +461,7 @@ opkg_install_cmd(int argc, char **argv)
 
      for (i=0; i < argc; i++) {
 	  arg = argv[i];
-          err = opkg_install_by_name(conf, arg);
+          err = opkg_install_by_name(arg);
 	  if (err) {
 	       opkg_message(conf, OPKG_ERROR, "Cannot find package %s.\n", arg);
 	  }
@@ -512,7 +512,7 @@ opkg_upgrade_cmd(int argc, char **argv)
 	       if (pkg)
 		    opkg_upgrade_pkg(conf, pkg);
 	       else {
-		    opkg_install_by_name(conf, arg);
+		    opkg_install_by_name(arg);
                }
 	  }
      } else {
