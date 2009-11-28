@@ -690,7 +690,7 @@ backup_modified_conffiles(opkg_conf_t *conf, pkg_t *pkg, pkg_t *old_pkg)
 	       char *cf_name;
 	       
 	       cf = iter->data;
-	       cf_name = root_filename_alloc(conf, cf->name);
+	       cf_name = root_filename_alloc(cf->name);
 
 	       /* Don't worry if the conffile is just plain gone */
 	       if (file_exists(cf_name) && conffile_has_been_modified(conf, cf)) {
@@ -707,7 +707,7 @@ backup_modified_conffiles(opkg_conf_t *conf, pkg_t *pkg, pkg_t *old_pkg)
      for (iter = nv_pair_list_first(&pkg->conffiles); iter; iter = nv_pair_list_next(&pkg->conffiles, iter)) {
 	  char *cf_name;
 	  cf = (conffile_t *)iter->data;
-	  cf_name = root_filename_alloc(conf, cf->name);
+	  cf_name = root_filename_alloc(cf->name);
 	  /* Ignore if this was a conffile in old_pkg as well */
 	  if (pkg_get_conffile(old_pkg, cf->name)) {
 	       continue;
@@ -774,7 +774,7 @@ check_data_file_clashes(opkg_conf_t *conf, pkg_t *pkg, pkg_t *old_pkg)
              iter = niter, niter = str_list_next(files_list, iter)) {
 	  char *root_filename;
 	  char *filename = (char *) iter->data;
-	  root_filename = root_filename_alloc(conf, filename);
+	  root_filename = root_filename_alloc(filename);
 	  if (file_exists(root_filename) && (! file_is_dir(root_filename))) {
 	       pkg_t *owner;
 	       pkg_t *obs;
@@ -873,7 +873,7 @@ check_data_file_clashes_change(opkg_conf_t *conf, pkg_t *pkg, pkg_t *old_pkg)
               free(root_filename);
               root_filename = NULL;
           }
-	  root_filename = root_filename_alloc(conf, filename);
+	  root_filename = root_filename_alloc(filename);
 	  if (file_exists(root_filename) && (! file_is_dir(root_filename))) {
 	       pkg_t *owner;
 
@@ -1147,7 +1147,7 @@ resolve_conffiles(opkg_conf_t *conf, pkg_t *pkg)
      for (iter = nv_pair_list_first(&pkg->conffiles); iter; iter = nv_pair_list_next(&pkg->conffiles, iter)) {
 	  char *root_filename;
 	  cf = (conffile_t *)iter->data;
-	  root_filename = root_filename_alloc(conf, cf->name);
+	  root_filename = root_filename_alloc(cf->name);
 
 	  /* Might need to initialize the md5sum for each conffile */
 	  if (cf->value == NULL) {

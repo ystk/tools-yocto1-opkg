@@ -122,10 +122,10 @@ struct opkg_option {
      const void *value;
 };
 
-int opkg_conf_init(opkg_conf_t *conf, const args_t *args);
-void opkg_conf_deinit(opkg_conf_t *conf);
+int opkg_conf_init(const args_t *args);
+void opkg_conf_deinit(void);
 
-int opkg_conf_write_status_files(opkg_conf_t *conf);
-char *root_filename_alloc(opkg_conf_t *conf, char *filename);
+int opkg_conf_write_status_files(void);
+char *root_filename_alloc(char *filename);
 
 #endif

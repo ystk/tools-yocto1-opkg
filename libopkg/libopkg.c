@@ -69,7 +69,7 @@ opkg_op (int argc, char *argv[])
            args.noreadfeedsfile = 1;
 
 
-	err = opkg_conf_init (conf, &args);
+	err = opkg_conf_init (&args);
 	args_deinit (&args);
 	if (err)
 	{
@@ -99,7 +99,7 @@ opkg_op (int argc, char *argv[])
 #ifdef HAVE_CURL
 	opkg_curl_cleanup();
 #endif
-	opkg_conf_deinit (conf);
+	opkg_conf_deinit ();
 
 	return err;
 }

@@ -119,7 +119,7 @@ static void write_status_files_if_changed(opkg_conf_t *conf)
      if (opkg_state_changed && !conf->noaction) {
 	  opkg_message(conf, OPKG_INFO,
 		       "  writing status file\n");
-	  opkg_conf_write_status_files(conf);
+	  opkg_conf_write_status_files();
 	  pkg_write_changed_filelists(conf);
      } else { 
 	  opkg_message(conf, OPKG_DEBUG, "Nothing to be done\n");

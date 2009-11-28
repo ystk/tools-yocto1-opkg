@@ -47,7 +47,7 @@ int conffile_has_been_modified(opkg_conf_t *conf, conffile_t *conffile)
 	 return 1;
     }
 
-    root_filename = root_filename_alloc(conf, filename);
+    root_filename = root_filename_alloc(filename);
 
     md5sum = file_md5sum_alloc(root_filename);
 
