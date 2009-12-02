@@ -158,7 +158,6 @@ struct pkg
 
      char *filename;
      char *local_filename;
-     char *url;
      char *tmp_unpack_dir;
      char *md5sum;
 #if defined HAVE_SHA256
