@@ -1303,14 +1303,14 @@ pkg_run_script(pkg_t *pkg, const char *script, const char *args)
 	  if (pkg->dest == NULL) {
 	       fprintf(stderr, "%s: ERROR: installed package %s has a NULL dest\n",
 		       __FUNCTION__, pkg->name);
-	       return EINVAL;
+	       return -1;
 	  }
 	  sprintf_alloc(&path, "%s/%s.%s", pkg->dest->info_dir, pkg->name, script);
      } else {
 	  if (pkg->tmp_unpack_dir == NULL) {
 	       fprintf(stderr, "%s: ERROR: uninstalled package %s has a NULL tmp_unpack_dir\n",
 		       __FUNCTION__, pkg->name);
-	       return EINVAL;
+	       return -1;
 	  }
 	  sprintf_alloc(&path, "%s/%s", pkg->tmp_unpack_dir, script);
      }

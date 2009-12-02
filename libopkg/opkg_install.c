@@ -189,16 +189,6 @@ update_file_ownership(pkg_t *new_pkg, pkg_t *old_pkg)
 static int
 verify_pkg_installable(pkg_t *pkg)
 {
-    /* XXX: FEATURE: Anything else needed here? Maybe a check on free space? */
-
-    /* sma 6.20.02:  yup; here's the first bit */
-    /* 
-     * XXX: BUG easy for cworth
-     * 1) please point the call below to the correct current root destination
-     * 2) we need to resolve how to check the required space for a pending pkg, 
-     *    my diddling with the .opk file size below isn't going to cut it.
-     * 3) return a proper error code instead of 1
-     */
      int comp_size, blocks_available;
      char *root_dir;
     
@@ -214,7 +204,7 @@ verify_pkg_installable(pkg_t *pkg)
 	       opkg_message(conf, OPKG_ERROR,
 			    "Only have %d available blocks on filesystem %s, pkg %s needs %d\n", 
 			    blocks_available, root_dir, pkg->name, comp_size);
-	       return ENOSPC;
+	       return -1;
 	  }
      }
      return 0;
@@ -597,7 +587,7 @@ preinst_configure(pkg_t *pkg, pkg_t *old_pkg)
      if (err) {
 	  opkg_message(conf, OPKG_ERROR,
 		       "Aborting installation of %s\n", pkg->name);
-	  return 1;
+	  return -1;
      }
 
      free(preinst_args);

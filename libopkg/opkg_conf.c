@@ -197,7 +197,7 @@ opkg_conf_set_option(const char *name, const char *value)
 		    } else {
 			 printf("%s: Option %s need an argument\n",
 				__FUNCTION__, name);
-			 return EINVAL;
+			 return -1;
 		    }		    
 	       case OPKG_OPT_TYPE_STRING:
 		    if (value) {
@@ -213,7 +213,7 @@ opkg_conf_set_option(const char *name, const char *value)
 		    } else {
 			 printf("%s: Option %s need an argument\n",
 				__FUNCTION__, name);
-			 return EINVAL;
+			 return -1;
 		    }
 	       }
 	  }
@@ -222,7 +222,7 @@ opkg_conf_set_option(const char *name, const char *value)
     
      fprintf(stderr, "%s: Unrecognized option: %s=%s\n",
 	     __FUNCTION__, name, value);
-     return EINVAL;
+     return -1;
 }
 
 static int

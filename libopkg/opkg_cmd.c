@@ -823,7 +823,7 @@ opkg_files_cmd(int argc, char **argv)
      char *pkg_version;
 
      if (argc < 1) {
-	  return EINVAL;
+	  return -1;
      }
 
      pkg = pkg_hash_fetch_installed_by_name(argv[0]);
@@ -1132,7 +1132,7 @@ opkg_search_cmd(int argc, char **argv)
      char *installed_file;
 
      if (argc < 1) {
-	  return EINVAL;
+	  return -1;
      }
  
      installed = pkg_vec_alloc();

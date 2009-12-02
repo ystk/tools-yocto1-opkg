@@ -837,8 +837,6 @@ static int parseDepends(compound_depend_t *compound_depend,
 	       *dest++ = *src++;
 	  *dest = '\0';
 	  pkg_name = trim_xstrdup(buffer);
-          if (pkg_name == NULL )
-	       return -ENOMEM;
 	
 	  /* now look at possible version info */
 	
@@ -887,14 +885,8 @@ static int parseDepends(compound_depend_t *compound_depend,
 	       while(*src && *src != ')')
 		    *dest++ = *src++;
 	       *dest = '\0';
-	    
-	       possibilities[i]->version = trim_xstrdup(buffer);
-	       /*	   	    fprintf(stderr, "let's print the depends version string:");
-				    fprintf(stderr, "version %s\n", possibilities[i]->version);*/
-               if (possibilities[i]->version == NULL )
-	            return -ENOMEM;
 
-	 
+	       possibilities[i]->version = trim_xstrdup(buffer);
 	  }
 	  /* hook up the dependency to its abstract pkg */
 	  possibilities[i]->pkg = ensure_abstract_pkg_by_name(pkg_name);

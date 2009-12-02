@@ -379,7 +379,7 @@ pkg_parse_from_stream_nomalloc(pkg_t *pkg, FILE *fp, uint mask,
 
 	if (pkg->name == NULL) {
 		/* probably just a blank line */
-		ret = EINVAL;
+		ret = 1;
 	}
 
 	return ret;

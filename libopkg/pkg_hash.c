@@ -127,7 +127,7 @@ pkg_hash_add_from_file(const char *file_name,
 			free(pkg);
 			if (ret == -1)
 				break;
-			if (ret == EINVAL)
+			if (ret == 1)
 				/* Probably a blank line, continue parsing. */
 				ret = 0;
 			continue;
