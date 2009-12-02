@@ -52,8 +52,9 @@ static int pkg_constraint_satisfied(pkg_t *pkg, void *cdata)
 }
 
 /* returns ndependences or negative error value */ 
-int pkg_hash_fetch_unsatisfied_dependencies(opkg_conf_t *conf, pkg_t * pkg, 
-					    pkg_vec_t *unsatisfied, char *** unresolved)
+int
+pkg_hash_fetch_unsatisfied_dependencies(pkg_t * pkg, pkg_vec_t *unsatisfied,
+		char *** unresolved)
 {
      pkg_t * satisfier_entry_pkg;
      int i, j, k;
@@ -120,8 +121,7 @@ int pkg_hash_fetch_unsatisfied_dependencies(opkg_conf_t *conf, pkg_t * pkg,
 				   int rc;
 				   pkg_vec_t *tmp_vec = pkg_vec_alloc ();
 				   /* check for not-already-installed dependencies */
-				   rc = pkg_hash_fetch_unsatisfied_dependencies(conf, 
-										pkg_scout, 
+				   rc = pkg_hash_fetch_unsatisfied_dependencies(pkg_scout,
 										tmp_vec,
 										&newstuff);
 				   if (newstuff == NULL) {
@@ -231,8 +231,7 @@ int pkg_hash_fetch_unsatisfied_dependencies(opkg_conf_t *conf, pkg_t * pkg,
 			 if (satisfier_entry_pkg != pkg &&
 			     !is_pkg_in_pkg_vec(unsatisfied, satisfier_entry_pkg)) {
 			      pkg_vec_insert(unsatisfied, satisfier_entry_pkg);
-			      pkg_hash_fetch_unsatisfied_dependencies(conf, 
-								      satisfier_entry_pkg, 
+			      pkg_hash_fetch_unsatisfied_dependencies(satisfier_entry_pkg,
 								      unsatisfied,
 								      &newstuff);
 			      the_lost = merge_unresolved(the_lost, newstuff);
@@ -381,7 +380,7 @@ int version_constraints_satisfied(depend_t * depends, pkg_t * pkg)
     return 0;
 }
 
-int pkg_dependence_satisfiable(opkg_conf_t *conf, depend_t *depend)
+int pkg_dependence_satisfiable(depend_t *depend)
 {
      abstract_pkg_t *apkg = depend->pkg;
      abstract_pkg_vec_t *provider_apkgs = apkg->provided_by;
@@ -408,7 +407,7 @@ int pkg_dependence_satisfiable(opkg_conf_t *conf, depend_t *depend)
      return 0;
 }
 
-int pkg_dependence_satisfied(opkg_conf_t *conf, depend_t *depend)
+int pkg_dependence_satisfied(depend_t *depend)
 {
      abstract_pkg_t *apkg = depend->pkg;
      abstract_pkg_vec_t *provider_apkgs = apkg->provided_by;

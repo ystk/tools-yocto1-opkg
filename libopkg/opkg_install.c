@@ -51,8 +51,7 @@ satisfy_dependencies_for(pkg_t *pkg)
      char **unresolved = NULL;
      int ndepends;
 
-     ndepends = pkg_hash_fetch_unsatisfied_dependencies(conf, 
-							pkg, depends, 
+     ndepends = pkg_hash_fetch_unsatisfied_dependencies(pkg, depends, 
 							&unresolved);
 
      if (unresolved) {

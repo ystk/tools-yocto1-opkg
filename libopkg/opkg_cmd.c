@@ -1021,7 +1021,7 @@ opkg_what_depends_conflicts_cmd(enum depend_type what_field_type, int recursive,
 							constraint_to_str(possibility->constraint),
 							possibility->version);
 					}
-					if (!pkg_dependence_satisfiable(conf, possibility))
+					if (!pkg_dependence_satisfiable(possibility))
 						opkg_message(conf, OPKG_NOTICE,
 							" unsatisfiable");
 					opkg_message(conf, OPKG_NOTICE, "\n");
