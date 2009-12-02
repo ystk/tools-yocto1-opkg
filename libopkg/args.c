@@ -42,7 +42,6 @@ enum long_args_opt
      ARGS_OPT_FORCE_SPACE,
      ARGS_OPT_NOACTION,
      ARGS_OPT_NODEPS,
-     ARGS_OPT_MULTIPLE_PROVIDERS,
      ARGS_OPT_AUTOREMOVE,
      ARGS_OPT_CACHE,
 };
@@ -72,7 +71,6 @@ void args_init(args_t *args)
      args->offline_root_path = ARGS_DEFAULT_OFFLINE_ROOT_PATH;
      args->offline_root_pre_script_cmd = ARGS_DEFAULT_OFFLINE_ROOT_PRE_SCRIPT_CMD;
      args->offline_root_post_script_cmd = ARGS_DEFAULT_OFFLINE_ROOT_POST_SCRIPT_CMD;
-     args->multiple_providers = 0;
      args->nocheckfordirorfile = 0;
      args->noreadfeedsfile = 0;
 }
@@ -127,8 +125,6 @@ int args_parse(args_t *args, int argc, char *argv[])
 	   ARGS_OPT_FORCE_REMOVAL_OF_ESSENTIAL_PACKAGES},
 	  {"force_removal_of_essential_packages", 0, 0,
 	   ARGS_OPT_FORCE_REMOVAL_OF_ESSENTIAL_PACKAGES},
-	  {"multiple-providers", 0, 0, ARGS_OPT_MULTIPLE_PROVIDERS},
-	  {"multiple_providers", 0, 0, ARGS_OPT_MULTIPLE_PROVIDERS},
 	  {"noaction", 0, 0, ARGS_OPT_NOACTION},
 	  {"nodeps", 0, 0, ARGS_OPT_NODEPS},
 	  {"offline", 1, 0, 'o'},
@@ -207,9 +203,6 @@ int args_parse(args_t *args, int argc, char *argv[])
 	       break;
 	  case ARGS_OPT_FORCE_SPACE:
 	       args->force_space = 1;
-	       break;
-	  case ARGS_OPT_MULTIPLE_PROVIDERS:
-	       args->multiple_providers = 1;
 	       break;
 	  case ARGS_OPT_NODEPS:
 	       args->nodeps = 1;

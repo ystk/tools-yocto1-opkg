@@ -34,7 +34,6 @@ struct args
     int force_space;
     int noaction;
     int nodeps;
-    int multiple_providers;
     int query_all;
     int verbosity;
     int nocheckfordirorfile;
