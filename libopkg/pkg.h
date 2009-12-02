@@ -156,8 +156,6 @@ struct pkg
 
      abstract_pkg_t *parent;
 
-     pkg_t *old_pkg; /* during upgrade, points from installee to previously installed */
-
      char *filename;
      char *local_filename;
      char *url;
