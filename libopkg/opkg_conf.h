@@ -115,7 +115,7 @@ typedef struct opkg_option opkg_option_t;
 struct opkg_option {
      const char *name;
      const opkg_option_type_t type;
-     const void *value;
+     void * const value;
 };
 
 int opkg_conf_init(const args_t *args);

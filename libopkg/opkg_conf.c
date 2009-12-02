@@ -181,7 +181,7 @@ opkg_conf_set_option(const char *name, const char *value)
 				__FUNCTION__, name);
 			    return 0;
 		    }
-		    *((int *)options[i].value) = 1;
+		    *((int * const)options[i].value) = 1;
 		    return 0;
 	       case OPKG_OPT_TYPE_INT:
 		    if (value) {
@@ -192,7 +192,7 @@ opkg_conf_set_option(const char *name, const char *value)
 					name, *((int *)options[i].value));
 				    return 0;
 			    }
-			 *((int *)options[i].value) = atoi(value);
+			 *((int * const)options[i].value) = atoi(value);
 			 return 0;
 		    } else {
 			 printf("%s: Option %s need an argument\n",
@@ -208,7 +208,7 @@ opkg_conf_set_option(const char *name, const char *value)
 					name, *((char **)options[i].value));
 				    return 0;
 			    }
-			 *((char **)options[i].value) = xstrdup(value);
+			 *((char ** const)options[i].value) = xstrdup(value);
 			 return 0;
 		    } else {
 			 printf("%s: Option %s need an argument\n",
