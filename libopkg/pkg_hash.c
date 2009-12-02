@@ -271,22 +271,13 @@ pkg_hash_fetch_best_installation_candidate(abstract_pkg_t *apkg,
      if (matching_apkgs->len > 1)
 	  abstract_pkg_vec_sort(matching_pkgs, abstract_pkg_name_compare);
 
-/* Here it is usefull, if ( matching_apkgs->len > 1 ), to test if one of this matching packages has the same name of the
-   needed package. In this case, I would return it for install, otherwise I will continue with the procedure */
-/* The problem is what to do when there are more than a mathing package, with the same name and several version ?
-   Until now I always got the latest, but that breaks the downgrade option.
-   If I stop at the first one, I would probably miss the new ones 
-   Maybe the way is to have some kind of flag somewhere, to see if the package been asked to install is from a file,
-   or from a Packages feed.
-   It it is from a file it always need to be checked whatever version I have in feeds or everywhere, according to force-down or whatever options*/
-/*Pigi*/
-
      for (i = 0; i < matching_pkgs->len; i++) {
 	  pkg_t *matching = matching_pkgs->pkgs[i];
-          if (constraint_fcn(matching, cdata)) {  /* We found it */
+          if (constraint_fcn(matching, cdata)) {
              opkg_message(conf, OPKG_DEBUG, " Found a valid candidate for the install: %s %s  \n", matching->name, matching->version) ;
              good_pkg_by_name = matching;
-             if ( matching->provided_by_hand == 1 )    /* It has been provided by hand, so it is what user want */
+	     /* It has been provided by hand, so it is what user want */
+             if (matching->provided_by_hand == 1)
                 break;                                 
           }
      }

@@ -85,7 +85,10 @@ struct abstract_pkg{
     pkg_vec_t * pkgs;
     pkg_state_status_t state_status;
     pkg_state_flag_t state_flag;
-    struct abstract_pkg ** depended_upon_by; /* @@@@ this should be abstract_pkg_vec_t -Jamey */
+
+    /* XXX: This should be abstract_pkg_vec_t for consistency. */
+    struct abstract_pkg ** depended_upon_by;
+
     abstract_pkg_vec_t * provided_by;
     abstract_pkg_vec_t * replaced_by;
 };
@@ -139,7 +142,6 @@ struct pkg
      struct active_list list; /* Used for installing|upgrading */
      compound_depend_t * depends;
 
-     /* Abhaya: new conflicts */
      char **conflicts_str;
      compound_depend_t * conflicts;
      int conflicts_count;

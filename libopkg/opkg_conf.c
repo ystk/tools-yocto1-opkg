@@ -551,9 +551,6 @@ opkg_conf_init(const args_t *args)
 			      OPKG_CONF_DEFAULT_DEST_ROOT_DIR);
      }
 
-/* Pigi: added a flag to disable the checking of structures if the command does not need to 
-         read anything from there.
-*/
      if (!(args->nocheckfordirorfile)) {
 
         if (!(args->noreadfeedsfile)) {

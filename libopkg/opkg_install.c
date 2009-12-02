@@ -767,8 +767,7 @@ check_data_file_clashes(pkg_t *pkg, pkg_t *old_pkg)
 	  if (file_exists(root_filename) && (! file_is_dir(root_filename))) {
 	       pkg_t *owner;
 	       pkg_t *obs;
-	       /* Pre-existing conffiles are OK */
-	       /* @@@@ should have way to check that it is a conffile -Jamey */
+
 	       if (backup_exists_for(root_filename)) {
 		    continue;
 	       }
@@ -1042,18 +1041,11 @@ install_data_files(pkg_t *pkg)
 	  return err;
      }
 
-     /* XXX: BUG or FEATURE : We are actually loosing the Essential flag,
-        so we can't save ourself from removing important packages
-        At this point we (should) have extracted the .control file, so it
-        would be a good idea to reload the data in it, and set the Essential 
-        state in *pkg. From now on the Essential is back in status file and
-        we can protect again.
-        We should operate this way:
-        fopen the file ( pkg->dest->root_dir/pkg->name.control )
-        check for "Essential" in it 
-        set the value in pkg->essential.
-        This new routine could be useful also for every other flag
-        Pigi: 16/03/2004 */
+     /* The "Essential" control field may only be present in the control
+      * file and not in the Packages list. Ensure we capture it regardless.
+      *
+      * XXX: This should be fixed outside of opkg, in the Package list.
+      */
      set_flags_from_control(pkg) ;
      
      opkg_message(conf, OPKG_DEBUG, "    Calling pkg_write_filelist from %s\n", __FUNCTION__);
@@ -1399,9 +1391,6 @@ opkg_install_pkg(pkg_t *pkg, int from_upgrade)
 	  }
      }
 
-     /* We should update the filelist here, so that upgrades of packages that split will not fail. -Jamey 27-MAR-03 */
-/* Pigi: check if it will pass from here when replacing. It seems to fail */
-/* That's rather strange that files don't change owner. Investigate !!!!!!*/
      err = update_file_ownership(pkg, old_pkg);
      if (err)
 	     return -1;

@@ -44,18 +44,13 @@ opkg_op (int argc, char *argv[])
 	}
 
 	cmd_name = argv[optind++];
-/* Pigi: added a flag to disable the checking of structures if the command does not need to 
-         read anything from there.
-*/
+
         if ( !strcmp(cmd_name,"print-architecture") ||
              !strcmp(cmd_name,"print_architecture") ||
              !strcmp(cmd_name,"print-installation-architecture") ||
              !strcmp(cmd_name,"print_installation_architecture") )
            args.nocheckfordirorfile = 1;
 
-/* Pigi: added a flag to disable the reading of feed files  if the command does not need to 
-         read anything from there.
-*/
         if ( !strcmp(cmd_name,"flag") ||
              !strcmp(cmd_name,"configure") ||
              !strcmp(cmd_name,"remove") ||

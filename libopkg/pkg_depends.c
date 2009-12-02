@@ -272,7 +272,6 @@ int is_pkg_a_replaces(pkg_t *pkg_scout,pkg_t *pkg)
 }
 
 
-/* Abhaya: added support for conflicts */
 pkg_vec_t * pkg_hash_fetch_conflicts(pkg_t * pkg)
 {
     pkg_vec_t * installed_conflicts, * test_vec;
@@ -584,7 +583,6 @@ void buildProvides(abstract_pkg_t * ab_pkg, pkg_t * pkg)
 	free(pkg->provides_str);
 }
 
-/* Abhaya: added conflicts support */
 void buildConflicts(abstract_pkg_t * ab_pkg, pkg_t * pkg)
 {
     int i;

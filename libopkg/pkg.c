@@ -98,11 +98,9 @@ pkg_init(pkg_t *pkg)
      
      active_list_init(&pkg->list);
 
-     /* Abhaya: added init for conflicts fields */
      pkg->conflicts = NULL;
      pkg->conflicts_count = 0;
 
-     /* added for replaces.  Jamey 7/23/2002 */
      pkg->replaces = NULL;
      pkg->replaces_count = 0;
     
@@ -898,26 +896,6 @@ pkg_print_status(pkg_t * pkg, FILE * file)
 	  return;
      }
 
-     /* XXX: QUESTION: Do we actually want more fields here? The
-	original idea was to save space by installing only what was
-	needed for actual computation, (package, version, status,
-	essential, conffiles). The assumption is that all other fields
-	can be found in th available file.
-
-	But, someone proposed the idea to make it possible to
-	reconstruct a .opk from an installed package, (ie. for beaming
-	from one handheld to another). So, maybe we actually want a few
-	more fields here, (depends, suggests, etc.), so that that would
-	be guaranteed to work even in the absence of more information
-	from the available file.
-
-	28-MAR-03: kergoth and I discussed this yesterday.  We think
-	the essential info needs to be here for all installed packages
-	because they may not appear in the Packages files on various
-	feeds.  Furthermore, one should be able to install from URL or
-	local storage without requiring a Packages file from any feed.
-	-Jamey
-     */
      pkg_formatted_field(file, pkg, "Package");
      pkg_formatted_field(file, pkg, "Version");
      pkg_formatted_field(file, pkg, "Depends");
