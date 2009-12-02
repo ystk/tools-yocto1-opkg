@@ -115,8 +115,8 @@ pkg_init(pkg_t *pkg)
 #if defined HAVE_SHA256
      pkg->sha256sum = NULL;
 #endif
-     pkg->size = NULL;
-     pkg->installed_size = NULL;
+     pkg->size = 0;
+     pkg->installed_size = 0;
      pkg->priority = NULL;
      pkg->source = NULL;
      conffile_list_init(&pkg->conffiles);
@@ -246,14 +246,6 @@ pkg_deinit(pkg_t *pkg)
 		free(pkg->sha256sum);
 	pkg->sha256sum = NULL;
 #endif
-
-	if (pkg->size)
-		free(pkg->size);
-	pkg->size = NULL;
-
-	if (pkg->installed_size)
-		free(pkg->installed_size);
-	pkg->installed_size = NULL;
 
 	if (pkg->priority)
 		free(pkg->priority);
@@ -429,9 +421,9 @@ pkg_merge(pkg_t *oldpkg, pkg_t *newpkg, int set_status)
 	  oldpkg->sha256sum = xstrdup(newpkg->sha256sum);
 #endif
      if (!oldpkg->size)
-	  oldpkg->size = xstrdup(newpkg->size);
+	  oldpkg->size = newpkg->size;
      if (!oldpkg->installed_size)
-	  oldpkg->installed_size = xstrdup(newpkg->installed_size);
+	  oldpkg->installed_size = newpkg->installed_size;
      if (!oldpkg->priority)
 	  oldpkg->priority = xstrdup(newpkg->priority);
      if (!oldpkg->source)
@@ -724,7 +716,7 @@ pkg_formatted_field(FILE *fp, pkg_t *pkg, const char *field)
      case 'i':
      case 'I':
 	  if (strcasecmp(field, "Installed-Size") == 0) {
-               fprintf(fp, "Installed-Size: %s\n", pkg->installed_size);
+               fprintf(fp, "Installed-Size: %ld\n", pkg->installed_size);
 	  } else if (strcasecmp(field, "Installed-Time") == 0 && pkg->installed_time) {
                fprintf(fp, "Installed-Time: %lu\n", pkg->installed_time);
 	  }
@@ -804,7 +796,7 @@ pkg_formatted_field(FILE *fp, pkg_t *pkg, const char *field)
 #endif
 	  } else if (strcasecmp(field, "Size") == 0) {
 	       if (pkg->size) {
-                   fprintf(fp, "Size: %s\n", pkg->size);
+                   fprintf(fp, "Size: %ld\n", pkg->size);
 	       }
 	  } else if (strcasecmp(field, "Source") == 0) {
 	       if (pkg->source) {

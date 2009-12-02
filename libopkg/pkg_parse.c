@@ -201,9 +201,11 @@ pkg_parse_line(pkg_t *pkg, const char *line, uint mask)
 		break;
 
 	case 'I':
-		if ((mask && PFM_INSTALLED_SIZE) && is_field("Installed-Size", line))
-			pkg->installed_size = parse_simple("Installed-Size", line);
-		else if ((mask && PFM_INSTALLED_TIME) && is_field("Installed-Time", line)) {
+		if ((mask && PFM_INSTALLED_SIZE) && is_field("Installed-Size", line)) {
+			char *tmp = parse_simple("Installed-Size", line);
+			pkg->installed_size = (strtoul(tmp, NULL, 0)+1023)/1024;
+			free (tmp);
+		} else if ((mask && PFM_INSTALLED_TIME) && is_field("Installed-Time", line)) {
 			char *tmp = parse_simple("Installed-Time", line);
 			pkg->installed_time = strtoul(tmp, NULL, 0);
 			free (tmp);
@@ -248,9 +250,11 @@ pkg_parse_line(pkg_t *pkg, const char *line, uint mask)
 		else if ((mask & PFM_SHA256SUM) && is_field("SHA256sum", line))
 			pkg->sha256sum = parse_simple("SHA256sum", line);
 #endif
-		else if ((mask & PFM_SIZE) && is_field("Size", line))
-			pkg->size = parse_simple("Size", line);
-		else if ((mask & PFM_SOURCE) && is_field("Source", line))
+		else if ((mask & PFM_SIZE) && is_field("Size", line)) {
+			char *tmp = parse_simple("Size", line);
+			pkg->size = (strtoul(tmp, NULL, 0)+1023)/1024;
+			free (tmp);
+		} else if ((mask & PFM_SOURCE) && is_field("Source", line))
 			pkg->source = parse_simple("Source", line);
 		else if ((mask & PFM_STATUS) && is_field("Status", line))
 			parse_status(pkg, line);
