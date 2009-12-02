@@ -26,6 +26,7 @@
 #include "args.h"
 #include "sprintf_alloc.h"
 #include "libbb/libbb.h"
+#include "opkg_conf.h"
 
 static void print_version(void);
 
@@ -54,31 +55,12 @@ void args_init(args_t *args)
 
      sprintf_alloc(&args->conf_file, "%s/%s", OPKGETCDIR,
 		   ARGS_DEFAULT_CONF_FILE_NAME);
-
-     args->force_defaults = ARGS_DEFAULT_FORCE_DEFAULTS;
-     args->force_maintainer = ARGS_DEFAULT_FORCE_MAINTAINER;
-     args->force_depends = ARGS_DEFAULT_FORCE_DEPENDS;
-     args->force_overwrite = ARGS_DEFAULT_FORCE_OVERWRITE;
-     args->force_downgrade = ARGS_DEFAULT_FORCE_DOWNGRADE;
-     args->force_reinstall = ARGS_DEFAULT_FORCE_REINSTALL;
-     args->force_removal_of_dependent_packages = ARGS_DEFAULT_FORCE_REMOVAL_OF_DEPENDENT_PACKAGES;
-     args->force_removal_of_essential_packages = ARGS_DEFAULT_FORCE_REMOVAL_OF_ESSENTIAL_PACKAGES;
-     args->autoremove = ARGS_DEFAULT_AUTOREMOVE;
-     args->noaction = ARGS_DEFAULT_NOACTION;
-     args->nodeps = ARGS_DEFAULT_NODEPS;
-     args->verbosity = ARGS_DEFAULT_VERBOSITY;
-     args->offline_root = ARGS_DEFAULT_OFFLINE_ROOT;
-     args->nocheckfordirorfile = 0;
-     args->noreadfeedsfile = 0;
+     conf->verbosity = ARGS_DEFAULT_VERBOSITY;
 }
 
 void args_deinit(args_t *args)
 {
-     free (args->offline_root);
-
      free (args->dest);
-     free (args->tmp_dir);
-     free (args->cache);
      free(args->conf_file);
      args->conf_file = NULL;
 }
@@ -123,8 +105,6 @@ int args_parse(args_t *args, int argc, char *argv[])
 	  {"nodeps", 0, 0, ARGS_OPT_NODEPS},
 	  {"offline", 1, 0, 'o'},
 	  {"offline-root", 1, 0, 'o'},
-	  {"offline-path", 1, 0, 'p'},
-	  {"offline-root-path", 1, 0, 'p'},
 	  {"test", 0, 0, ARGS_OPT_NOACTION},
 	  {"tmp-dir", 1, 0, 't'},
 	  {"tmp_dir", 1, 0, 't'},
@@ -140,7 +120,7 @@ int args_parse(args_t *args, int argc, char *argv[])
 
 	  switch (c) {
 	  case 'A':
-	       args->query_all = 1;
+	       conf->query_all = 1;
 	       break;
 	  case 'd':
 	       args->dest = xstrdup(optarg);
@@ -150,56 +130,56 @@ int args_parse(args_t *args, int argc, char *argv[])
 	       args->conf_file = xstrdup(optarg);
 	       break;
 	  case 'o':
-	       args->offline_root = xstrdup(optarg);
+	       conf->offline_root = xstrdup(optarg);
 	       break;
 	  case 't':
-	       args->tmp_dir = xstrdup(optarg);
+	       conf->tmp_dir = xstrdup(optarg);
 	       break;
 	  case 'v':
 	       print_version();
 	       exit(0);
 	  case 'V':
-	       args->verbosity = atoi(optarg);
+	       conf->verbosity = atoi(optarg);
 	       break;
 	  case ARGS_OPT_AUTOREMOVE:
-	       args->autoremove = 1;
+	       conf->autoremove = 1;
 	       break;
 	  case ARGS_OPT_CACHE:
-	       free(args->cache);
-	       args->cache = xstrdup(optarg);
+	       free(conf->cache);
+	       conf->cache = xstrdup(optarg);
 	       break;
 	  case ARGS_OPT_FORCE_DEFAULTS:
-	       args->force_defaults = 1;
+	       conf->force_defaults = 1;
 	       break;
           case ARGS_OPT_FORCE_MAINTAINER:
-               args->force_maintainer = 1;
+               conf->force_maintainer = 1;
                break;
 	  case ARGS_OPT_FORCE_DEPENDS:
-	       args->force_depends = 1;
+	       conf->force_depends = 1;
 	       break;
 	  case ARGS_OPT_FORCE_OVERWRITE:
-	       args->force_overwrite = 1;
+	       conf->force_overwrite = 1;
 	       break;
 	  case ARGS_OPT_FORCE_DOWNGRADE:
-	       args->force_downgrade = 1;
+	       conf->force_downgrade = 1;
 	       break;
 	  case ARGS_OPT_FORCE_REINSTALL:
-	       args->force_reinstall = 1;
+	       conf->force_reinstall = 1;
 	       break;
 	  case ARGS_OPT_FORCE_REMOVAL_OF_ESSENTIAL_PACKAGES:
-	       args->force_removal_of_essential_packages = 1;
+	       conf->force_removal_of_essential_packages = 1;
 	       break;
 	  case ARGS_OPT_FORCE_REMOVAL_OF_DEPENDENT_PACKAGES:
-	       args->force_removal_of_dependent_packages = 1;
+	       conf->force_removal_of_dependent_packages = 1;
 	       break;
 	  case ARGS_OPT_FORCE_SPACE:
-	       args->force_space = 1;
+	       conf->force_space = 1;
 	       break;
 	  case ARGS_OPT_NODEPS:
-	       args->nodeps = 1;
+	       conf->nodeps = 1;
 	       break;
 	  case ARGS_OPT_NOACTION:
-	       args->noaction = 1;
+	       conf->noaction = 1;
 	       break;
 	  case ':':
 	       parse_err++;

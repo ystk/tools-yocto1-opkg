@@ -84,17 +84,6 @@ opkg_option_t options[] = {
 	  { NULL }
 };
 
-static void
-opkg_conf_override_string(char **conf_str, char *arg_str) 
-{
-     if (arg_str) {
-	  if (*conf_str) {
-	       free(*conf_str);
-	  }
-	  *conf_str = xstrdup(arg_str);
-     }
-}
-
 static int
 opkg_conf_set_default_dest(const char *default_dest_name)
 {
@@ -186,10 +175,23 @@ opkg_conf_set_option(const char *name, const char *value)
 	  if (strcmp(options[i].name, name) == 0) {
 	       switch (options[i].type) {
 	       case OPKG_OPT_TYPE_BOOL:
+		    if (options[i].value) {
+			    printf("%s: Duplicate boolean option %s, leaving "
+				"this option on.\n",
+				__FUNCTION__, name);
+			    return 0;
+		    }
 		    *((int *)options[i].value) = 1;
 		    return 0;
 	       case OPKG_OPT_TYPE_INT:
 		    if (value) {
+			    if (options[i].value) {
+				    printf("%s: Duplicate option %s, using "
+					"first seen value \"%d\".\n",
+					__FUNCTION__,
+					name, *((int *)options[i].value));
+				    return 0;
+			    }
 			 *((int *)options[i].value) = atoi(value);
 			 return 0;
 		    } else {
@@ -199,6 +201,13 @@ opkg_conf_set_option(const char *name, const char *value)
 		    }		    
 	       case OPKG_OPT_TYPE_STRING:
 		    if (value) {
+			    if (options[i].value) {
+				    printf("%s: Duplicate option %s, using "
+					"first seen value \"%s\".\n",
+					__FUNCTION__,
+					name, *((char **)options[i].value));
+				    return 0;
+			    }
 			 *((char **)options[i].value) = xstrdup(value);
 			 return 0;
 		    } else {
@@ -426,10 +435,9 @@ opkg_conf_init(const args_t *args)
      char *lock_file = NULL;
      glob_t globbuf;
      char *etc_opkg_conf_pattern;
-     char *offline_root = NULL;
 
-     memset(conf, 0, sizeof(opkg_conf_t));
-
+     conf->restrict_to_default_dest = 0;
+     conf->default_dest = NULL;
 #if defined(HAVE_PATHFINDER)
      conf->check_x509_path = 1;
 #endif
@@ -441,9 +449,6 @@ opkg_conf_init(const args_t *args)
 
      nv_pair_list_init(&conf->arch_list);
 
-     conf->restrict_to_default_dest = 0;
-     conf->default_dest = NULL;
-
      if (args->conf_file) {
 	  struct stat stat_buf;
 	  err = stat(args->conf_file, &stat_buf);
@@ -454,9 +459,6 @@ opkg_conf_init(const args_t *args)
                    return -1;
                }
      }
-
-     opkg_conf_override_string(&conf->offline_root, args->offline_root);
-     offline_root = conf->offline_root;
 
      if (conf->offline_root)
 	  sprintf_alloc(&etc_opkg_conf_pattern, "%s/etc/opkg/*.conf", conf->offline_root);
@@ -481,19 +483,9 @@ opkg_conf_init(const args_t *args)
                         /* Memory leakage from opkg_conf_parse-file */
                         return -1;
 	            }
-                    if (offline_root != conf->offline_root) {
-                        opkg_message(conf, OPKG_ERROR,
-					"Config file %s, within an offline "
-					"root contains option offline_root.\n",
-				       globbuf.gl_pathv[i]);
-                        return -1;
-                    }
 	  }
      }
      globfree(&globbuf);
-
-     opkg_conf_override_string(&conf->cache, args->cache);
-     opkg_conf_override_string(&conf->tmp_dir, args->tmp_dir);
 
      /* check for lock file */
      if (conf->offline_root)
@@ -558,56 +550,6 @@ opkg_conf_init(const args_t *args)
 			      OPKG_CONF_DEFAULT_DEST_NAME,
 			      OPKG_CONF_DEFAULT_DEST_ROOT_DIR);
      }
-
-     /* After parsing the file, set options from command-line, (so that
-	command-line arguments take precedence) */
-     /* XXX: CLEANUP: The interaction between args.c and opkg_conf.c
-	really needs to be cleaned up. There is so much duplication
-	right now it is ridiculous. Maybe opkg_conf_t should just save
-	a pointer to args_t (which could then not be freed), rather
-	than duplicating every field here? */
-     if (args->autoremove) {
-	  conf->autoremove = 1;
-     }
-     if (args->force_depends) {
-	  conf->force_depends = 1;
-     }
-     if (args->force_defaults) {
-	  conf->force_defaults = 1;
-     }
-     if (args->force_maintainer) {
-          conf->force_maintainer = 1;
-     }
-     if (args->force_overwrite) {
-	  conf->force_overwrite = 1;
-     }
-     if (args->force_downgrade) {
-	  conf->force_downgrade = 1;
-     }
-     if (args->force_space) {
-	  conf->force_space = 1;
-     }
-     if (args->force_reinstall) {
-	  conf->force_reinstall = 1;
-     }
-     if (args->force_removal_of_dependent_packages) {
-	  conf->force_removal_of_dependent_packages = 1;
-     }
-     if (args->force_removal_of_essential_packages) {
-	  conf->force_removal_of_essential_packages = 1;
-     }
-     if (args->nodeps) {
-	  conf->nodeps = 1;
-     }
-     if (args->noaction) {
-	  conf->noaction = 1;
-     }
-     if (args->query_all) {
-	  conf->query_all = 1;
-     }
-     if (args->verbosity != conf->verbosity) {
-	  conf->verbosity = args->verbosity;
-     } 
 
 /* Pigi: added a flag to disable the checking of structures if the command does not need to 
          read anything from there.
