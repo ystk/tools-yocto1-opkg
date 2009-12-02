@@ -35,7 +35,7 @@ void conffile_deinit(conffile_t *conffile)
     nv_pair_deinit(conffile);
 }
 
-int conffile_has_been_modified(opkg_conf_t *conf, conffile_t *conffile)
+int conffile_has_been_modified(conffile_t *conffile)
 {
     char *md5sum;
     char *filename = conffile->name;

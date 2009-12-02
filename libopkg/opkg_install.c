@@ -692,7 +692,7 @@ backup_modified_conffiles(pkg_t *pkg, pkg_t *old_pkg)
 	       cf_name = root_filename_alloc(cf->name);
 
 	       /* Don't worry if the conffile is just plain gone */
-	       if (file_exists(cf_name) && conffile_has_been_modified(conf, cf)) {
+	       if (file_exists(cf_name) && conffile_has_been_modified(cf)) {
 		    err = backup_make_backup(cf_name);
 		    if (err) {
 			 return err;

@@ -352,7 +352,7 @@ remove_data_files_and_list(pkg_t *pkg)
 
 	  conffile = pkg_get_conffile(pkg, file_name+rootdirlen);
 	  if (conffile) {
-	       if (conffile_has_been_modified(conf, conffile)) {
+	       if (conffile_has_been_modified(conffile)) {
 		    opkg_message (conf, OPKG_NOTICE,
 		                  "  not deleting modified conffile %s\n", file_name);
 		    continue;
