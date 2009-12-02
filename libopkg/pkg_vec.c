@@ -48,7 +48,7 @@ void pkg_vec_free(pkg_vec_t *vec)
  *             so identical versions have identical version strings,
  *             implying identical packages; let's marry these
  */
-pkg_t *pkg_vec_insert_merge(pkg_vec_t *vec, pkg_t *pkg, int set_status,opkg_conf_t *conf)
+pkg_t *pkg_vec_insert_merge(pkg_vec_t *vec, pkg_t *pkg, int set_status)
 {
      int i;
      int found = 0;

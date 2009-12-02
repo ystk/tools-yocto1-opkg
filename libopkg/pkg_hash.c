@@ -592,7 +592,7 @@ hash_insert_pkg(hash_table_t *hash, pkg_t *pkg, int set_status)
 	/* pkg_vec_insert_merge might munge package, but it returns an
 	 * unmunged pkg.
 	 */
-	pkg = pkg_vec_insert_merge(ab_pkg->pkgs, pkg, set_status,conf );
+	pkg = pkg_vec_insert_merge(ab_pkg->pkgs, pkg, set_status);
 	pkg->parent = ab_pkg;
 
 	return pkg;
