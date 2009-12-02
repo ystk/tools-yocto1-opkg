@@ -40,7 +40,6 @@ struct args
     int noreadfeedsfile;
     int autoremove;
     char *offline_root;
-    char *offline_root_path;
     char *cache;
 };
 typedef struct args args_t;
@@ -58,9 +57,6 @@ typedef struct args args_t;
 #define ARGS_DEFAULT_FORCE_REMOVAL_OF_DEPENDENT_PACKAGES 0
 #define ARGS_DEFAULT_FORCE_SPACE 0
 #define ARGS_DEFAULT_OFFLINE_ROOT NULL
-#define ARGS_DEFAULT_OFFLINE_ROOT_PATH NULL
-#define ARGS_DEFAULT_OFFLINE_ROOT_PRE_SCRIPT_CMD NULL
-#define ARGS_DEFAULT_OFFLINE_ROOT_POST_SCRIPT_CMD NULL
 #define ARGS_DEFAULT_NOACTION 0
 #define ARGS_DEFAULT_NODEPS 0
 #define ARGS_DEFAULT_VERBOSE_WGET 0

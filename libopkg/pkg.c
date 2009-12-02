@@ -1289,32 +1289,13 @@ pkg_run_script(pkg_t *pkg, const char *script, const char *args)
      if (conf->noaction)
 	     return 0;
 
-     /* XXX: CLEANUP: There must be a better way to handle maintainer
-	scripts when running with offline_root mode and/or a dest other
-	than '/'. I've been playing around with some clever chroot
-	tricks and I might come up with something workable. */
-     /*
-      * Attempt to provide a restricted environment for offline operation
-      * Need the following set as a minimum:
-      * OPKG_OFFLINE_ROOT = absolute path to root dir
-      * D                 = absolute path to root dir (for OE generated postinst)
-      * PATH              = something safe (a restricted set of utilities)
-      */
-
-     if (conf->offline_root) {
-          if (conf->offline_root_path) {
-            setenv("PATH", conf->offline_root_path, 1);
-          } else {
-            opkg_message(conf, OPKG_NOTICE, 
-	    	"(offline root mode: not running %s.%s)\n", pkg->name, script);
-	    return 0;
-          }
-	  setenv("OPKG_OFFLINE_ROOT", conf->offline_root, 1);
-	  setenv("D", conf->offline_root, 1);
-     }
-
      /* XXX: FEATURE: When conf->offline_root is set, we should run the
 	maintainer script within a chroot environment. */
+     if (conf->offline_root) {
+          opkg_message(conf, OPKG_NOTICE, 
+		"(offline root mode: not running %s.%s)\n", pkg->name, script);
+	  return 0;
+     }
 
      /* Installed packages have scripts in pkg->dest->info_dir, uninstalled packages
 	have scripts in pkg->tmp_unpack_dir. */

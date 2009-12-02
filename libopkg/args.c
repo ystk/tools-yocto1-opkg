@@ -68,7 +68,6 @@ void args_init(args_t *args)
      args->nodeps = ARGS_DEFAULT_NODEPS;
      args->verbosity = ARGS_DEFAULT_VERBOSITY;
      args->offline_root = ARGS_DEFAULT_OFFLINE_ROOT;
-     args->offline_root_path = ARGS_DEFAULT_OFFLINE_ROOT_PATH;
      args->nocheckfordirorfile = 0;
      args->noreadfeedsfile = 0;
 }
@@ -76,7 +75,6 @@ void args_init(args_t *args)
 void args_deinit(args_t *args)
 {
      free (args->offline_root);
-     free (args->offline_root_path);
 
      free (args->dest);
      free (args->tmp_dir);
@@ -153,9 +151,6 @@ int args_parse(args_t *args, int argc, char *argv[])
 	       break;
 	  case 'o':
 	       args->offline_root = xstrdup(optarg);
-	       break;
-	  case 'p':
-	       args->offline_root_path = xstrdup(optarg);
 	       break;
 	  case 't':
 	       args->tmp_dir = xstrdup(optarg);
@@ -280,7 +275,6 @@ void args_usage(char *complaint)
      printf("				directory name in a pinch).\n");
      printf("\t-o <dir>		Use <dir> as the root directory for\n");
      printf("\t--offline-root <dir>	offline installation of packages.\n");
-     printf("\t--offline-path <path>	$PATH for postinsts scripts in offline mode\n");
 
      printf("\nForce Options:\n");
      printf("\t--force-depends		Install/remove despite failed dependences\n");

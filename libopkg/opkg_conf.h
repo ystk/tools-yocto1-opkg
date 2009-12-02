@@ -65,7 +65,6 @@ struct opkg_conf
      int check_signature;
      int nodeps; /* do not follow dependences */
      char *offline_root;
-     char *offline_root_path;
      int query_all;
      int verbosity;
      int noaction;

@@ -58,7 +58,6 @@ opkg_option_t options[] = {
 	  { "noaction", OPKG_OPT_TYPE_INT, &_conf.noaction },
 	  { "nodeps", OPKG_OPT_TYPE_BOOL, &_conf.nodeps },
 	  { "offline_root", OPKG_OPT_TYPE_STRING, &_conf.offline_root },
-	  { "offline_root_path", OPKG_OPT_TYPE_STRING, &_conf.offline_root_path },
 	  { "proxy_passwd", OPKG_OPT_TYPE_STRING, &_conf.proxy_passwd },
 	  { "proxy_user", OPKG_OPT_TYPE_STRING, &_conf.proxy_user },
 	  { "query-all", OPKG_OPT_TYPE_BOOL, &_conf.query_all },
@@ -492,9 +491,6 @@ opkg_conf_init(const args_t *args)
 	  }
      }
      globfree(&globbuf);
-
-     opkg_conf_override_string(&conf->offline_root_path, 
-			       args->offline_root_path);
 
      opkg_conf_override_string(&conf->cache, args->cache);
      opkg_conf_override_string(&conf->tmp_dir, args->tmp_dir);
