@@ -311,7 +311,7 @@ opkg_prepare_url_for_install(const char *url, char **namep)
      pkg->dest = conf->default_dest;
      pkg->state_want = SW_INSTALL;
      pkg->state_flag |= SF_PREFER;
-     pkg = hash_insert_pkg(&conf->pkg_hash, pkg, 1);  
+     pkg = hash_insert_pkg(pkg, 1);  
 
      if (namep) {
 	  *namep = pkg->name;

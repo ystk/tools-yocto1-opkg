@@ -27,7 +27,7 @@
 #include "hash_table.h"
 #include "libbb/libbb.h"
 
-static int parseDepends(compound_depend_t *compound_depend, hash_table_t * hash, char * depend_str);
+static int parseDepends(compound_depend_t *compound_depend, char * depend_str);
 static depend_t * depend_init(void);
 static char ** add_unresolved_dep(pkg_t * pkg, char ** the_lost, int ref_ndx);
 static char ** merge_unresolved(char ** oldstuff, char ** newstuff);
@@ -273,7 +273,7 @@ int is_pkg_a_replaces(pkg_t *pkg_scout,pkg_t *pkg)
 
 
 /* Abhaya: added support for conflicts */
-pkg_vec_t * pkg_hash_fetch_conflicts(hash_table_t * hash, pkg_t * pkg)
+pkg_vec_t * pkg_hash_fetch_conflicts(pkg_t * pkg)
 {
     pkg_vec_t * installed_conflicts, * test_vec;
     compound_depend_t * conflicts;
@@ -561,7 +561,7 @@ char ** add_unresolved_dep(pkg_t * pkg, char ** the_lost, int ref_ndx)
     return resized;
 }
 
-void buildProvides(hash_table_t * hash, abstract_pkg_t * ab_pkg, pkg_t * pkg)
+void buildProvides(abstract_pkg_t * ab_pkg, pkg_t * pkg)
 {
     int i;
 
@@ -572,7 +572,7 @@ void buildProvides(hash_table_t * hash, abstract_pkg_t * ab_pkg, pkg_t * pkg)
     pkg->provides[0] = ab_pkg;
 
     for (i=1; i<pkg->provides_count; i++) {
-	abstract_pkg_t *provided_abpkg = ensure_abstract_pkg_by_name(hash,
+	abstract_pkg_t *provided_abpkg = ensure_abstract_pkg_by_name(
 			pkg->provides_str[i-1]);
 	free(pkg->provides_str[i-1]);
 
@@ -585,7 +585,7 @@ void buildProvides(hash_table_t * hash, abstract_pkg_t * ab_pkg, pkg_t * pkg)
 }
 
 /* Abhaya: added conflicts support */
-void buildConflicts(hash_table_t * hash, abstract_pkg_t * ab_pkg, pkg_t * pkg)
+void buildConflicts(abstract_pkg_t * ab_pkg, pkg_t * pkg)
 {
     int i;
     compound_depend_t * conflicts;
@@ -596,8 +596,7 @@ void buildConflicts(hash_table_t * hash, abstract_pkg_t * ab_pkg, pkg_t * pkg)
     conflicts = pkg->conflicts = xcalloc(pkg->conflicts_count, sizeof(compound_depend_t));
     for (i = 0; i < pkg->conflicts_count; i++) {
 	 conflicts->type = CONFLICTS;
-	 parseDepends(conflicts, hash,
-		      pkg->conflicts_str[i]);
+	 parseDepends(conflicts, pkg->conflicts_str[i]);
 	 free(pkg->conflicts_str[i]);
 	 conflicts++;
     }
@@ -605,7 +604,7 @@ void buildConflicts(hash_table_t * hash, abstract_pkg_t * ab_pkg, pkg_t * pkg)
 	free(pkg->conflicts_str);
 }
 
-void buildReplaces(hash_table_t * hash, abstract_pkg_t * ab_pkg, pkg_t * pkg)
+void buildReplaces(abstract_pkg_t * ab_pkg, pkg_t * pkg)
 {
      int i;
 
@@ -615,7 +614,7 @@ void buildReplaces(hash_table_t * hash, abstract_pkg_t * ab_pkg, pkg_t * pkg)
      pkg->replaces = xcalloc(pkg->replaces_count, sizeof(abstract_pkg_t *));
 
      for(i = 0; i < pkg->replaces_count; i++){
-	  abstract_pkg_t *old_abpkg = ensure_abstract_pkg_by_name(hash, pkg->replaces_str[i]);
+	  abstract_pkg_t *old_abpkg = ensure_abstract_pkg_by_name(pkg->replaces_str[i]);
 
 	  pkg->replaces[i] = old_abpkg;
 	  free(pkg->replaces_str[i]);
@@ -633,7 +632,7 @@ void buildReplaces(hash_table_t * hash, abstract_pkg_t * ab_pkg, pkg_t * pkg)
 	     free(pkg->replaces_str);
 }
 
-void buildDepends(hash_table_t * hash, pkg_t * pkg)
+void buildDepends(pkg_t * pkg)
 {
      int count;
      int i;
@@ -645,7 +644,7 @@ void buildDepends(hash_table_t * hash, pkg_t * pkg)
      depends = pkg->depends = xcalloc(count, sizeof(compound_depend_t));
 
      for(i = 0; i < pkg->pre_depends_count; i++){
-	  parseDepends(depends, hash, pkg->pre_depends_str[i]);
+	  parseDepends(depends, pkg->pre_depends_str[i]);
 	  free(pkg->pre_depends_str[i]);
 	  depends->type = PREDEPEND;
 	  depends++;
@@ -654,7 +653,7 @@ void buildDepends(hash_table_t * hash, pkg_t * pkg)
 	     free(pkg->pre_depends_str);
 
      for(i = 0; i < pkg->depends_count; i++){
-	  parseDepends(depends, hash, pkg->depends_str[i]);
+	  parseDepends(depends, pkg->depends_str[i]);
 	  free(pkg->depends_str[i]);
 	  depends++;
      }
@@ -662,7 +661,7 @@ void buildDepends(hash_table_t * hash, pkg_t * pkg)
 	     free(pkg->depends_str);
 
      for(i = 0; i < pkg->recommends_count; i++){
-	  parseDepends(depends, hash, pkg->recommends_str[i]);
+	  parseDepends(depends, pkg->recommends_str[i]);
 	  free(pkg->recommends_str[i]);
 	  depends->type = RECOMMEND;
 	  depends++;
@@ -671,7 +670,7 @@ void buildDepends(hash_table_t * hash, pkg_t * pkg)
 	  free(pkg->recommends_str);
 
      for(i = 0; i < pkg->suggests_count; i++){
-	  parseDepends(depends, hash, pkg->suggests_str[i]);
+	  parseDepends(depends, pkg->suggests_str[i]);
 	  free(pkg->suggests_str[i]);
 	  depends->type = SUGGEST;
 	  depends++;
@@ -805,7 +804,7 @@ static depend_t * depend_init(void)
 }
 
 static int parseDepends(compound_depend_t *compound_depend, 
-			hash_table_t * hash, char * depend_str)
+			char * depend_str)
 {
      char * pkg_name, buffer[2048];
      int num_of_ors = 0;
@@ -898,7 +897,7 @@ static int parseDepends(compound_depend_t *compound_depend,
 	 
 	  }
 	  /* hook up the dependency to its abstract pkg */
-	  possibilities[i]->pkg = ensure_abstract_pkg_by_name(hash, pkg_name);
+	  possibilities[i]->pkg = ensure_abstract_pkg_by_name(pkg_name);
 
 	  free(pkg_name);
 	

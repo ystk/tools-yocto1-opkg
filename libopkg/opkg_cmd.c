@@ -384,7 +384,7 @@ opkg_configure_packages(char *pkg_name)
 
      all = pkg_vec_alloc();
 
-     pkg_hash_fetch_available(&conf->pkg_hash, all);
+     pkg_hash_fetch_available(all);
 
      /* Reorder pkgs in order to be configured according to the Depends: tag
         order */
@@ -496,9 +496,8 @@ opkg_upgrade_cmd(int argc, char **argv)
 	  for (i=0; i < argc; i++) {
 	       char *arg = argv[i];
 	       if (conf->restrict_to_default_dest) {
-		    pkg = pkg_hash_fetch_installed_by_name_dest(&conf->pkg_hash,
-								argv[i],
-								conf->default_dest);
+		    pkg = pkg_hash_fetch_installed_by_name_dest(argv[i],
+							conf->default_dest);
 		    if (pkg == NULL) {
 			 opkg_message(conf, OPKG_NOTICE,
 				      "Package %s not installed in %s\n",
@@ -506,8 +505,7 @@ opkg_upgrade_cmd(int argc, char **argv)
 			 continue;
 		    }
 	       } else {
-		    pkg = pkg_hash_fetch_installed_by_name(&conf->pkg_hash,
-							   argv[i]);
+		    pkg = pkg_hash_fetch_installed_by_name(argv[i]);
 	       }
 	       if (pkg)
 		    opkg_upgrade_pkg(pkg);
@@ -520,7 +518,7 @@ opkg_upgrade_cmd(int argc, char **argv)
 
 	  pkg_info_preinstall_check();
 
-	  pkg_hash_fetch_all_installed(&conf->pkg_hash, installed);
+	  pkg_hash_fetch_all_installed(installed);
 	  for (i = 0; i < installed->len; i++) {
 	       pkg = installed->pkgs[i];
 	       opkg_upgrade_pkg(pkg);
@@ -583,7 +581,7 @@ opkg_list_cmd(int argc, char **argv)
 	  pkg_name = argv[0];
      }
      available = pkg_vec_alloc();
-     pkg_hash_fetch_available(&conf->pkg_hash, available);
+     pkg_hash_fetch_available(available);
      pkg_vec_sort(available, pkg_compare_names);
      for (i=0; i < available->len; i++) {
 	  pkg = available->pkgs[i];
@@ -610,7 +608,7 @@ opkg_list_installed_cmd(int argc, char **argv)
 	  pkg_name = argv[0];
      }
      available = pkg_vec_alloc();
-     pkg_hash_fetch_all_installed(&conf->pkg_hash, available);
+     pkg_hash_fetch_all_installed(available);
      pkg_vec_sort(available, pkg_compare_names);
      for (i=0; i < available->len; i++) {
 	  pkg = available->pkgs[i];
@@ -661,9 +659,9 @@ opkg_info_status_cmd(int argc, char **argv, int installed_only)
 
      available = pkg_vec_alloc();
      if (installed_only)
-	  pkg_hash_fetch_all_installed(&conf->pkg_hash, available);
+	  pkg_hash_fetch_all_installed(available);
      else
-	  pkg_hash_fetch_available(&conf->pkg_hash, available);
+	  pkg_hash_fetch_available(available);
 
      for (i=0; i < available->len; i++) {
 	  pkg = available->pkgs[i];
@@ -733,7 +731,7 @@ opkg_remove_cmd(int argc, char **argv)
      pkg_info_preinstall_check();
 
      available = pkg_vec_alloc();
-     pkg_hash_fetch_all_installed(&conf->pkg_hash, available);
+     pkg_hash_fetch_all_installed(available);
 
      for (i=0; i<argc; i++) {
         for (a=0; a<available->len; a++) {
@@ -742,11 +740,11 @@ opkg_remove_cmd(int argc, char **argv)
                continue;
             }
             if (conf->restrict_to_default_dest) {
-	         pkg_to_remove = pkg_hash_fetch_installed_by_name_dest(&conf->pkg_hash,
+	         pkg_to_remove = pkg_hash_fetch_installed_by_name_dest(
 				        pkg->name,
 				        conf->default_dest);
             } else {
-	         pkg_to_remove = pkg_hash_fetch_installed_by_name(&conf->pkg_hash, pkg->name );
+	         pkg_to_remove = pkg_hash_fetch_installed_by_name(pkg->name);
             }
         
             if (pkg_to_remove == NULL) {
@@ -782,11 +780,10 @@ opkg_flag_cmd(int argc, char **argv)
 
      for (i=1; i < argc; i++) {
 	  if (conf->restrict_to_default_dest) {
-	       pkg = pkg_hash_fetch_installed_by_name_dest(&conf->pkg_hash,
-							   argv[i],
+	       pkg = pkg_hash_fetch_installed_by_name_dest(argv[i],
 							   conf->default_dest);
 	  } else {
-	       pkg = pkg_hash_fetch_installed_by_name(&conf->pkg_hash, argv[i]);
+	       pkg = pkg_hash_fetch_installed_by_name(argv[i]);
 	  }
 
 	  if (pkg == NULL) {
@@ -829,8 +826,7 @@ opkg_files_cmd(int argc, char **argv)
 	  return EINVAL;
      }
 
-     pkg = pkg_hash_fetch_installed_by_name(&conf->pkg_hash,
-					    argv[0]);
+     pkg = pkg_hash_fetch_installed_by_name(argv[0]);
      if (pkg == NULL) {
 	  opkg_message(conf, OPKG_ERROR,
 		       "Package %s not installed.\n", argv[0]);
@@ -866,9 +862,9 @@ opkg_depends_cmd(int argc, char **argv)
 
 	available_pkgs = pkg_vec_alloc();
 	if (conf->query_all)
-	       pkg_hash_fetch_available(&conf->pkg_hash, available_pkgs);
+	       pkg_hash_fetch_available(available_pkgs);
 	else
-	       pkg_hash_fetch_all_installed(&conf->pkg_hash, available_pkgs);
+	       pkg_hash_fetch_all_installed(available_pkgs);
 
 	for (i=0; i<argc; i++) {
 		for (j=0; j<available_pkgs->len; j++) {
@@ -948,9 +944,9 @@ opkg_what_depends_conflicts_cmd(enum depend_type what_field_type, int recursive,
 	available_pkgs = pkg_vec_alloc();
 
 	if (conf->query_all)
-	       pkg_hash_fetch_available(&conf->pkg_hash, available_pkgs);
+	       pkg_hash_fetch_available(available_pkgs);
 	else
-	       pkg_hash_fetch_all_installed(&conf->pkg_hash, available_pkgs);
+	       pkg_hash_fetch_all_installed(available_pkgs);
 
 	/* mark the root set */
 	pkg_vec_clear_marks(available_pkgs);
@@ -1080,9 +1076,9 @@ opkg_what_provides_replaces_cmd(enum what_field_type what_field_type, int argc, 
 	  pkg_info_preinstall_check();
 
 	  if (conf->query_all)
-	       pkg_hash_fetch_available(&conf->pkg_hash, available_pkgs);
+	       pkg_hash_fetch_available(available_pkgs);
 	  else
-	       pkg_hash_fetch_all_installed(&conf->pkg_hash, available_pkgs);
+	       pkg_hash_fetch_all_installed(available_pkgs);
 	  for (i = 0; i < argc; i++) {
 	       const char *target = argv[i];
 	       int j;
@@ -1140,7 +1136,7 @@ opkg_search_cmd(int argc, char **argv)
      }
  
      installed = pkg_vec_alloc();
-     pkg_hash_fetch_all_installed(&conf->pkg_hash, installed);
+     pkg_hash_fetch_all_installed(installed);
      pkg_vec_sort(installed, pkg_compare_names);
 
      for (i=0; i < installed->len; i++) {

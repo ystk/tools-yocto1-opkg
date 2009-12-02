@@ -31,9 +31,10 @@
 #include "libbb/libbb.h"
 
 void
-pkg_hash_init(const char *name, hash_table_t *hash, int len)
+pkg_hash_init(void)
 {
-	hash_table_init(name, hash, len);
+	hash_table_init("pkg-hash", &conf->pkg_hash,
+			OPKG_CONF_DEFAULT_HASH_LEN);
 }
 
 static void
@@ -64,10 +65,10 @@ free_pkgs(const char *key, void *entry, void *data)
 }
 
 void
-pkg_hash_deinit(hash_table_t *hash)
+pkg_hash_deinit(void)
 {
-	hash_table_foreach(hash, free_pkgs, NULL);
-	hash_table_deinit(hash);
+	hash_table_foreach(&conf->pkg_hash, free_pkgs, NULL);
+	hash_table_deinit(&conf->pkg_hash);
 }
 
 
@@ -99,7 +100,6 @@ int
 pkg_hash_add_from_file(const char *file_name,
 			pkg_src_t *src, pkg_dest_t *dest, int is_status_file)
 {
-	hash_table_t *hash = &conf->pkg_hash;
 	pkg_t *pkg;
 	FILE *fp;
 	char *buf;
@@ -141,7 +141,7 @@ pkg_hash_add_from_file(const char *file_name,
 			free(version_str);
 		}
 
-		hash_insert_pkg(hash, pkg, is_status_file);
+		hash_insert_pkg(pkg, is_status_file);
 
 	} while (!feof(fp));
 
@@ -152,9 +152,9 @@ pkg_hash_add_from_file(const char *file_name,
 }
 
 static abstract_pkg_t *
-abstract_pkg_fetch_by_name(hash_table_t * hash, const char * pkg_name)
+abstract_pkg_fetch_by_name(const char * pkg_name)
 {
-	return (abstract_pkg_t *)hash_table_get(hash, pkg_name);
+	return (abstract_pkg_t *)hash_table_get(&conf->pkg_hash, pkg_name);
 }
 
 pkg_t *
@@ -374,11 +374,11 @@ pkg_name_constraint_fcn(pkg_t *pkg, void *cdata)
 }
 
 static pkg_vec_t *
-pkg_vec_fetch_by_name(hash_table_t *hash, const char *pkg_name)
+pkg_vec_fetch_by_name(const char *pkg_name)
 {
 	abstract_pkg_t * ab_pkg;
 
-	if(!(ab_pkg = abstract_pkg_fetch_by_name(hash, pkg_name)))
+	if(!(ab_pkg = abstract_pkg_fetch_by_name(pkg_name)))
 		return NULL;
 
 	if (ab_pkg->pkgs)
@@ -399,10 +399,9 @@ pkg_vec_fetch_by_name(hash_table_t *hash, const char *pkg_name)
 pkg_t *
 pkg_hash_fetch_best_installation_candidate_by_name(const char *name)
 {
-	hash_table_t *hash = &conf->pkg_hash;
 	abstract_pkg_t *apkg = NULL;
 
-	if (!(apkg = abstract_pkg_fetch_by_name(hash, name)))
+	if (!(apkg = abstract_pkg_fetch_by_name(name)))
 		return NULL;
 
 	return pkg_hash_fetch_best_installation_candidate(apkg,
@@ -411,14 +410,13 @@ pkg_hash_fetch_best_installation_candidate_by_name(const char *name)
 
 
 pkg_t *
-pkg_hash_fetch_by_name_version(hash_table_t *hash, 
-			const char *pkg_name, const char * version)
+pkg_hash_fetch_by_name_version(const char *pkg_name, const char * version)
 {
 	pkg_vec_t * vec;
 	int i;
 	char *version_str = NULL;
     
-	if(!(vec = pkg_vec_fetch_by_name(hash, pkg_name)))
+	if(!(vec = pkg_vec_fetch_by_name(pkg_name)))
 		return NULL;
     
 	for(i = 0; i < vec->len; i++) {
@@ -437,13 +435,12 @@ pkg_hash_fetch_by_name_version(hash_table_t *hash,
 }
 
 pkg_t *
-pkg_hash_fetch_installed_by_name_dest(hash_table_t *hash,
-			const char *pkg_name, pkg_dest_t *dest)
+pkg_hash_fetch_installed_by_name_dest(const char *pkg_name, pkg_dest_t *dest)
 {
 	pkg_vec_t * vec;
 	int i;
 
-	if (!(vec = pkg_vec_fetch_by_name(hash, pkg_name))) {
+	if (!(vec = pkg_vec_fetch_by_name(pkg_name))) {
 		return NULL;
 	}
 
@@ -458,13 +455,12 @@ pkg_hash_fetch_installed_by_name_dest(hash_table_t *hash,
 }
 
 pkg_t *
-pkg_hash_fetch_installed_by_name(hash_table_t *hash,
-					const char *pkg_name)
+pkg_hash_fetch_installed_by_name(const char *pkg_name)
 {
 	pkg_vec_t * vec;
 	int i;
 
-	if (!(vec = pkg_vec_fetch_by_name(hash, pkg_name))) {
+	if (!(vec = pkg_vec_fetch_by_name(pkg_name))) {
 		return NULL;
 	}
 
@@ -497,9 +493,10 @@ pkg_hash_fetch_available_helper(const char *pkg_name, void *entry, void *data)
 }
 
 void
-pkg_hash_fetch_available(hash_table_t *hash, pkg_vec_t *all)
+pkg_hash_fetch_available(pkg_vec_t *all)
 {
-	hash_table_foreach(hash, pkg_hash_fetch_available_helper, all);
+	hash_table_foreach(&conf->pkg_hash, pkg_hash_fetch_available_helper,
+			all);
 }
 
 static void
@@ -522,50 +519,51 @@ pkg_hash_fetch_all_installed_helper(const char *pkg_name, void *entry, void *dat
 }
 
 void
-pkg_hash_fetch_all_installed(hash_table_t *hash, pkg_vec_t *all)
+pkg_hash_fetch_all_installed(pkg_vec_t *all)
 {
-	hash_table_foreach(hash, pkg_hash_fetch_all_installed_helper, all);
+	hash_table_foreach(&conf->pkg_hash, pkg_hash_fetch_all_installed_helper,
+			all);
 }
 
 /*
  * This assumes that the abstract pkg doesn't exist.
  */
 static abstract_pkg_t *
-add_new_abstract_pkg_by_name(hash_table_t *hash, const char *pkg_name)
+add_new_abstract_pkg_by_name(const char *pkg_name)
 {
 	abstract_pkg_t *ab_pkg;
 
 	ab_pkg = abstract_pkg_new();
 
 	ab_pkg->name = xstrdup(pkg_name);
-	hash_table_insert(hash, pkg_name, ab_pkg);
+	hash_table_insert(&conf->pkg_hash, pkg_name, ab_pkg);
 
 	return ab_pkg;
 }
 
 
 abstract_pkg_t *
-ensure_abstract_pkg_by_name(hash_table_t * hash, const char * pkg_name)
+ensure_abstract_pkg_by_name(const char *pkg_name)
 {
 	abstract_pkg_t * ab_pkg;
 
-	if (!(ab_pkg = abstract_pkg_fetch_by_name(hash, pkg_name)))
-		ab_pkg = add_new_abstract_pkg_by_name(hash, pkg_name);
+	if (!(ab_pkg = abstract_pkg_fetch_by_name(pkg_name)))
+		ab_pkg = add_new_abstract_pkg_by_name(pkg_name);
 
 	return ab_pkg;
 }
 
 pkg_t *
-hash_insert_pkg(hash_table_t *hash, pkg_t *pkg, int set_status)
+hash_insert_pkg(pkg_t *pkg, int set_status)
 {
 	abstract_pkg_t * ab_pkg;
 
 	if(!pkg)
 		return pkg;
 
-	buildDepends(hash, pkg);
+	buildDepends(pkg);
 
-	ab_pkg = ensure_abstract_pkg_by_name(hash, pkg->name);
+	ab_pkg = ensure_abstract_pkg_by_name(pkg->name);
 
 	if (set_status) {
 		if (pkg->state_status == SS_INSTALLED) {
@@ -578,14 +576,14 @@ hash_insert_pkg(hash_table_t *hash, pkg_t *pkg, int set_status)
 	if(!ab_pkg->pkgs)
 		ab_pkg->pkgs = pkg_vec_alloc();
 
-	buildProvides(hash, ab_pkg, pkg);
+	buildProvides(ab_pkg, pkg);
 
 	/* Need to build the conflicts graph before replaces for correct
 	 * calculation of replaced_by relation.
 	 */
-	buildConflicts(hash, ab_pkg, pkg);
+	buildConflicts(ab_pkg, pkg);
 
-	buildReplaces(hash, ab_pkg, pkg);
+	buildReplaces(ab_pkg, pkg);
 
 	buildDependedUponBy(pkg, ab_pkg);
 

@@ -384,7 +384,7 @@ opkg_conf_write_status_files(void)
      }
 
      all = pkg_vec_alloc();
-     pkg_hash_fetch_available(&conf->pkg_hash, all);
+     pkg_hash_fetch_available(all);
 
      for(i = 0; i < all->len; i++) {
 	  pkg = all->pkgs[i];
@@ -523,7 +523,7 @@ opkg_conf_init(const args_t *args)
 	  return -1;
      }
 
-     pkg_hash_init("pkg-hash", &conf->pkg_hash, OPKG_CONF_DEFAULT_HASH_LEN);
+     pkg_hash_init();
      hash_table_init("file-hash", &conf->file_hash, OPKG_CONF_DEFAULT_HASH_LEN);
      hash_table_init("obs-file-hash", &conf->obs_file_hash, OPKG_CONF_DEFAULT_HASH_LEN/16);
 
@@ -615,7 +615,7 @@ opkg_conf_deinit(void)
 	}
 
 	if (&conf->pkg_hash)
-		pkg_hash_deinit(&conf->pkg_hash);
+		pkg_hash_deinit();
 	if (&conf->file_hash)
 		hash_table_deinit(&conf->file_hash);
 	if (&conf->obs_file_hash)

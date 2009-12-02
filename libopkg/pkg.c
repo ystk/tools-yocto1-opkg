@@ -1380,12 +1380,11 @@ void
 pkg_info_preinstall_check(void)
 {
      int i;
-     hash_table_t *pkg_hash = &conf->pkg_hash;
      pkg_vec_t *available_pkgs = pkg_vec_alloc();
      pkg_vec_t *installed_pkgs = pkg_vec_alloc();
 
      opkg_message(conf, OPKG_INFO, "pkg_info_preinstall_check: updating arch priority for each package\n");
-     pkg_hash_fetch_available(pkg_hash, available_pkgs);
+     pkg_hash_fetch_available(available_pkgs);
      /* update arch_priority for each package */
      for (i = 0; i < available_pkgs->len; i++) {
 	  pkg_t *pkg = available_pkgs->pkgs[i];
@@ -1415,7 +1414,7 @@ pkg_info_preinstall_check(void)
 
      /* update the file owner data structure */
      opkg_message(conf, OPKG_INFO, "pkg_info_preinstall_check: update file owner list\n");
-     pkg_hash_fetch_all_installed(pkg_hash, installed_pkgs);
+     pkg_hash_fetch_all_installed(installed_pkgs);
      for (i = 0; i < installed_pkgs->len; i++) {
 	  pkg_t *pkg = installed_pkgs->pkgs[i];
 	  str_list_t *installed_files = pkg_get_installed_files(pkg); /* this causes installed_files to be cached */
@@ -1486,7 +1485,6 @@ int
 pkg_write_changed_filelists(void)
 {
 	pkg_vec_t *installed_pkgs = pkg_vec_alloc();
-	hash_table_t *pkg_hash = &conf->pkg_hash;
 	int i, err, ret = 0;
 
 	if (conf->noaction)
@@ -1495,7 +1493,7 @@ pkg_write_changed_filelists(void)
 	opkg_message(conf, OPKG_INFO, "%s: saving changed filelists\n",
 			__FUNCTION__);
 
-	pkg_hash_fetch_all_installed(pkg_hash, installed_pkgs);
+	pkg_hash_fetch_all_installed(installed_pkgs);
 	for (i = 0; i < installed_pkgs->len; i++) {
 		pkg_t *pkg = installed_pkgs->pkgs[i];
 		if (pkg->state_flag & SF_FILELIST_CHANGED) {

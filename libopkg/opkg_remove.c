@@ -187,7 +187,7 @@ remove_autoinstalled(pkg_t *pkg)
 		if (cdep->type != DEPEND)
 			continue;
 		for (j=0; j<cdep->possibility_count; j++) {
-			p = pkg_hash_fetch_installed_by_name (&conf->pkg_hash,
+			p = pkg_hash_fetch_installed_by_name(
 					cdep->possibilities[j]->pkg->name);
 
 			/* If the package is not installed, this could have

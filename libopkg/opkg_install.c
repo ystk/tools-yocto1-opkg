@@ -127,7 +127,7 @@ check_conflicts_for(pkg_t *pkg)
      }
 
      if (!conf->force_depends)
-	  conflicts = (pkg_vec_t *)pkg_hash_fetch_conflicts(&conf->pkg_hash, pkg);
+	  conflicts = pkg_hash_fetch_conflicts(pkg);
 
      if (conflicts) {
 	  opkg_message(conf, level,
@@ -353,7 +353,7 @@ pkg_remove_orphan_dependent(pkg_t *pkg, pkg_t *old_pkg)
 			/*
 			 * old_pkg has a dependency that pkg does not.
 			 */
-			p = pkg_hash_fetch_installed_by_name (&conf->pkg_hash,
+			p = pkg_hash_fetch_installed_by_name(
 					cd0->possibilities[j]->pkg->name);
 
 			if (!p)
@@ -1192,7 +1192,7 @@ opkg_install_by_name(const char *pkg_name)
      pkg_t *old, *new;
      char *old_version, *new_version;
 
-     old = pkg_hash_fetch_installed_by_name(&conf->pkg_hash, pkg_name);
+     old = pkg_hash_fetch_installed_by_name(pkg_name);
      if (old)
         opkg_message(conf, OPKG_DEBUG2, "Old versions from pkg_hash_fetch %s \n",  old->version);
     
@@ -1298,7 +1298,7 @@ opkg_install_pkg(pkg_t *pkg, int from_upgrade)
 	  pkg->dest = conf->default_dest;
      }
 
-     old_pkg = pkg_hash_fetch_installed_by_name(&conf->pkg_hash, pkg->name);
+     old_pkg = pkg_hash_fetch_installed_by_name(pkg->name);
 
      err = opkg_install_check_downgrade(pkg, old_pkg, message);
      if (err)
