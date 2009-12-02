@@ -71,31 +71,6 @@ pkg_hash_deinit(void)
 	hash_table_deinit(&conf->pkg_hash);
 }
 
-
-/* Find the default arch for a given package status file if none is given. */
-static char *
-pkg_get_default_arch(void)
-{
-     nv_pair_list_elt_t *l;
-     char *def_arch = HOST_CPU_STR;		/* Default arch */
-     int def_prio = 0;				/* Other archs override this */
-
-     list_for_each_entry(l , &conf->arch_list.head, node) {
-	  nv_pair_t *nv = (nv_pair_t *)l->data;
-	  int priority = strtol(nv->value, NULL, 0);
-
-	  /* Check if this arch has higher priority, and is valid */
-	  if ((priority > def_prio) &&
-	      (strcmp(nv->name, "all")) && (strcmp(nv->name, "noarch"))) {
-	       /* Our new default */
-	       def_prio = priority;
-	       def_arch = nv->name;
-	  }
-     }
-
-     return xstrdup(def_arch);
-}
-
 int
 pkg_hash_add_from_file(const char *file_name,
 			pkg_src_t *src, pkg_dest_t *dest, int is_status_file)
@@ -135,10 +110,10 @@ pkg_hash_add_from_file(const char *file_name,
 
 		if (!pkg->architecture) {
 			char *version_str = pkg_version_str_alloc(pkg);
-			pkg->architecture = pkg_get_default_arch();
-			opkg_message(conf, OPKG_ERROR, "Package %s version %s has no architecture specified, defaulting to %s.\n",
-			pkg->name, version_str, pkg->architecture);
+			opkg_message(conf, OPKG_ERROR, "Package %s version %s has no architecture specified, ignoring.\n",
+				pkg->name, version_str);
 			free(version_str);
+			continue;
 		}
 
 		hash_insert_pkg(pkg, is_status_file);
