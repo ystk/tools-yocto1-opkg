@@ -33,6 +33,8 @@
 #include <errno.h>
 #include <glob.h>
 
+static int lock_fd;
+
 static opkg_conf_t _conf;
 opkg_conf_t *conf = &_conf;
 
@@ -509,9 +511,9 @@ opkg_conf_init(const args_t *args)
      else
        sprintf_alloc (&lock_file, "%s/lock", OPKG_STATE_DIR_PREFIX);
 
-     err = conf->lock_fd = creat (lock_file, S_IRUSR | S_IWUSR | S_IRGRP);
+     err = lock_fd = creat (lock_file, S_IRUSR | S_IWUSR | S_IRGRP);
      if (err != -1)
-       err = lockf (conf->lock_fd, F_TLOCK, 0);
+       err = lockf (lock_fd, F_TLOCK, 0);
      errno_copy = errno;
 
      if (err) {
@@ -688,10 +690,10 @@ opkg_conf_deinit(void)
 		hash_table_deinit(&conf->obs_file_hash);
 
 	/* lockf may be defined with warn_unused_result */
-	if (lockf(conf->lock_fd, F_ULOCK, 0) != 0) {
+	if (lockf(lock_fd, F_ULOCK, 0) != 0) {
 		opkg_message(conf, OPKG_DEBUG, "%s: unlock failed: %s\n",
 			__FUNCTION__, strerror(errno));
 	}
 
-	close(conf->lock_fd);
+	close(lock_fd);
 }

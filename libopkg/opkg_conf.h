@@ -41,7 +41,6 @@ extern opkg_conf_t *conf;
 
 struct opkg_conf
 {
-     int lock_fd; /* file descriptor for the lock file */
      pkg_src_list_t pkg_src_list;
      pkg_dest_list_t pkg_dest_list;
      nv_pair_list_t arch_list;
