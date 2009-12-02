@@ -84,10 +84,6 @@ int line_is_blank(const char *line)
 
 static struct errlist *error_list_head, *error_list_tail;
 
-/*
- * XXX: this function should not allocate memory as it may be called to
- *      print an error because we are out of memory.
- */
 void push_error_list(char * msg)
 {
 	struct errlist *e;
