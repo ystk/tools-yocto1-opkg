@@ -280,7 +280,7 @@ opkg_prepare_url_for_install(const char *url, char **namep)
 	  if (err)
 	       return err;
 
-	  err = pkg_init_from_file(conf, pkg, tmp_file);
+	  err = pkg_init_from_file(pkg, tmp_file);
 	  if (err)
 	       return err;
 
@@ -291,7 +291,7 @@ opkg_prepare_url_for_install(const char *url, char **namep)
                 || strcmp(&url[strlen(url) - 4], IPKG_PKG_EXTENSION) == 0
 		|| strcmp(&url[strlen(url) - 4], DPKG_PKG_EXTENSION) == 0) {
 
-	  err = pkg_init_from_file(conf, pkg, url);
+	  err = pkg_init_from_file(pkg, url);
 	  if (err)
 	       return err;
 	  opkg_message(conf, OPKG_DEBUG2, "Package %s provided by hand (%s).\n", pkg->name,pkg->local_filename);

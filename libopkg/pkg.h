@@ -189,7 +189,7 @@ struct pkg
 
 pkg_t *pkg_new(void);
 void pkg_deinit(pkg_t *pkg);
-int pkg_init_from_file(opkg_conf_t *conf, pkg_t *pkg, const char *filename);
+int pkg_init_from_file(pkg_t *pkg, const char *filename);
 abstract_pkg_t *abstract_pkg_new(void);
 
 /* 
@@ -207,15 +207,14 @@ int abstract_pkg_name_compare(const void *a, const void *b);
 void pkg_formatted_info(FILE *fp, pkg_t *pkg);
 void pkg_formatted_field(FILE *fp, pkg_t *pkg, const char *field);
 
-void set_flags_from_control(opkg_conf_t *conf, pkg_t *pkg);
+void set_flags_from_control(pkg_t *pkg);
 
 void pkg_print_status(pkg_t * pkg, FILE * file);
-str_list_t *pkg_get_installed_files(opkg_conf_t *conf, pkg_t *pkg);
+str_list_t *pkg_get_installed_files(pkg_t *pkg);
 void pkg_free_installed_files(pkg_t *pkg);
-void pkg_remove_installed_files_list(opkg_conf_t *conf, pkg_t *pkg);
+void pkg_remove_installed_files_list(pkg_t *pkg);
 conffile_t *pkg_get_conffile(pkg_t *pkg, const char *file_name);
-int pkg_run_script(struct opkg_conf *conf, pkg_t *pkg,
-		   const char *script, const char *args);
+int pkg_run_script(pkg_t *pkg, const char *script, const char *args);
 
 /* enum mappings */
 pkg_state_want_t pkg_state_want_from_str(char *str);
@@ -224,10 +223,10 @@ pkg_state_status_t pkg_state_status_from_str(const char *str);
 
 int pkg_version_satisfied(pkg_t *it, pkg_t *ref, const char *op);
 
-int pkg_arch_supported(opkg_conf_t *conf, pkg_t *pkg);
-void pkg_info_preinstall_check(opkg_conf_t *conf);
+int pkg_arch_supported(pkg_t *pkg);
+void pkg_info_preinstall_check(void);
 
-int pkg_write_filelist(opkg_conf_t *conf, pkg_t *pkg);
-int pkg_write_changed_filelists(opkg_conf_t *conf);
+int pkg_write_filelist(pkg_t *pkg);
+int pkg_write_changed_filelists(void);
 
 #endif

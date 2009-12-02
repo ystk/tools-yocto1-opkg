@@ -293,7 +293,7 @@ opkg_remove_pkg(pkg_t *pkg, int from_upgrade)
      pkg->state_want = SW_DEINSTALL;
      opkg_state_changed++;
 
-     pkg_run_script(conf, pkg, "prerm", "remove");
+     pkg_run_script(pkg, "prerm", "remove");
 
      /* DPKG_INCOMPATIBILITY: dpkg is slightly different here. It
 	maintains an empty filelist rather than deleting it. That seems
@@ -302,7 +302,7 @@ opkg_remove_pkg(pkg_t *pkg, int from_upgrade)
 	feel free to fix this. */
      remove_data_files_and_list(pkg);
 
-     pkg_run_script(conf, pkg, "postrm", "remove");
+     pkg_run_script(pkg, "postrm", "remove");
 
      remove_maintainer_scripts(pkg);
      pkg->state_status = SS_NOT_INSTALLED;
@@ -329,7 +329,7 @@ remove_data_files_and_list(pkg_t *pkg)
      pkg_t *owner;
      int rootdirlen = 0;
 
-     installed_files = pkg_get_installed_files(conf, pkg);
+     installed_files = pkg_get_installed_files(pkg);
      if (installed_files == NULL) {
 	     opkg_message(conf, OPKG_ERROR, "Failed to determine installed "
 		     "files for %s. None removed.\n", pkg->name);
@@ -381,7 +381,7 @@ remove_data_files_and_list(pkg_t *pkg)
      }
 
      pkg_free_installed_files(pkg);
-     pkg_remove_installed_files_list(conf, pkg);
+     pkg_remove_installed_files_list(pkg);
 
      /* Don't print warning for dirs that are provided by other packages */
      for (iter = str_list_first(&installed_dirs); iter; iter = str_list_next(&installed_dirs, iter)) {

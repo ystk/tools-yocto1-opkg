@@ -32,7 +32,7 @@ opkg_configure(pkg_t *pkg)
     /* DPKG_INCOMPATIBILITY:
        dpkg actually includes a version number to this script call */
 
-    err = pkg_run_script(conf, pkg, "postinst", "configure");
+    err = pkg_run_script(pkg, "postinst", "configure");
     if (err) {
 	opkg_message(conf, OPKG_ERROR, "ERROR: %s.postinst returned %d\n", pkg->name, err);
 	return err;

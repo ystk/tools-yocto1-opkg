@@ -149,7 +149,7 @@ update_file_ownership(pkg_t *new_pkg, pkg_t *old_pkg)
      str_list_t *new_list, *old_list;
      str_list_elt_t *iter, *niter;
 
-     new_list = pkg_get_installed_files(conf, new_pkg);
+     new_list = pkg_get_installed_files(new_pkg);
      if (new_list == NULL)
 	     return -1;
 
@@ -165,7 +165,7 @@ update_file_ownership(pkg_t *new_pkg, pkg_t *old_pkg)
      }
 
      if (old_pkg) {
-	  old_list = pkg_get_installed_files(conf, old_pkg);
+	  old_list = pkg_get_installed_files(old_pkg);
 	  if (old_list == NULL) {
      		  pkg_free_installed_files(new_pkg);
 		  return -1;
@@ -594,7 +594,7 @@ preinst_configure(pkg_t *pkg, pkg_t *old_pkg)
 	  preinst_args = xstrdup("install");
      }
 
-     err = pkg_run_script(conf, pkg, "preinst", preinst_args);
+     err = pkg_run_script(pkg, "preinst", preinst_args);
      if (err) {
 	  opkg_message(conf, OPKG_ERROR,
 		       "Aborting installation of %s\n", pkg->name);
@@ -765,7 +765,7 @@ check_data_file_clashes(pkg_t *pkg, pkg_t *old_pkg)
 
      int clashes = 0;
 
-     files_list = pkg_get_installed_files(conf, pkg);
+     files_list = pkg_get_installed_files(pkg);
      if (files_list == NULL)
 	     return -1;
 
@@ -861,7 +861,7 @@ check_data_file_clashes_change(pkg_t *pkg, pkg_t *old_pkg)
 
      char *root_filename = NULL;
 
-     files_list = pkg_get_installed_files(conf, pkg);
+     files_list = pkg_get_installed_files(pkg);
      if (files_list == NULL)
 	     return -1;
 
@@ -948,11 +948,11 @@ remove_obsolesced_files(pkg_t *pkg, pkg_t *old_pkg)
      str_list_elt_t *nf;
      hash_table_t new_files_table;
 
-     old_files = pkg_get_installed_files(conf, old_pkg);
+     old_files = pkg_get_installed_files(old_pkg);
      if (old_files == NULL)
 	  return -1;
 
-     new_files = pkg_get_installed_files(conf, pkg);
+     new_files = pkg_get_installed_files(pkg);
      if (new_files == NULL) {
           pkg_free_installed_files(old_pkg);
 	  return -1;
@@ -1065,10 +1065,10 @@ install_data_files(pkg_t *pkg)
         set the value in pkg->essential.
         This new routine could be useful also for every other flag
         Pigi: 16/03/2004 */
-     set_flags_from_control(conf, pkg) ;
+     set_flags_from_control(pkg) ;
      
      opkg_message(conf, OPKG_DEBUG, "    Calling pkg_write_filelist from %s\n", __FUNCTION__);
-     err = pkg_write_filelist(conf, pkg);
+     err = pkg_write_filelist(pkg);
      if (err)
 	  return err;
 
@@ -1279,7 +1279,7 @@ opkg_install_pkg(pkg_t *pkg, int from_upgrade)
 
      opkg_message(conf, OPKG_DEBUG2, "Function: %s calling pkg_arch_supported %s \n", __FUNCTION__, __FUNCTION__);
 
-     if (!pkg_arch_supported(conf, pkg)) {
+     if (!pkg_arch_supported(pkg)) {
 	  opkg_message(conf, OPKG_ERROR, "INTERNAL ERROR: architecture %s for pkg %s is unsupported.\n",
 		       pkg->architecture, pkg->name);
 	  return -1;

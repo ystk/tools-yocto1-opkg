@@ -280,7 +280,7 @@ pkg_deinit(pkg_t *pkg)
 }
 
 int
-pkg_init_from_file(opkg_conf_t *conf, pkg_t *pkg, const char *filename)
+pkg_init_from_file(pkg_t *pkg, const char *filename)
 {
 	int fd, err = 0;
 	FILE *control_file;
@@ -473,7 +473,7 @@ abstract_pkg_new(void)
 }
 
 void
-set_flags_from_control(opkg_conf_t *conf, pkg_t *pkg){
+set_flags_from_control(pkg_t *pkg){
      char *file_name;
      FILE *fp;
 
@@ -1106,7 +1106,7 @@ pkg_version_str_alloc(pkg_t *pkg)
  * XXX: this should be broken into two functions
  */
 str_list_t *
-pkg_get_installed_files(opkg_conf_t *conf, pkg_t *pkg)
+pkg_get_installed_files(pkg_t *pkg)
 {
      int err, fd;
      char *list_file_name = NULL;
@@ -1245,7 +1245,7 @@ pkg_free_installed_files(pkg_t *pkg)
 }
 
 void
-pkg_remove_installed_files_list(opkg_conf_t *conf, pkg_t *pkg)
+pkg_remove_installed_files_list(pkg_t *pkg)
 {
 	char *list_file_name;
 
@@ -1280,8 +1280,7 @@ pkg_get_conffile(pkg_t *pkg, const char *file_name)
 }
 
 int
-pkg_run_script(opkg_conf_t *conf, pkg_t *pkg,
-		const char *script, const char *args)
+pkg_run_script(pkg_t *pkg, const char *script, const char *args)
 {
      int err;
      char *path;
@@ -1362,7 +1361,7 @@ pkg_run_script(opkg_conf_t *conf, pkg_t *pkg,
 }
 
 int
-pkg_arch_supported(opkg_conf_t *conf, pkg_t *pkg)
+pkg_arch_supported(pkg_t *pkg)
 {
      nv_pair_list_elt_t *l;
 
@@ -1382,7 +1381,7 @@ pkg_arch_supported(opkg_conf_t *conf, pkg_t *pkg)
 }
 
 int
-pkg_get_arch_priority(opkg_conf_t *conf, const char *archname)
+pkg_get_arch_priority(const char *archname)
 {
      nv_pair_list_elt_t *l;
 
@@ -1397,7 +1396,7 @@ pkg_get_arch_priority(opkg_conf_t *conf, const char *archname)
 }
 
 void
-pkg_info_preinstall_check(opkg_conf_t *conf)
+pkg_info_preinstall_check(void)
 {
      int i;
      hash_table_t *pkg_hash = &conf->pkg_hash;
@@ -1414,7 +1413,7 @@ pkg_info_preinstall_check(opkg_conf_t *conf)
 	       continue;
 	  // opkg_message(conf, OPKG_DEBUG2, " package %s version=%s arch=%p:", pkg->name, pkg->version, pkg->architecture);
 	  if (pkg->architecture) 
-	       arch_priority = pkg_get_arch_priority(conf, pkg->architecture);
+	       arch_priority = pkg_get_arch_priority(pkg->architecture);
 	  else 
 	       opkg_message(conf, OPKG_ERROR, "pkg_info_preinstall_check: no architecture for package %s\n", pkg->name);
 	  // opkg_message(conf, OPKG_DEBUG2, "%s arch_priority=%d\n", pkg->architecture, arch_priority);
@@ -1438,7 +1437,7 @@ pkg_info_preinstall_check(opkg_conf_t *conf)
      pkg_hash_fetch_all_installed(pkg_hash, installed_pkgs);
      for (i = 0; i < installed_pkgs->len; i++) {
 	  pkg_t *pkg = installed_pkgs->pkgs[i];
-	  str_list_t *installed_files = pkg_get_installed_files(conf, pkg); /* this causes installed_files to be cached */
+	  str_list_t *installed_files = pkg_get_installed_files(pkg); /* this causes installed_files to be cached */
 	  str_list_elt_t *iter, *niter;
 	  if (installed_files == NULL) {
 	       opkg_message(conf, OPKG_ERROR, "Failed to determine installed "
@@ -1458,7 +1457,6 @@ pkg_info_preinstall_check(opkg_conf_t *conf)
 }
 
 struct pkg_write_filelist_data {
-     opkg_conf_t *conf;
      pkg_t *pkg;
      FILE *stream;
 };
@@ -1474,7 +1472,7 @@ pkg_write_filelist_helper(const char *key, void *entry_, void *data_)
 }
 
 int
-pkg_write_filelist(opkg_conf_t *conf, pkg_t *pkg)
+pkg_write_filelist(pkg_t *pkg)
 {
 	struct pkg_write_filelist_data data;
 	char *list_file_name;
@@ -1494,7 +1492,6 @@ pkg_write_filelist(opkg_conf_t *conf, pkg_t *pkg)
 	}
 
 	data.pkg = pkg;
-	data.conf = conf;
 	hash_table_foreach(&conf->file_hash, pkg_write_filelist_helper, &data);
 	fclose(data.stream);
 	free(list_file_name);
@@ -1505,7 +1502,7 @@ pkg_write_filelist(opkg_conf_t *conf, pkg_t *pkg)
 }
 
 int
-pkg_write_changed_filelists(opkg_conf_t *conf)
+pkg_write_changed_filelists(void)
 {
 	pkg_vec_t *installed_pkgs = pkg_vec_alloc();
 	hash_table_t *pkg_hash = &conf->pkg_hash;
@@ -1521,7 +1518,7 @@ pkg_write_changed_filelists(opkg_conf_t *conf)
 	for (i = 0; i < installed_pkgs->len; i++) {
 		pkg_t *pkg = installed_pkgs->pkgs[i];
 		if (pkg->state_flag & SF_FILELIST_CHANGED) {
-			err = pkg_write_filelist(conf, pkg);
+			err = pkg_write_filelist(pkg);
 			if (err)
 				ret = -1;
 		}

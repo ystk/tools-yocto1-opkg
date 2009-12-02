@@ -62,7 +62,7 @@ write_status_files_if_changed(void)
 	  opkg_message(conf, OPKG_INFO,
 		       "  writing status file\n");
 	  opkg_conf_write_status_files();
-	  pkg_write_changed_filelists(conf);
+	  pkg_write_changed_filelists();
      } else { 
 	  opkg_message(conf, OPKG_DEBUG, "Nothing to be done\n");
      }
@@ -457,7 +457,7 @@ opkg_install_cmd(int argc, char **argv)
           if (err)
               return err;
      }
-     pkg_info_preinstall_check(conf);
+     pkg_info_preinstall_check();
 
      for (i=0; i < argc; i++) {
 	  arg = argv[i];
@@ -491,7 +491,7 @@ opkg_upgrade_cmd(int argc, char **argv)
                if (err)
                    return err;
 	  }
-	  pkg_info_preinstall_check(conf);
+	  pkg_info_preinstall_check();
 
 	  for (i=0; i < argc; i++) {
 	       char *arg = argv[i];
@@ -518,7 +518,7 @@ opkg_upgrade_cmd(int argc, char **argv)
      } else {
 	  pkg_vec_t *installed = pkg_vec_alloc();
 
-	  pkg_info_preinstall_check(conf);
+	  pkg_info_preinstall_check();
 
 	  pkg_hash_fetch_all_installed(&conf->pkg_hash, installed);
 	  for (i = 0; i < installed->len; i++) {
@@ -542,7 +542,7 @@ opkg_download_cmd(int argc, char **argv)
      char *arg;
      pkg_t *pkg;
 
-     pkg_info_preinstall_check(conf);
+     pkg_info_preinstall_check();
      for (i = 0; i < argc; i++) {
 	  arg = argv[i];
 
@@ -730,7 +730,7 @@ opkg_remove_cmd(int argc, char **argv)
 
      signal(SIGINT, sigint_handler);
 
-     pkg_info_preinstall_check(conf);
+     pkg_info_preinstall_check();
 
      available = pkg_vec_alloc();
      pkg_hash_fetch_all_installed(&conf->pkg_hash, available);
@@ -837,7 +837,7 @@ opkg_files_cmd(int argc, char **argv)
 	  return 0;
      }
 
-     files = pkg_get_installed_files(conf, pkg);
+     files = pkg_get_installed_files(pkg);
      pkg_version = pkg_version_str_alloc(pkg);
 
      printf("Package %s (%s) is installed on %s and has the following files:\n",
@@ -862,7 +862,7 @@ opkg_depends_cmd(int argc, char **argv)
 	pkg_t *pkg;
 	char *str;
 
-	pkg_info_preinstall_check(conf);
+	pkg_info_preinstall_check();
 
 	available_pkgs = pkg_vec_alloc();
 	if (conf->query_all)
@@ -1077,7 +1077,7 @@ opkg_what_provides_replaces_cmd(enum what_field_type what_field_type, int argc, 
 	  const char *rel_str = (what_field_type == WHATPROVIDES ? "provides" : "replaces");
 	  int i;
      
-	  pkg_info_preinstall_check(conf);
+	  pkg_info_preinstall_check();
 
 	  if (conf->query_all)
 	       pkg_hash_fetch_available(&conf->pkg_hash, available_pkgs);
@@ -1146,7 +1146,7 @@ opkg_search_cmd(int argc, char **argv)
      for (i=0; i < installed->len; i++) {
 	  pkg = installed->pkgs[i];
 
-	  installed_files = pkg_get_installed_files(conf, pkg);
+	  installed_files = pkg_get_installed_files(pkg);
 
 	  for (iter = str_list_first(installed_files); iter; iter = str_list_next(installed_files, iter)) {
 	       installed_file = (char *)iter->data;
