@@ -66,8 +66,6 @@ struct opkg_conf
      int nodeps; /* do not follow dependences */
      char *offline_root;
      char *offline_root_path;
-     char *offline_root_pre_script_cmd;
-     char *offline_root_post_script_cmd;
      int query_all;
      int verbosity;
      int noaction;

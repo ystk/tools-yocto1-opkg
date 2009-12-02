@@ -69,8 +69,6 @@ void args_init(args_t *args)
      args->verbosity = ARGS_DEFAULT_VERBOSITY;
      args->offline_root = ARGS_DEFAULT_OFFLINE_ROOT;
      args->offline_root_path = ARGS_DEFAULT_OFFLINE_ROOT_PATH;
-     args->offline_root_pre_script_cmd = ARGS_DEFAULT_OFFLINE_ROOT_PRE_SCRIPT_CMD;
-     args->offline_root_post_script_cmd = ARGS_DEFAULT_OFFLINE_ROOT_POST_SCRIPT_CMD;
      args->nocheckfordirorfile = 0;
      args->noreadfeedsfile = 0;
 }
@@ -79,8 +77,6 @@ void args_deinit(args_t *args)
 {
      free (args->offline_root);
      free (args->offline_root_path);
-     free (args->offline_root_pre_script_cmd);
-     free (args->offline_root_post_script_cmd);
 
      free (args->dest);
      free (args->tmp_dir);

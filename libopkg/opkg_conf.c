@@ -59,8 +59,6 @@ opkg_option_t options[] = {
 	  { "nodeps", OPKG_OPT_TYPE_BOOL, &_conf.nodeps },
 	  { "offline_root", OPKG_OPT_TYPE_STRING, &_conf.offline_root },
 	  { "offline_root_path", OPKG_OPT_TYPE_STRING, &_conf.offline_root_path },
-	  { "offline_root_post_script_cmd", OPKG_OPT_TYPE_STRING, &_conf.offline_root_post_script_cmd },
-	  { "offline_root_pre_script_cmd", OPKG_OPT_TYPE_STRING, &_conf.offline_root_pre_script_cmd },
 	  { "proxy_passwd", OPKG_OPT_TYPE_STRING, &_conf.proxy_passwd },
 	  { "proxy_user", OPKG_OPT_TYPE_STRING, &_conf.proxy_user },
 	  { "query-all", OPKG_OPT_TYPE_BOOL, &_conf.query_all },
@@ -497,10 +495,6 @@ opkg_conf_init(const args_t *args)
 
      opkg_conf_override_string(&conf->offline_root_path, 
 			       args->offline_root_path);
-     opkg_conf_override_string(&conf->offline_root_pre_script_cmd, 
-			       args->offline_root_pre_script_cmd);
-     opkg_conf_override_string(&conf->offline_root_post_script_cmd, 
-			       args->offline_root_post_script_cmd);
 
      opkg_conf_override_string(&conf->cache, args->cache);
      opkg_conf_override_string(&conf->tmp_dir, args->tmp_dir);

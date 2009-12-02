@@ -41,8 +41,6 @@ struct args
     int autoremove;
     char *offline_root;
     char *offline_root_path;
-    char *offline_root_pre_script_cmd;
-    char *offline_root_post_script_cmd;
     char *cache;
 };
 typedef struct args args_t;
