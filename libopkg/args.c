@@ -32,8 +32,7 @@ static void print_version(void);
 
 enum long_args_opt
 {
-     ARGS_OPT_FORCE_DEFAULTS = 129,
-     ARGS_OPT_FORCE_MAINTAINER, 
+     ARGS_OPT_FORCE_MAINTAINER = 129, 
      ARGS_OPT_FORCE_DEPENDS,
      ARGS_OPT_FORCE_OVERWRITE,
      ARGS_OPT_FORCE_DOWNGRADE,
@@ -77,10 +76,8 @@ int args_parse(args_t *args, int argc, char *argv[])
 	  {"conf-file", 1, 0, 'f'},
 	  {"conf", 1, 0, 'f'},
 	  {"dest", 1, 0, 'd'},
-	  {"force-defaults", 0, 0, ARGS_OPT_FORCE_DEFAULTS},
-	  {"force_defaults", 0, 0, ARGS_OPT_FORCE_DEFAULTS},
-          {"force-maintainer", 0, 0, ARGS_OPT_FORCE_MAINTAINER}, 
-          {"force_maintainer", 0, 0, ARGS_OPT_FORCE_MAINTAINER}, 
+          {"force-maintainer", 0, 0, ARGS_OPT_FORCE_MAINTAINER},
+          {"force_maintainer", 0, 0, ARGS_OPT_FORCE_MAINTAINER},
 	  {"force-depends", 0, 0, ARGS_OPT_FORCE_DEPENDS},
 	  {"force_depends", 0, 0, ARGS_OPT_FORCE_DEPENDS},
 	  {"force-overwrite", 0, 0, ARGS_OPT_FORCE_OVERWRITE},
@@ -147,9 +144,6 @@ int args_parse(args_t *args, int argc, char *argv[])
 	  case ARGS_OPT_CACHE:
 	       free(conf->cache);
 	       conf->cache = xstrdup(optarg);
-	       break;
-	  case ARGS_OPT_FORCE_DEFAULTS:
-	       conf->force_defaults = 1;
 	       break;
           case ARGS_OPT_FORCE_MAINTAINER:
                conf->force_maintainer = 1;
@@ -258,7 +252,7 @@ void args_usage(char *complaint)
 
      printf("\nForce Options:\n");
      printf("\t--force-depends		Install/remove despite failed dependences\n");
-     printf("\t--force-defaults	Use default options for questions asked by opkg\n");
+     printf("\t--force-maintainer	Overwrite preexisting config files\n");
      printf("\t--force-reinstall	Reinstall package(s)\n");
      printf("\t--force-overwrite	Overwrite files from other package(s)\n");
      printf("\t--force-downgrade	Allow opkg to downgrade packages\n");
