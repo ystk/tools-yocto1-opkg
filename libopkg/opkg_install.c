@@ -39,7 +39,6 @@
 #include "sprintf_alloc.h"
 #include "file_util.h"
 #include "xsystem.h"
-#include "user.h"
 #include "libbb/libbb.h"
 
 static int
@@ -1068,54 +1067,6 @@ install_data_files(pkg_t *pkg)
 }
 
 static int
-user_prefers_old_conffile(const char *file_name, const char *backup)
-{
-     char *response;
-     const char *short_file_name;
-
-     short_file_name = strrchr(file_name, '/');
-     if (short_file_name) {
-	  short_file_name++;
-     } else {
-	  short_file_name = file_name;
-     }
-
-     while (1) {
-	  response = get_user_response("    Configuration file '%s'\n"
-				       "    ==> File on system created by you or by a script.\n"
-				       "    ==> File also in package provided by package maintainer.\n"
-				       "       What would you like to do about it ?  Your options are:\n"
-				       "        Y or I  : install the package maintainer's version\n"
-				       "        N or O  : keep your currently-installed version\n"
-				       "          D     : show the differences between the versions (if diff is installed)\n"
-				       "     The default action is to keep your current version.\n"
-				       "    *** %s (Y/I/N/O/D) [default=N] ? ", file_name, short_file_name);
-
-	  if (response == NULL)
-		  return 1;
-
-	  if (strcmp(response, "y") == 0
-	      || strcmp(response, "i") == 0
-	      || strcmp(response, "yes") == 0) {
-	       free(response);
-	       return 0;
-	  }
-
-	  if (strcmp(response, "d") == 0) {
-	       const char *argv[] = {"diff", "-u", backup, file_name, NULL};
-	       xsystem(argv);
-	       printf("    [Press ENTER to continue]\n");
-	       response = file_read_line_alloc(stdin);
-	       free(response);
-	       continue;
-	  }
-
-	  free(response);
-	  return 1;
-     }
-}
-
-static int
 resolve_conffiles(pkg_t *pkg)
 {
      conffile_list_elt_t *iter;
@@ -1142,17 +1093,23 @@ resolve_conffiles(pkg_t *pkg)
 
 	  cf_backup = backup_filename_alloc(root_filename);
 
-
           if (file_exists(cf_backup)) {
               /* Let's compute md5 to test if files are changed */
               md5sum = file_md5sum_alloc(cf_backup);
               if (md5sum && cf->value && strcmp(cf->value,md5sum) != 0 ) {
                   if (conf->force_maintainer) {
                       opkg_message(conf, OPKG_NOTICE, "Conffile %s using maintainer's setting.\n", cf_backup);
-                  } else if (conf->force_defaults
-                          || user_prefers_old_conffile(root_filename, cf_backup) ) {
+                  } else {
+                      char *new_conffile;
+                      sprintf_alloc(&new_conffile, "%s-opkg", root_filename);
+                      opkg_message(conf, OPKG_NOTICE, "Existing conffile %s "
+                           "is different from the conffile in the new package."
+                           " The new conffile will be placed at %s.\n",
+                           root_filename, new_conffile);
+                      rename(root_filename, new_conffile);
                       rename(cf_backup, root_filename);
-                  }
+                      free(new_conffile);
+		  }
               }
               unlink(cf_backup);
 	      if (md5sum)

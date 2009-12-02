@@ -6,7 +6,6 @@ libopkg_include_HEADERS= opkg.h
 
 
 opkg_libcore_sources = args.c args.h libopkg.c libopkg.h\
-		    user.c user.h \
 		    includes.h \
 		    opkg_error.h opkg_defines.h
 #		    opkg.c opkg.h
