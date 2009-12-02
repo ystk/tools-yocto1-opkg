@@ -50,25 +50,25 @@ opkg_option_t options[] = {
 	  { "force_downgrade", OPKG_OPT_TYPE_BOOL, &_conf.force_downgrade },
 	  { "force_reinstall", OPKG_OPT_TYPE_BOOL, &_conf.force_reinstall },
 	  { "force_space", OPKG_OPT_TYPE_BOOL, &_conf.force_space },
-          { "check_signature", OPKG_OPT_TYPE_INT, &_conf.check_signature }, 
+          { "check_signature", OPKG_OPT_TYPE_BOOL, &_conf.check_signature }, 
 	  { "ftp_proxy", OPKG_OPT_TYPE_STRING, &_conf.ftp_proxy },
 	  { "http_proxy", OPKG_OPT_TYPE_STRING, &_conf.http_proxy },
 	  { "no_proxy", OPKG_OPT_TYPE_STRING, &_conf.no_proxy },
-	  { "test", OPKG_OPT_TYPE_INT, &_conf.noaction },
-	  { "noaction", OPKG_OPT_TYPE_INT, &_conf.noaction },
+	  { "test", OPKG_OPT_TYPE_BOOL, &_conf.noaction },
+	  { "noaction", OPKG_OPT_TYPE_BOOL, &_conf.noaction },
 	  { "nodeps", OPKG_OPT_TYPE_BOOL, &_conf.nodeps },
 	  { "offline_root", OPKG_OPT_TYPE_STRING, &_conf.offline_root },
 	  { "proxy_passwd", OPKG_OPT_TYPE_STRING, &_conf.proxy_passwd },
 	  { "proxy_user", OPKG_OPT_TYPE_STRING, &_conf.proxy_user },
 	  { "query-all", OPKG_OPT_TYPE_BOOL, &_conf.query_all },
 	  { "tmp_dir", OPKG_OPT_TYPE_STRING, &_conf.tmp_dir },
-	  { "verbosity", OPKG_OPT_TYPE_BOOL, &_conf.verbosity },
+	  { "verbosity", OPKG_OPT_TYPE_INT, &_conf.verbosity },
 #if defined(HAVE_OPENSSL)
 	  { "signature_ca_file", OPKG_OPT_TYPE_STRING, &_conf.signature_ca_file },
 	  { "signature_ca_path", OPKG_OPT_TYPE_STRING, &_conf.signature_ca_path },
 #endif
 #if defined(HAVE_PATHFINDER)
-          { "check_x509_path", OPKG_OPT_TYPE_INT, &_conf.check_x509_path }, 
+          { "check_x509_path", OPKG_OPT_TYPE_BOOL, &_conf.check_x509_path }, 
 #endif
 #if defined(HAVE_SSLCURL) && defined(HAVE_CURL)
           { "ssl_engine", OPKG_OPT_TYPE_STRING, &_conf.ssl_engine },
