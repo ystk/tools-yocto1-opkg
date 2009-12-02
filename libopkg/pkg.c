@@ -1449,7 +1449,7 @@ pkg_info_preinstall_check(void)
                   iter = niter, niter = str_list_next(installed_files, iter)) {
 	       char *installed_file = (char *) iter->data;
 	       // opkg_message(conf, OPKG_DEBUG2, "pkg %s: file=%s\n", pkg->name, installed_file);
-	       file_hash_set_file_owner(conf, installed_file, pkg);
+	       file_hash_set_file_owner(installed_file, pkg);
 	  }
 	  pkg_free_installed_files(pkg);
      }

@@ -546,7 +546,7 @@ opkg_download_cmd(int argc, char **argv)
      for (i = 0; i < argc; i++) {
 	  arg = argv[i];
 
-	  pkg = pkg_hash_fetch_best_installation_candidate_by_name(conf, arg);
+	  pkg = pkg_hash_fetch_best_installation_candidate_by_name(arg);
 	  if (pkg == NULL) {
 	       opkg_message(conf, OPKG_ERROR,
 			    "Cannot find package %s.\n"
@@ -634,7 +634,7 @@ opkg_list_upgradable_cmd(int argc, char **argv)
     char *old_v, *new_v;
     for (node = active_list_next(head, head); node;node = active_list_next(head,node)) {
         _old_pkg = list_entry(node, pkg_t, list);
-        _new_pkg = pkg_hash_fetch_best_installation_candidate_by_name(conf, _old_pkg->name);
+        _new_pkg = pkg_hash_fetch_best_installation_candidate_by_name(_old_pkg->name);
 	if (_new_pkg == NULL)
 		continue;
         old_v = pkg_version_str_alloc(_old_pkg);

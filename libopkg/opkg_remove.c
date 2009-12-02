@@ -387,7 +387,7 @@ remove_data_files_and_list(pkg_t *pkg)
      for (iter = str_list_first(&installed_dirs); iter; iter = str_list_next(&installed_dirs, iter)) {
 	  file_name = (char *)iter->data;
 
-	  owner = file_hash_get_file_owner(conf, file_name);
+	  owner = file_hash_get_file_owner(file_name);
 	  if (owner) {
 	       free(iter->data);
 	       iter->data = NULL;

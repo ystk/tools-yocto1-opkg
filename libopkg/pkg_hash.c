@@ -73,7 +73,7 @@ pkg_hash_deinit(hash_table_t *hash)
 
 /* Find the default arch for a given package status file if none is given. */
 static char *
-pkg_get_default_arch(opkg_conf_t *conf)
+pkg_get_default_arch(void)
 {
      nv_pair_list_elt_t *l;
      char *def_arch = HOST_CPU_STR;		/* Default arch */
@@ -96,7 +96,7 @@ pkg_get_default_arch(opkg_conf_t *conf)
 }
 
 int
-pkg_hash_add_from_file(opkg_conf_t *conf, const char *file_name,
+pkg_hash_add_from_file(const char *file_name,
 			pkg_src_t *src, pkg_dest_t *dest, int is_status_file)
 {
 	hash_table_t *hash = &conf->pkg_hash;
@@ -135,13 +135,13 @@ pkg_hash_add_from_file(opkg_conf_t *conf, const char *file_name,
 
 		if (!pkg->architecture) {
 			char *version_str = pkg_version_str_alloc(pkg);
-			pkg->architecture = pkg_get_default_arch(conf);
+			pkg->architecture = pkg_get_default_arch();
 			opkg_message(conf, OPKG_ERROR, "Package %s version %s has no architecture specified, defaulting to %s.\n",
 			pkg->name, version_str, pkg->architecture);
 			free(version_str);
 		}
 
-		hash_insert_pkg(hash, pkg, is_status_file, conf);
+		hash_insert_pkg(hash, pkg, is_status_file);
 
 	} while (!feof(fp));
 
@@ -158,8 +158,7 @@ abstract_pkg_fetch_by_name(hash_table_t * hash, const char * pkg_name)
 }
 
 pkg_t *
-pkg_hash_fetch_best_installation_candidate(opkg_conf_t *conf,
-		abstract_pkg_t *apkg,
+pkg_hash_fetch_best_installation_candidate(abstract_pkg_t *apkg,
 		int (*constraint_fcn)(pkg_t *pkg, void *cdata),
 		void *cdata, int quiet)
 {
@@ -398,8 +397,7 @@ pkg_vec_fetch_by_name(hash_table_t *hash, const char *pkg_name)
 
 
 pkg_t *
-pkg_hash_fetch_best_installation_candidate_by_name(opkg_conf_t *conf,
-		const char *name)
+pkg_hash_fetch_best_installation_candidate_by_name(const char *name)
 {
 	hash_table_t *hash = &conf->pkg_hash;
 	abstract_pkg_t *apkg = NULL;
@@ -407,7 +405,7 @@ pkg_hash_fetch_best_installation_candidate_by_name(opkg_conf_t *conf,
 	if (!(apkg = abstract_pkg_fetch_by_name(hash, name)))
 		return NULL;
 
-	return pkg_hash_fetch_best_installation_candidate(conf, apkg,
+	return pkg_hash_fetch_best_installation_candidate(apkg,
 				pkg_name_constraint_fcn, apkg->name, 0);
 }
 
@@ -558,8 +556,7 @@ ensure_abstract_pkg_by_name(hash_table_t * hash, const char * pkg_name)
 }
 
 pkg_t *
-hash_insert_pkg(hash_table_t *hash, pkg_t *pkg, int set_status,
-		opkg_conf_t *conf)
+hash_insert_pkg(hash_table_t *hash, pkg_t *pkg, int set_status)
 {
 	abstract_pkg_t * ab_pkg;
 
@@ -603,14 +600,13 @@ hash_insert_pkg(hash_table_t *hash, pkg_t *pkg, int set_status,
 
 
 pkg_t *
-file_hash_get_file_owner(opkg_conf_t *conf, const char *file_name)
+file_hash_get_file_owner(const char *file_name)
 {
 	return hash_table_get(&conf->file_hash, file_name); 
 }
 
 void
-file_hash_set_file_owner(opkg_conf_t *conf, const char *file_name,
-		pkg_t *owning_pkg)
+file_hash_set_file_owner(const char *file_name, pkg_t *owning_pkg)
 {
 	pkg_t *old_owning_pkg = hash_table_get(&conf->file_hash, file_name);
 	int file_name_len = strlen(file_name);

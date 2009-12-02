@@ -156,11 +156,11 @@ update_file_ownership(pkg_t *new_pkg, pkg_t *old_pkg)
              iter; 
              iter = niter, niter = str_list_next(new_list, niter)) {
 	  char *new_file = (char *)iter->data;
-	  pkg_t *owner = file_hash_get_file_owner(conf, new_file);
+	  pkg_t *owner = file_hash_get_file_owner(new_file);
 	  if (!new_file)
 	       opkg_message(conf, OPKG_ERROR, "Null new_file for new_pkg=%s\n", new_pkg->name);
 	  if (!owner || (owner == old_pkg))
-	       file_hash_set_file_owner(conf, new_file, new_pkg);
+	       file_hash_set_file_owner(new_file, new_pkg);
      }
 
      if (old_pkg) {
@@ -174,7 +174,7 @@ update_file_ownership(pkg_t *new_pkg, pkg_t *old_pkg)
                   iter; 
                   iter = niter, niter = str_list_next(old_list, niter)) {
 	       char *old_file = (char *)iter->data;
-	       pkg_t *owner = file_hash_get_file_owner(conf, old_file);
+	       pkg_t *owner = file_hash_get_file_owner(old_file);
 	       if (owner == old_pkg) {
 		    /* obsolete */
 		    hash_table_insert(&conf->obs_file_hash, old_file, old_pkg);
@@ -786,11 +786,11 @@ check_data_file_clashes(pkg_t *pkg, pkg_t *old_pkg)
 	       /* Pre-existing files are OK if force-overwrite was asserted. */ 
 	       if (conf->force_overwrite) {
 		    /* but we need to change who owns this file */
-		    file_hash_set_file_owner(conf, filename, pkg);
+		    file_hash_set_file_owner(filename, pkg);
 		    continue;
 	       }
 
-	       owner = file_hash_get_file_owner(conf, filename);
+	       owner = file_hash_get_file_owner(filename);
 
 	       /* Pre-existing files are OK if owned by the pkg being upgraded. */
 	       if (owner && old_pkg) {
@@ -876,11 +876,11 @@ check_data_file_clashes_change(pkg_t *pkg, pkg_t *old_pkg)
 	  if (file_exists(root_filename) && (! file_is_dir(root_filename))) {
 	       pkg_t *owner;
 
-	       owner = file_hash_get_file_owner(conf, filename);
+	       owner = file_hash_get_file_owner(filename);
 
 	       if (conf->force_overwrite) {
 		    /* but we need to change who owns this file */
-		    file_hash_set_file_owner(conf, filename, pkg);
+		    file_hash_set_file_owner(filename, pkg);
 		    continue;
 	       }
 
@@ -891,7 +891,7 @@ check_data_file_clashes_change(pkg_t *pkg, pkg_t *old_pkg)
 /* It's now time to change the owner of that file. 
    It has been "replaced" from the new "Replaces", then I need to inform lists file about that.  */
 			 opkg_message(conf, OPKG_INFO, "Replacing pre-existing file %s owned by package %s\n", filename, owner->name);
-		         file_hash_set_file_owner(conf, filename, pkg);
+		         file_hash_set_file_owner(filename, pkg);
 			 continue;
 		    }
 	       }
@@ -975,7 +975,7 @@ remove_obsolesced_files(pkg_t *pkg, pkg_t *old_pkg)
 	  if (file_is_dir(old)) {
 	       continue;
 	  }
-	  owner = file_hash_get_file_owner(conf, old);
+	  owner = file_hash_get_file_owner(old);
 	  if (owner != old_pkg) {
 	       /* in case obsolete file no longer belongs to old_pkg */
 	       continue;
@@ -1196,7 +1196,7 @@ opkg_install_by_name(const char *pkg_name)
      if (old)
         opkg_message(conf, OPKG_DEBUG2, "Old versions from pkg_hash_fetch %s \n",  old->version);
     
-     new = pkg_hash_fetch_best_installation_candidate_by_name(conf, pkg_name);
+     new = pkg_hash_fetch_best_installation_candidate_by_name(pkg_name);
      if (new == NULL)
 	return -1;
 

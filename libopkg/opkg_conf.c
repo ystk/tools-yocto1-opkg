@@ -134,7 +134,7 @@ set_and_load_pkg_src_list(pkg_src_list_t *pkg_src_list)
 			  src->name);
 
 	  if (file_exists(list_file)) {
-	       if (pkg_hash_add_from_file(conf, list_file, src, NULL, 0)) {
+	       if (pkg_hash_add_from_file(list_file, src, NULL, 0)) {
 		    free(list_file);
 		    return -1;
 	       }
@@ -170,7 +170,7 @@ set_and_load_pkg_dest_list(nv_pair_list_t *nv_pair_list)
 	       conf->default_dest = dest;
 	  }
 	  if (file_exists(dest->status_file_name)) {
-	       if (pkg_hash_add_from_file(conf, dest->status_file_name,
+	       if (pkg_hash_add_from_file(dest->status_file_name,
 				      NULL, dest, 1))
 		       return -1;
 	  }
