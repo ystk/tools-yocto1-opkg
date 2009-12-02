@@ -25,7 +25,7 @@ void push_error_list(char * msg);
 void free_error_list(void);
 void print_error_list(void);
 
-long unsigned int get_available_blocks(char * filesystem);
+unsigned long get_available_kbytes(char * filesystem);
 char *trim_xstrdup(const char *line);
 int line_is_blank(const char *line);
 

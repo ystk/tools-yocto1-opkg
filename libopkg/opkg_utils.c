@@ -18,7 +18,7 @@
 #include "includes.h"
 #include <errno.h>
 #include <ctype.h>
-#include <sys/vfs.h>
+#include <sys/statvfs.h>
 
 #include "opkg_utils.h"
 #include "pkg.h"
@@ -27,23 +27,25 @@
 
 void print_pkg_status(pkg_t * pkg, FILE * file);
 
-long unsigned int get_available_blocks(char * filesystem)
+unsigned long
+get_available_kbytes(char * filesystem)
 {
-    struct statfs sfs;
+    struct statvfs f;
 
-    if(statfs(filesystem, &sfs)){
-        fprintf(stderr, "bad statfs\n");
+    if (statvfs(filesystem, &f) == -1) {
+        perror_msg("%s: statvfs\n", __FUNCTION__);
         return 0;
     }
-    /*    fprintf(stderr, "reported fs type %x\n", sfs.f_type); */
 
-    // Actually ((sfs.f_bavail * sfs.f_bsize) / 1024) 
+    // Actually ((sfs.f_bavail * sfs.f_frsize) / 1024) 
     // and here we try to avoid overflow. 
-    if (sfs.f_bsize >= 1024) 
-        return (sfs.f_bavail * (sfs.f_bsize / 1024));
-    else if (sfs.f_bsize > 0)
-        return sfs.f_bavail / (1024 / sfs.f_bsize);
-    fprintf(stderr, "bad statfs f_bsize == 0\n");
+    if (f.f_frsize >= 1024) 
+        return (f.f_bavail * (f.f_frsize / 1024));
+    else if (f.f_frsize > 0)
+        return f.f_bavail / (1024 / f.f_frsize);
+
+    fprintf(stderr, "Unknown block size for target filesystem\n");
+
     return 0;
 }
 

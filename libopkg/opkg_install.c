@@ -188,24 +188,27 @@ update_file_ownership(pkg_t *new_pkg, pkg_t *old_pkg)
 static int
 verify_pkg_installable(pkg_t *pkg)
 {
-     int comp_size, blocks_available;
-     char *root_dir;
-    
-     if (!conf->force_space && pkg->installed_size != NULL) {
-          root_dir = pkg->dest ? pkg->dest->root_dir : conf->default_dest->root_dir;
-	  blocks_available = get_available_blocks(root_dir);
+	unsigned long comp_size, kbs_available;
+	char *root_dir;
 
-	  comp_size = strtoul(pkg->installed_size, NULL, 0);
-	  /* round up a blocks count without doing fancy-but-slow casting jazz */ 
-	  comp_size = (int)((comp_size + 1023) / 1024);
+	if (conf->force_space || pkg->installed_size == NULL)
+		return 0;
 
-	  if (comp_size >= blocks_available) {
-	       opkg_message(conf, OPKG_ERROR,
-			    "Only have %d available blocks on filesystem %s, pkg %s needs %d\n", 
-			    blocks_available, root_dir, pkg->name, comp_size);
-	       return -1;
-	  }
-     }
+	root_dir = pkg->dest ? pkg->dest->root_dir :
+						conf->default_dest->root_dir;
+	kbs_available = get_available_kbytes(root_dir);
+
+	comp_size = strtoul(pkg->installed_size, NULL, 0);
+	/* round up a blocks count without doing fancy-but-slow casting jazz */ 
+	comp_size = ((comp_size + 1023) / 1024);
+
+	if (comp_size >= kbs_available) {
+		opkg_message(conf, OPKG_ERROR,
+		"Only have %dkb available on filesystem %s, pkg %s needs %d\n", 
+		kbs_available, root_dir, pkg->name, comp_size);
+		return -1;
+	}
+
      return 0;
 }
 
