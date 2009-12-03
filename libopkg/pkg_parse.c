@@ -203,7 +203,7 @@ pkg_parse_line(pkg_t *pkg, const char *line, uint mask)
 	case 'I':
 		if ((mask && PFM_INSTALLED_SIZE) && is_field("Installed-Size", line)) {
 			char *tmp = parse_simple("Installed-Size", line);
-			pkg->installed_size = (strtoul(tmp, NULL, 0)+1023)/1024;
+			pkg->installed_size = strtoul(tmp, NULL, 0);
 			free (tmp);
 		} else if ((mask && PFM_INSTALLED_TIME) && is_field("Installed-Time", line)) {
 			char *tmp = parse_simple("Installed-Time", line);
@@ -252,7 +252,7 @@ pkg_parse_line(pkg_t *pkg, const char *line, uint mask)
 #endif
 		else if ((mask & PFM_SIZE) && is_field("Size", line)) {
 			char *tmp = parse_simple("Size", line);
-			pkg->size = (strtoul(tmp, NULL, 0)+1023)/1024;
+			pkg->size = strtoul(tmp, NULL, 0);
 			free (tmp);
 		} else if ((mask & PFM_SOURCE) && is_field("Source", line))
 			pkg->source = parse_simple("Source", line);

@@ -191,7 +191,7 @@ update_file_ownership(pkg_t *new_pkg, pkg_t *old_pkg)
 static int
 verify_pkg_installable(pkg_t *pkg)
 {
-	unsigned long kbs_available;
+	unsigned long kbs_available, pkg_size_kbs;
 	char *root_dir;
 
 	if (conf->force_space || pkg->installed_size == 0)
@@ -201,10 +201,12 @@ verify_pkg_installable(pkg_t *pkg)
 						conf->default_dest->root_dir;
 	kbs_available = get_available_kbytes(root_dir);
 
-	if (pkg->installed_size >= kbs_available) {
+	pkg_size_kbs = (pkg->installed_size + 1023)/1024;
+
+	if (pkg_size_kbs >= kbs_available) {
 		opkg_message(conf, OPKG_ERROR,
 		"Only have %dkb available on filesystem %s, pkg %s needs %d\n", 
-		kbs_available, root_dir, pkg->name, pkg->installed_size);
+		kbs_available, root_dir, pkg->name, pkg_size_kbs);
 		return -1;
 	}
 

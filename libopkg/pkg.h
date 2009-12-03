@@ -163,8 +163,8 @@ struct pkg
 #if defined HAVE_SHA256
      char *sha256sum;
 #endif
-     unsigned long size;		/* in kb */
-     unsigned long installed_size;	/* in kb */
+     unsigned long size;		/* in bytes */
+     unsigned long installed_size;	/* in bytes */
      char *priority;
      char *source;
      conffile_list_t conffiles;
