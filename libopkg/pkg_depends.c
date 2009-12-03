@@ -235,6 +235,8 @@ pkg_hash_fetch_unsatisfied_dependencies(pkg_t * pkg, pkg_vec_t *unsatisfied,
 								      unsatisfied,
 								      &newstuff);
 			      the_lost = merge_unresolved(the_lost, newstuff);
+			      if (newstuff)
+				   free(newstuff);
 			 }
 		    }
 	       }
