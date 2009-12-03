@@ -175,7 +175,7 @@ opkg_conf_set_option(const char *name, const char *value)
 	  if (strcmp(options[i].name, name) == 0) {
 	       switch (options[i].type) {
 	       case OPKG_OPT_TYPE_BOOL:
-		    if (options[i].value) {
+		    if (*(int *)options[i].value) {
 			    printf("%s: Duplicate boolean option %s, leaving "
 				"this option on.\n",
 				__FUNCTION__, name);
@@ -185,7 +185,7 @@ opkg_conf_set_option(const char *name, const char *value)
 		    return 0;
 	       case OPKG_OPT_TYPE_INT:
 		    if (value) {
-			    if (options[i].value) {
+			    if (*(int *)options[i].value) {
 				    printf("%s: Duplicate option %s, using "
 					"first seen value \"%d\".\n",
 					__FUNCTION__,
@@ -201,7 +201,7 @@ opkg_conf_set_option(const char *name, const char *value)
 		    }		    
 	       case OPKG_OPT_TYPE_STRING:
 		    if (value) {
-			    if (options[i].value) {
+			    if (*(char **)options[i].value) {
 				    printf("%s: Duplicate option %s, using "
 					"first seen value \"%s\".\n",
 					__FUNCTION__,
