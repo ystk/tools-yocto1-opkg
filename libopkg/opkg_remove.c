@@ -21,7 +21,6 @@
 #include <glob.h>
 
 #include "opkg_remove.h"
-#include "opkg_error.h"
 #include "opkg_cmd.h"
 
 #include "file_util.h"
@@ -152,16 +151,16 @@ static void
 print_dependents_warning(abstract_pkg_t *abpkg, pkg_t *pkg, abstract_pkg_t **dependents)
 {
     abstract_pkg_t *dep_ab_pkg;
-    opkg_message(conf, OPKG_ERROR, "Package %s is depended upon by packages:\n", pkg->name);
+    opkg_msg(ERROR, "Package %s is depended upon by packages:\n", pkg->name);
     while ((dep_ab_pkg = *dependents++) != NULL) {
 	 if (dep_ab_pkg->state_status == SS_INSTALLED)
-	      opkg_message(conf, OPKG_ERROR, "\t%s\n", dep_ab_pkg->name);
+	      opkg_msg(ERROR, "\t%s\n", dep_ab_pkg->name);
     }
-    opkg_message(conf, OPKG_ERROR, "These might cease to work if package %s is removed.\n\n", pkg->name);
-    opkg_message(conf, OPKG_ERROR, "");
-    opkg_message(conf, OPKG_ERROR, "You can force removal of this package with --force-depends.\n");
-    opkg_message(conf, OPKG_ERROR, "You can force removal of this package and its dependents\n");
-    opkg_message(conf, OPKG_ERROR, "with --force-removal-of-dependent-packages\n");
+    opkg_msg(ERROR, "These might cease to work if package %s is removed.\n\n",
+		    pkg->name);
+    opkg_msg(ERROR, "Force removal of this package with --force-depends.\n");
+    opkg_msg(ERROR, "Force removal of this package and its dependents\n");
+    opkg_msg(ERROR, "with --force-removal-of-dependent-packages.\n");
 }
 
 /*
@@ -203,14 +202,12 @@ remove_autoinstalled(pkg_t *pkg)
 			n_deps = pkg_has_installed_dependents(NULL, p,
 					&dependents);
 			if (n_deps == 0) {
-				 opkg_message(conf, OPKG_NOTICE,
-				               "%s was autoinstalled and is "
-					       "now orphaned, removing\n",
+				 opkg_msg(NOTICE, "%s was autoinstalled and is "
+					       "now orphaned, removing.\n",
 					       p->name);
 			         opkg_remove_pkg(p, 0);
 			} else
-				opkg_message(conf, OPKG_INFO,
-						"%s was autoinstalled and is "
+				opkg_msg(INFO, "%s was autoinstalled and is "
 						"still required by %d "
 						"installed packages.\n",
 						p->name, n_deps);
@@ -285,8 +282,8 @@ opkg_remove_pkg(pkg_t *pkg, int from_upgrade)
      }
 
      if (from_upgrade == 0) {
-         opkg_message (conf, OPKG_NOTICE,
-	               "Removing package %s from %s...\n", pkg->name, pkg->dest->name);
+         opkg_msg(NOTICE, "Removing package %s from %s...\n",
+			 pkg->name, pkg->dest->name);
      }
      pkg->state_flag |= SF_FILELIST_CHANGED;
 
@@ -331,7 +328,7 @@ remove_data_files_and_list(pkg_t *pkg)
 
      installed_files = pkg_get_installed_files(pkg);
      if (installed_files == NULL) {
-	     opkg_message(conf, OPKG_ERROR, "Failed to determine installed "
+	     opkg_msg(ERROR, "Failed to determine installed "
 		     "files for %s. None removed.\n", pkg->name);
 	     return;
      }
@@ -353,15 +350,19 @@ remove_data_files_and_list(pkg_t *pkg)
 	  conffile = pkg_get_conffile(pkg, file_name+rootdirlen);
 	  if (conffile) {
 	       if (conffile_has_been_modified(conffile)) {
-		    opkg_message (conf, OPKG_NOTICE,
-		                  "  not deleting modified conffile %s\n", file_name);
+		    opkg_msg(NOTICE, "Not deleting modified conffile %s.\n",
+				    file_name);
 		    continue;
 	       }
 	  }
 
-	  opkg_message(conf, OPKG_INFO, "  deleting %s (noaction=%d)\n", file_name, conf->noaction);
-	  if (!conf->noaction)
+	  if (!conf->noaction) {
+	  	opkg_msg(INFO, "Deleting %s.\n", file_name, conf->noaction);
 	       unlink(file_name);
+	  } else
+	  	opkg_msg(INFO, "Not deleting %s. (noaction)\n",
+				file_name);
+
      }
 
      /* Remove empty directories */
@@ -372,7 +373,7 @@ remove_data_files_and_list(pkg_t *pkg)
 		    file_name = (char *)iter->data;
 	    
 		    if (rmdir(file_name) == 0) {
-			 opkg_message(conf, OPKG_INFO, "  deleting %s\n", file_name);
+			 opkg_msg(INFO, "Deleting %s.\n", file_name);
 			 removed_a_dir = 1;
 			 str_list_remove(&installed_dirs, &iter);
 		    }
@@ -423,8 +424,7 @@ remove_maintainer_scripts(pkg_t *pkg)
 		return;
 
 	for (i = 0; i < globbuf.gl_pathc; i++) {
-		opkg_message(conf, OPKG_INFO, "deleting %s\n",
-				globbuf.gl_pathv[i]);
+		opkg_msg(INFO, "Deleting %s.\n", globbuf.gl_pathv[i]);
 		unlink(globbuf.gl_pathv[i]);
 	}
 	globfree(&globbuf);

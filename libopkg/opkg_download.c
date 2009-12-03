@@ -86,13 +86,13 @@ opkg_download(const char *src, const char *dest_file_name,
     char *src_base = basename(src_basec);
     char *tmp_file_location;
 
-    opkg_message(conf,OPKG_NOTICE,"Downloading %s\n", src);
+    opkg_msg(NOTICE,"Downloading %s.\n", src);
 	
     if (str_starts_with(src, "file:")) {
 	const char *file_src = src + 5;
-	opkg_message(conf,OPKG_INFO,"Copying %s to %s...", file_src, dest_file_name);
+	opkg_msg(INFO, "Copying %s to %s...", file_src, dest_file_name);
 	err = file_copy(file_src, dest_file_name);
-	opkg_message(conf,OPKG_INFO,"Done\n");
+	opkg_msg(INFO, "Done.\n");
         free(src_basec);
 	return err;
     }
@@ -100,23 +100,25 @@ opkg_download(const char *src, const char *dest_file_name,
     sprintf_alloc(&tmp_file_location, "%s/%s", conf->tmp_dir, src_base);
     err = unlink(tmp_file_location);
     if (err && errno != ENOENT) {
-	opkg_message(conf,OPKG_ERROR, "%s: ERROR: failed to unlink %s: %s\n",
-		__FUNCTION__, tmp_file_location, strerror(errno));
+	opkg_perror(ERROR, "Failed to unlink %s\n", tmp_file_location);
 	free(tmp_file_location);
         free(src_basec);
 	return -1;
     }
 
     if (conf->http_proxy) {
-	opkg_message(conf,OPKG_DEBUG,"Setting environment variable: http_proxy = %s\n", conf->http_proxy);
+	opkg_msg(DEBUG, "Setting environment variable: http_proxy = %s.\n",
+		conf->http_proxy);
 	setenv("http_proxy", conf->http_proxy, 1);
     }
     if (conf->ftp_proxy) {
-	opkg_message(conf,OPKG_DEBUG,"Setting environment variable: ftp_proxy = %s\n", conf->ftp_proxy);
+	opkg_msg(DEBUG, "Setting environment variable: ftp_proxy = %s.\n",
+		conf->ftp_proxy);
 	setenv("ftp_proxy", conf->ftp_proxy, 1);
     }
     if (conf->no_proxy) {
-	opkg_message(conf,OPKG_DEBUG,"Setting environment variable: no_proxy = %s\n", conf->no_proxy);
+	opkg_msg(DEBUG,"Setting environment variable: no_proxy = %s.\n",
+		conf->no_proxy);
 	setenv("no_proxy", conf->no_proxy, 1);
     }
 
@@ -136,7 +138,8 @@ opkg_download(const char *src, const char *dest_file_name,
 	{
 	    long error_code;
 	    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &error_code);
-	    opkg_message(conf, OPKG_ERROR, "Failed to download %s. \nerror detail: %s\n", src, curl_easy_strerror(res));
+	    opkg_msg(ERROR, "Failed to download %s: %s.\n",
+		    src, curl_easy_strerror(res));
 	    free(tmp_file_location);
             free(src_basec);
 	    return res;
@@ -168,7 +171,7 @@ opkg_download(const char *src, const char *dest_file_name,
       res = xsystem(argv);
 
       if (res) {
-	opkg_message(conf, OPKG_ERROR, "Failed to download %s, error %d\n", src, res);
+	opkg_msg(ERROR, "Failed to download %s, wget returned %d.\n", src, res);
 	free(tmp_file_location);
         free(src_basec);
 	return res;
@@ -203,7 +206,7 @@ opkg_download_cache(const char *src, const char *dest_file_name,
 
     sprintf_alloc(&cache_location, "%s/%s", conf->cache, cache_name);
     if (file_exists(cache_location))
-	opkg_message(conf, OPKG_NOTICE, "Copying %s\n", cache_location);
+	opkg_msg(NOTICE, "Copying %s.\n", cache_location);
     else {
 	err = opkg_download(src, cache_location, cb, data);
 	if (err) {
@@ -230,12 +233,13 @@ opkg_download_pkg(pkg_t *pkg, const char *dir)
     char *stripped_filename;
 
     if (pkg->src == NULL) {
-	opkg_message(conf,OPKG_ERROR, "ERROR: Package %s (parent %s) is not available from any configured src.\n",
-		pkg->name, pkg->parent->name);
+	opkg_msg(ERROR, "Package %s is not available from any configured src.\n",
+		pkg->name);
 	return -1;
     }
     if (pkg->filename == NULL) {
-	opkg_message(conf,OPKG_ERROR, "ERROR: Package %s (parent %s) does not have a valid filename field.\n",pkg->name, pkg->parent->name);
+	opkg_msg(ERROR, "Package %s does not have a valid filename field.\n",
+		pkg->name);
 	return -1;
     }
 
@@ -294,18 +298,14 @@ opkg_prepare_url_for_install(const char *url, char **namep)
 	  err = pkg_init_from_file(pkg, url);
 	  if (err)
 	       return err;
-	  opkg_message(conf, OPKG_DEBUG2, "Package %s provided by hand (%s).\n", pkg->name,pkg->local_filename);
+	  opkg_msg(DEBUG2, "Package %s provided by hand (%s).\n",
+		  pkg->name, pkg->local_filename);
           pkg->provided_by_hand = 1;
 
      } else {
        pkg_deinit(pkg);
        free(pkg);
        return 0;
-     }
-
-     if (!pkg->architecture) {
-	  opkg_message(conf, OPKG_ERROR, "Package %s has no Architecture defined.\n", pkg->name);
-	  return -1;
      }
 
      pkg->dest = conf->default_dest;
@@ -402,30 +402,28 @@ opkg_verify_file (char *text_file, char *sig_file)
 
     // Set-up the key store
     if(!(store = setup_verify(conf, conf->signature_ca_file, conf->signature_ca_path))){
-        opkg_message(conf, OPKG_ERROR,
-                "Can't open CA certificates\n");
+        opkg_msg(ERROR, "Can't open CA certificates.\n");
         goto verify_file_end;
     }
 
     // Open a BIO to read the sig file
     if (!(in = BIO_new_file(sig_file, "rb"))){
-        opkg_message(conf, OPKG_ERROR,
-                "Can't open signature file %s\n", sig_file);
+        opkg_msg(ERROR, "Can't open signature file %s.\n", sig_file);
         goto verify_file_end;
     }
 
     // Read the PKCS7 block contained in the sig file
     p7 = PEM_read_bio_PKCS7(in, NULL, NULL, NULL);
     if(!p7){
-        opkg_message(conf, OPKG_ERROR,
-                "Can't read signature file (Corrupted ?)\n");
+        opkg_msg(ERROR, "Can't read signature file %s (Corrupted ?).\n",
+		sig_file);
         goto verify_file_end;
     }
 #if defined(HAVE_PATHFINDER)
     if(conf->check_x509_path){
 	if(!pkcs7_pathfinder_verify_signers(p7)){
-	    opkg_message(conf,  OPKG_ERROR, "pkcs7_pathfinder_verify_signers: "
-		    "Path verification failed\n");
+	    opkg_msg(ERROR, "pkcs7_pathfinder_verify_signers: "
+		    "Path verification failed.\n");
 	    goto verify_file_end;
 	}
     }
@@ -433,16 +431,14 @@ opkg_verify_file (char *text_file, char *sig_file)
 
     // Open the Package file to authenticate
     if (!(indata = BIO_new_file(text_file, "rb"))){
-        opkg_message(conf, OPKG_ERROR,
-                "Can't open file %s\n", text_file);
+        opkg_msg(ERROR, "Can't open file %s.\n", text_file);
         goto verify_file_end;
     }
 
     // Let's verify the autenticity !
     if (PKCS7_verify(p7, NULL, store, indata, NULL, PKCS7_BINARY) != 1){
         // Get Off My Lawn!
-        opkg_message(conf, OPKG_ERROR,
-                "Verification failure\n");
+        opkg_msg(ERROR, "Verification failure.\n");
     }else{
         // Victory !
         status = 0;
@@ -502,8 +498,7 @@ setup_verify(char *CAfile, char *CApath)
     if (CAfile) {
         if(!X509_LOOKUP_load_file(lookup,CAfile,X509_FILETYPE_PEM)) {
             // Invalid CA => Bye bye
-            opkg_message(conf, OPKG_ERROR,
-                    "Error loading file %s\n", CAfile);
+            opkg_msg(ERROR, "Error loading file %s.\n", CAfile);
             goto end;
         }
     } else {
@@ -518,8 +513,7 @@ setup_verify(char *CAfile, char *CApath)
 
     if (CApath) {
         if(!X509_LOOKUP_add_dir(lookup,CApath,X509_FILETYPE_PEM)) {
-            opkg_message(conf, OPKG_ERROR,
-                    "Error loading directory %s\n", CApath);
+            opkg_msg(ERROR, "Error loading directory %s.\n", CApath);
             goto end;
         }
     } else {
@@ -561,7 +555,7 @@ opkg_curl_init(curl_progress_func cb, void *data)
 
 	    /* use crypto engine */
 	    if (curl_easy_setopt(curl, CURLOPT_SSLENGINE, conf->ssl_engine) != CURLE_OK){
-		opkg_message(conf, OPKG_ERROR, "can't set crypto engine: '%s'\n",
+		opkg_msg(ERROR, "Can't set crypto engine '%s'.\n",
 			conf->ssl_engine);
 
 		opkg_curl_cleanup();
@@ -569,7 +563,8 @@ opkg_curl_init(curl_progress_func cb, void *data)
 	    }
 	    /* set the crypto engine as default */
 	    if (curl_easy_setopt(curl, CURLOPT_SSLENGINE_DEFAULT, 1L) != CURLE_OK){
-		opkg_message(conf, OPKG_ERROR, "can't set crypto engine as default\n");
+		opkg_msg(ERROR, "Can't set crypto engine '%s' as default.\n",
+			conf->ssl_engine);
 
 		opkg_curl_cleanup();
 		return NULL;
@@ -580,7 +575,7 @@ opkg_curl_init(curl_progress_func cb, void *data)
 	if(conf->ssl_key_passwd){
 	    if (curl_easy_setopt(curl, CURLOPT_SSLKEYPASSWD, conf->ssl_key_passwd) != CURLE_OK)
 	    {
-	        opkg_message(conf, OPKG_DEBUG, "Failed to set key password\n");
+	        opkg_msg(DEBUG, "Failed to set key password.\n");
 	    }
 	}
 
@@ -588,7 +583,7 @@ opkg_curl_init(curl_progress_func cb, void *data)
 	if(conf->ssl_cert_type){
 	    if (curl_easy_setopt(curl, CURLOPT_SSLCERTTYPE, conf->ssl_cert_type) != CURLE_OK)
 	    {
-	        opkg_message(conf, OPKG_DEBUG, "Failed to set certificate format\n");
+	        opkg_msg(DEBUG, "Failed to set certificate format.\n");
 	    }
 	}
 	/* SSL cert name isn't mandatory */
@@ -600,13 +595,13 @@ opkg_curl_init(curl_progress_func cb, void *data)
 	if(conf->ssl_key_type){
 	    if (curl_easy_setopt(curl, CURLOPT_SSLKEYTYPE, conf->ssl_key_type) != CURLE_OK)
 	    {
-	        opkg_message(conf, OPKG_DEBUG, "Failed to set key format\n");
+	        opkg_msg(DEBUG, "Failed to set key format.\n");
 	    }
 	}
 	if(conf->ssl_key){
 	    if (curl_easy_setopt(curl, CURLOPT_SSLKEY, conf->ssl_key) != CURLE_OK)
 	    {
-	        opkg_message(conf, OPKG_DEBUG, "Failed to set key\n");
+	        opkg_msg(DEBUG, "Failed to set key.\n");
 	    }
 	}
 
@@ -620,7 +615,7 @@ opkg_curl_init(curl_progress_func cb, void *data)
 #ifdef HAVE_PATHFINDER
 	    if(conf->check_x509_path){
     	        if (curl_easy_setopt(curl, CURLOPT_SSL_CTX_FUNCTION, curl_ssl_ctx_function) != CURLE_OK){
-		    opkg_message(conf, OPKG_DEBUG, "Failed to set ssl path verification callback\n");
+		    opkg_msg(DEBUG, "Failed to set ssl path verification callback.\n");
 		}else{
 		    curl_easy_setopt(curl, CURLOPT_SSL_CTX_DATA, NULL);
 		}

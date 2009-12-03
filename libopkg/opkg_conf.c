@@ -17,7 +17,6 @@
 
 #include "includes.h"
 #include "opkg_conf.h"
-#include "opkg_error.h"
 
 #include "xregex.h"
 #include "sprintf_alloc.h"
@@ -242,7 +241,8 @@ opkg_conf_parse_file(const char *filename,
 		  __FUNCTION__, filename, strerror(errno));
 	  return -1;
      }
-     opkg_message(conf, OPKG_NOTICE, "loading conf file %s\n", filename);
+
+     opkg_msg(INFO, "Loading conf file %s.\n", filename);
 
      err = xregcomp(&comment_re, 
 		    "^[[:space:]]*(#.*|[[:space:]]*)$",
@@ -316,24 +316,25 @@ opkg_conf_parse_file(const char *filename,
 	       if (!nv_pair_list_find((nv_pair_list_t*) pkg_src_list, name)) {
 		    pkg_src_list_append (pkg_src_list, name, value, extra, 0);
 	       } else {
-		    opkg_message(conf, OPKG_ERROR, "ERROR: duplicate src declaration.  Skipping:\n\t src %s %s\n",
-				 name, value);
+		    opkg_msg(ERROR, "Duplicate src declaration (%s %s). "
+				    "Skipping.\n", name, value);
 	       }
 	  } else if (strcmp(type, "src/gz") == 0) {
 	       if (!nv_pair_list_find((nv_pair_list_t*) pkg_src_list, name)) {
 		    pkg_src_list_append (pkg_src_list, name, value, extra, 1);
 	       } else {
-		    opkg_message(conf, OPKG_ERROR, "ERROR: duplicate src declaration.  Skipping:\n\t src %s %s\n",
-				 name, value);
+		    opkg_msg(ERROR, "Duplicate src declaration (%s %s). "
+				   "Skipping.\n", name, value);
 	       }
 	  } else if (strcmp(type, "dest") == 0) {
 	       nv_pair_list_append(tmp_dest_nv_pair_list, name, value);
 	  } else if (strcmp(type, "lists_dir") == 0) {
 	       conf->lists_dir = xstrdup(value);
 	  } else if (strcmp(type, "arch") == 0) {
-	       opkg_message(conf, OPKG_INFO, "supported arch %s priority (%s)\n", name, value);
+	       opkg_msg(INFO, "Supported arch %s priority (%s)\n", name, value);
 	       if (!value) {
-		    opkg_message(conf, OPKG_NOTICE, "defaulting architecture %s priority to 10\n", name);
+		    opkg_msg(NOTICE, "No priority given for architecture %s,"
+				   "defaulting to 10\n", name);
 		    value = xstrdup("10");
 	       }
 	       nv_pair_list_append(&conf->arch_list, name, value);
@@ -429,7 +430,6 @@ int
 opkg_conf_init(const args_t *args)
 {
      int err;
-     int errno_copy;
      char *tmp_dir_base, *tmp2;
      nv_pair_list_t tmp_dest_nv_pair_list;
      char *lock_file = NULL;
@@ -493,17 +493,18 @@ opkg_conf_init(const args_t *args)
      else
        sprintf_alloc (&lock_file, "%s/lock", OPKG_STATE_DIR_PREFIX);
 
-     err = lock_fd = creat (lock_file, S_IRUSR | S_IWUSR | S_IRGRP);
-     if (err != -1)
-       err = lockf (lock_fd, F_TLOCK, 0);
-     errno_copy = errno;
-
-     if (err) {
-       opkg_message (conf, OPKG_ERROR, "Could not lock %s: %s\n",
-                 lock_file, strerror(errno_copy));
-       free(lock_file);
-       return -1;
+     if (creat (lock_file, S_IRUSR | S_IWUSR | S_IRGRP) == -1) {
+	     opkg_perror(ERROR, "Could not create lock file %s", lock_file);
+	     free(lock_file);
+	     return -1;
      }
+
+     if (lockf (lock_fd, F_TLOCK, 0) == -1) {
+	  opkg_perror(ERROR, "Could not lock %s", lock_file);
+	  free(lock_file);
+	  return -1;
+     }
+
      free(lock_file);
 
      if (conf->tmp_dir)
@@ -517,9 +518,7 @@ opkg_conf_init(const args_t *args)
 	     free(conf->tmp_dir);
      conf->tmp_dir = mkdtemp(tmp2);
      if (conf->tmp_dir == NULL) {
-	  opkg_message(conf, OPKG_ERROR,
-			  "%s: Creating temp dir %s failed: %s\n",
-			  __FUNCTION__, tmp2, strerror(errno));
+	  opkg_perror(ERROR, "Creating temp dir %s failed", tmp2);
 	  return -1;
      }
 
@@ -605,7 +604,7 @@ opkg_conf_deinit(void)
 		}
 	}
 
-	if (conf->verbosity >= OPKG_DEBUG) { 
+	if (conf->verbosity >= DEBUG) { 
 		hash_print_stats(&conf->pkg_hash);
 		hash_print_stats(&conf->file_hash);
 		hash_print_stats(&conf->obs_file_hash);
@@ -620,8 +619,7 @@ opkg_conf_deinit(void)
 
 	/* lockf may be defined with warn_unused_result */
 	if (lockf(lock_fd, F_ULOCK, 0) != 0) {
-		opkg_message(conf, OPKG_DEBUG, "%s: unlock failed: %s\n",
-			__FUNCTION__, strerror(errno));
+		opkg_perror(ERROR, "unlock failed");
 	}
 
 	close(lock_fd);

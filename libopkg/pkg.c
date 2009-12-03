@@ -300,8 +300,8 @@ pkg_init_from_file(pkg_t *pkg, const char *filename)
 
 	err = pkg_extract_control_file_to_stream(pkg, control_file);
 	if (err) {
-		opkg_message(conf, OPKG_ERROR, "Failed to extract control file"
-				" from %s\n", filename);
+		opkg_msg(ERROR, "Failed to extract control file from %s.\n",
+				filename);
 		goto err2;
 	}
 
@@ -471,8 +471,7 @@ set_flags_from_control(pkg_t *pkg){
 
      fp = fopen(file_name, "r");
      if (fp == NULL) {
-	     opkg_message(conf, OPKG_ERROR, "%s: fopen(%s): %s\n",
-			     __FUNCTION__, file_name, strerror(errno));
+	     opkg_perror(ERROR, "Failed to open %s");
 	     free(file_name);
 	     return;
      }
@@ -480,7 +479,8 @@ set_flags_from_control(pkg_t *pkg){
      free(file_name);
 
      if (pkg_parse_from_stream(pkg, fp, PFM_ESSENTIAL)) {
-        opkg_message(conf, OPKG_DEBUG, "unable to read control file for %s. May be empty\n", pkg->name);
+        opkg_msg(DEBUG, "Unable to read control file for %s. May be empty.\n",
+			pkg->name);
      }
 
      fclose(fp);
@@ -1108,15 +1108,15 @@ pkg_get_installed_files(pkg_t *pkg)
 					  conf->tmp_dir, pkg->name);
 	  fd = mkstemp(list_file_name);
 	  if (fd == -1) {
-	       opkg_message(conf, OPKG_ERROR, "%s: mkstemp(%s): %s",
-			       __FUNCTION__, list_file_name, strerror(errno));
+	       opkg_perror(ERROR, "Failed to make temp file %s.",
+			       list_file_name);
 	       free(list_file_name);
 	       return pkg->installed_files;
 	  }
 	  list_file = fdopen(fd, "r+");
 	  if (list_file == NULL) {
-	       opkg_message(conf, OPKG_ERROR, "%s: fdopen: %s",
-			       __FUNCTION__, strerror(errno));
+	       opkg_perror(ERROR, "Failed to fdopen temp file %s.",
+			       list_file_name);
 	       close(fd);
 	       unlink(list_file_name);
 	       free(list_file_name);
@@ -1124,8 +1124,7 @@ pkg_get_installed_files(pkg_t *pkg)
 	  }
 	  err = pkg_extract_data_file_names_to_stream(pkg, list_file);
 	  if (err) {
-	       opkg_message(conf, OPKG_ERROR, "%s: Error extracting file list "
-			       "from %s\n", __FUNCTION__,
+	       opkg_msg(ERROR, "Error extracting file list from %s.\n",
 			       pkg->local_filename);
 	       fclose(list_file);
 	       unlink(list_file_name);
@@ -1140,8 +1139,8 @@ pkg_get_installed_files(pkg_t *pkg)
 			pkg->dest->info_dir, pkg->name);
 	  list_file = fopen(list_file_name, "r");
 	  if (list_file == NULL) {
-	       opkg_message(conf, OPKG_ERROR, "%s: fopen(%s): %s\n",
-		       __FUNCTION__, list_file_name, strerror(errno));
+	       opkg_perror(ERROR, "Failed to open %s.\n",
+		       list_file_name);
 	       free(list_file_name);
 	       return pkg->installed_files;
 	  }
@@ -1262,8 +1261,8 @@ pkg_run_script(pkg_t *pkg, const char *script, const char *args)
      /* XXX: FEATURE: When conf->offline_root is set, we should run the
 	maintainer script within a chroot environment. */
      if (conf->offline_root) {
-          opkg_message(conf, OPKG_NOTICE, 
-		"(offline root mode: not running %s.%s)\n", pkg->name, script);
+          opkg_msg(INFO, "Offline root mode: not running %s.%s.\n",
+			  pkg->name, script);
 	  return 0;
      }
 
@@ -1285,7 +1284,7 @@ pkg_run_script(pkg_t *pkg, const char *script, const char *args)
 	  sprintf_alloc(&path, "%s/%s", pkg->tmp_unpack_dir, script);
      }
 
-     opkg_message(conf, OPKG_INFO, "Running script %s\n", path);
+     opkg_msg(INFO, "Running script %s.\n", path);
 
      setenv("PKG_ROOT",
 	    pkg->dest ? pkg->dest->root_dir : conf->default_dest->root_dir, 1);
@@ -1322,12 +1321,14 @@ pkg_arch_supported(pkg_t *pkg)
      list_for_each_entry(l , &conf->arch_list.head, node) {
 	  nv_pair_t *nv = (nv_pair_t *)l->data;
 	  if (strcmp(nv->name, pkg->architecture) == 0) {
-	       opkg_message(conf, OPKG_DEBUG, "arch %s (priority %s) supported for pkg %s\n", nv->name, nv->value, pkg->name);
+	       opkg_msg(DEBUG, "Arch %s (priority %s) supported for pkg %s.\n",
+			       nv->name, nv->value, pkg->name);
 	       return 1;
 	  }
      }
 
-     opkg_message(conf, OPKG_DEBUG, "arch %s unsupported for pkg %s\n", pkg->architecture, pkg->name);
+     opkg_msg(DEBUG, "Arch %s unsupported for pkg %s.\n",
+		     pkg->architecture, pkg->name);
      return 0;
 }
 
@@ -1353,7 +1354,7 @@ pkg_info_preinstall_check(void)
      pkg_vec_t *available_pkgs = pkg_vec_alloc();
      pkg_vec_t *installed_pkgs = pkg_vec_alloc();
 
-     opkg_message(conf, OPKG_INFO, "pkg_info_preinstall_check: updating arch priority for each package\n");
+     opkg_msg(INFO, "Updating arch priority for each package.\n");
      pkg_hash_fetch_available(available_pkgs);
      /* update arch_priority for each package */
      for (i = 0; i < available_pkgs->len; i++) {
@@ -1361,12 +1362,7 @@ pkg_info_preinstall_check(void)
 	  int arch_priority = 1;
 	  if (!pkg)
 	       continue;
-	  // opkg_message(conf, OPKG_DEBUG2, " package %s version=%s arch=%p:", pkg->name, pkg->version, pkg->architecture);
-	  if (pkg->architecture) 
-	       arch_priority = pkg_get_arch_priority(pkg->architecture);
-	  else 
-	       opkg_message(conf, OPKG_ERROR, "pkg_info_preinstall_check: no architecture for package %s\n", pkg->name);
-	  // opkg_message(conf, OPKG_DEBUG2, "%s arch_priority=%d\n", pkg->architecture, arch_priority);
+	  arch_priority = pkg_get_arch_priority(pkg->architecture);
 	  pkg->arch_priority = arch_priority;
      }
 
@@ -1374,8 +1370,10 @@ pkg_info_preinstall_check(void)
 	  pkg_t *pkg = available_pkgs->pkgs[i];
 	  if (!pkg->arch_priority && (pkg->state_flag || (pkg->state_want != SW_UNKNOWN))) {
 	       /* clear flags and want for any uninstallable package */
-	       opkg_message(conf, OPKG_DEBUG, "Clearing state_want and state_flag for pkg=%s (arch_priority=%d flag=%d want=%d)\n", 
-			    pkg->name, pkg->arch_priority, pkg->state_flag, pkg->state_want);
+	       opkg_msg(DEBUG, "Clearing state_want and state_flag for pkg=%s "
+			       "(arch_priority=%d flag=%d want=%d)\n", 
+			       pkg->name, pkg->arch_priority,
+			       pkg->state_flag, pkg->state_want);
 	       pkg->state_want = SW_UNKNOWN;
 	       pkg->state_flag = 0;
 	  }
@@ -1383,14 +1381,14 @@ pkg_info_preinstall_check(void)
      pkg_vec_free(available_pkgs);
 
      /* update the file owner data structure */
-     opkg_message(conf, OPKG_INFO, "pkg_info_preinstall_check: update file owner list\n");
+     opkg_msg(INFO, "Updating file owner list.\n");
      pkg_hash_fetch_all_installed(installed_pkgs);
      for (i = 0; i < installed_pkgs->len; i++) {
 	  pkg_t *pkg = installed_pkgs->pkgs[i];
 	  str_list_t *installed_files = pkg_get_installed_files(pkg); /* this causes installed_files to be cached */
 	  str_list_elt_t *iter, *niter;
 	  if (installed_files == NULL) {
-	       opkg_message(conf, OPKG_ERROR, "Failed to determine installed "
+	       opkg_msg(ERROR, "Failed to determine installed "
 			       "files for pkg %s.\n", pkg->name);
 	       break;
 	  }
@@ -1398,7 +1396,6 @@ pkg_info_preinstall_check(void)
                   iter; 
                   iter = niter, niter = str_list_next(installed_files, iter)) {
 	       char *installed_file = (char *) iter->data;
-	       // opkg_message(conf, OPKG_DEBUG2, "pkg %s: file=%s\n", pkg->name, installed_file);
 	       file_hash_set_file_owner(installed_file, pkg);
 	  }
 	  pkg_free_installed_files(pkg);
@@ -1430,13 +1427,13 @@ pkg_write_filelist(pkg_t *pkg)
 	sprintf_alloc(&list_file_name, "%s/%s.list",
 			pkg->dest->info_dir, pkg->name);
 
-	opkg_message(conf, OPKG_INFO, "%s: creating %s file for pkg %s\n",
-			__FUNCTION__, list_file_name, pkg->name);
+	opkg_msg(INFO, "Creating %s file for pkg %s.\n",
+			list_file_name, pkg->name);
 
 	data.stream = fopen(list_file_name, "w");
 	if (!data.stream) {
-		opkg_message(conf, OPKG_ERROR, "%s: fopen(%s, \"w\"): %s\n",
-			__FUNCTION__, list_file_name, strerror(errno));
+		opkg_perror(ERROR, "Failed to open %s",
+			list_file_name);
 		free(list_file_name);
 		return -1;
 	}
@@ -1460,8 +1457,7 @@ pkg_write_changed_filelists(void)
 	if (conf->noaction)
 		return 0;
 
-	opkg_message(conf, OPKG_INFO, "%s: saving changed filelists\n",
-			__FUNCTION__);
+	opkg_msg(INFO, "Saving changed filelists.\n");
 
 	pkg_hash_fetch_all_installed(installed_pkgs);
 	for (i = 0; i < installed_pkgs->len; i++) {

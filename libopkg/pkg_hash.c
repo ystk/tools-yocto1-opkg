@@ -110,8 +110,9 @@ pkg_hash_add_from_file(const char *file_name,
 
 		if (!pkg->architecture) {
 			char *version_str = pkg_version_str_alloc(pkg);
-			opkg_message(conf, OPKG_ERROR, "Package %s version %s has no architecture specified, ignoring.\n",
-				pkg->name, version_str);
+			opkg_msg(ERROR, "Package %s version %s has no "
+					"architecture specified, ignoring.\n",
+					pkg->name, version_str);
 			free(version_str);
 			continue;
 		}
@@ -159,18 +160,18 @@ pkg_hash_fetch_best_installation_candidate(abstract_pkg_t *apkg,
      matching_apkgs = abstract_pkg_vec_alloc();
      providers = abstract_pkg_vec_alloc();
 
-     opkg_message(conf, OPKG_DEBUG, "best installation candidate for %s\n", apkg->name);
+     opkg_msg(DEBUG, "Best installation candidate for %s:\n", apkg->name);
 
      provided_apkg_vec = apkg->provided_by;
      nprovides = provided_apkg_vec->len;
      provided_apkgs = provided_apkg_vec->pkgs;
      if (nprovides > 1)
-	  opkg_message(conf, OPKG_DEBUG, " apkg=%s nprovides=%d\n", apkg->name, nprovides);
+	  opkg_msg(DEBUG, "apkg=%s nprovides=%d.\n", apkg->name, nprovides);
 
      /* accumulate all the providers */
      for (i = 0; i < nprovides; i++) {
 	  abstract_pkg_t *provider_apkg = provided_apkgs[i];
-	  opkg_message(conf, OPKG_DEBUG, " adding %s to providers\n", provider_apkg->name);
+	  opkg_msg(DEBUG, "Adding %s to providers.\n", provider_apkg->name);
 	  abstract_pkg_vec_insert(providers, provider_apkg);
      }
      nprovides = providers->len;
@@ -183,13 +184,14 @@ pkg_hash_fetch_best_installation_candidate(abstract_pkg_t *apkg,
 	  if (provider_apkg->replaced_by && provider_apkg->replaced_by->len) {
 	       replacement_apkg = provider_apkg->replaced_by->pkgs[0];
 	       if (provider_apkg->replaced_by->len > 1) {
-		    opkg_message(conf, OPKG_NOTICE, "Multiple replacers for %s, using first one (%s)\n", 
-				 provider_apkg->name, replacement_apkg->name);
+		    opkg_msg(NOTICE, "Multiple replacers for %s, "
+				"using first one (%s).\n",
+				provider_apkg->name, replacement_apkg->name);
 	       }
 	  }
 
 	  if (replacement_apkg)
-	       opkg_message(conf, OPKG_DEBUG, "   replacement_apkg=%s for provider_apkg=%s\n", 
+	       opkg_msg(DEBUG, "replacement_apkg=%s for provider_apkg=%s.\n", 
 			    replacement_apkg->name, provider_apkg->name);
 
 	  if (replacement_apkg && (replacement_apkg != provider_apkg)) {
@@ -200,7 +202,8 @@ pkg_hash_fetch_best_installation_candidate(abstract_pkg_t *apkg,
 	  }
 
 	  if (!(vec = provider_apkg->pkgs)) {
-	       opkg_message(conf, OPKG_DEBUG, "   no pkgs for provider_apkg %s\n", provider_apkg->name);
+	       opkg_msg(DEBUG, "No pkgs for provider_apkg %s.\n",
+			       provider_apkg->name);
 	       continue;
 	  }
     
@@ -213,8 +216,9 @@ pkg_hash_fetch_best_installation_candidate(abstract_pkg_t *apkg,
 	       /* count packages matching max arch priority and keep track of last one */
 	       for (i = 0; i < vec->len; i++) {
 		    pkg_t *maybe = vec->pkgs[i];
-		    opkg_message(conf, OPKG_DEBUG, "  %s arch=%s arch_priority=%d version=%s  \n",
-				 maybe->name, maybe->architecture, maybe->arch_priority, maybe->version);
+		    opkg_msg(DEBUG, "%s arch=%s arch_priority=%d version=%s.\n",
+				 maybe->name, maybe->architecture,
+				 maybe->arch_priority, maybe->version);
                     /* We make sure not to add the same package twice. Need to search for the reason why 
                        they show up twice sometimes. */
 		    if ((maybe->arch_priority > 0) && (! pkg_vec_contains(matching_pkgs, maybe))) {
@@ -231,7 +235,7 @@ pkg_hash_fetch_best_installation_candidate(abstract_pkg_t *apkg,
 
      if (matching_pkgs->len < 1) {
 	  if (wrong_arch_found)
-	        opkg_message (conf, OPKG_ERROR, "Packages for %s found, but"
+	        opkg_msg(ERROR, "Packages for %s found, but"
 			" incompatible with the architectures configured\n",
 			apkg->name);
           pkg_vec_free(matching_pkgs);
@@ -249,7 +253,8 @@ pkg_hash_fetch_best_installation_candidate(abstract_pkg_t *apkg,
      for (i = 0; i < matching_pkgs->len; i++) {
 	  pkg_t *matching = matching_pkgs->pkgs[i];
           if (constraint_fcn(matching, cdata)) {
-             opkg_message(conf, OPKG_DEBUG, " Found a valid candidate for the install: %s %s  \n", matching->name, matching->version) ;
+             opkg_msg(DEBUG, "Candidate: %s %s.\n",
+			     matching->name, matching->version) ;
              good_pkg_by_name = matching;
 	     /* It has been provided by hand, so it is what user want */
              if (matching->provided_by_hand == 1)
@@ -265,8 +270,10 @@ pkg_hash_fetch_best_installation_candidate(abstract_pkg_t *apkg,
 	       latest_installed_parent = matching;
 	  if (matching->state_flag & (SF_HOLD|SF_PREFER)) {
 	       if (held_pkg)
-		    opkg_message(conf, OPKG_NOTICE, "Multiple packages (%s and %s) providing same name marked HOLD or PREFER.  Using latest.\n",
-				 held_pkg->name, matching->name);
+		    opkg_msg(NOTICE, "Multiple packages (%s and %s) providing"
+				" same name marked HOLD or PREFER. "
+				"Using latest.\n",
+				held_pkg->name, matching->name);
 	       held_pkg = matching;
 	  }
      }
@@ -278,19 +285,21 @@ pkg_hash_fetch_best_installation_candidate(abstract_pkg_t *apkg,
                   if (matching->arch_priority > prio) {
                       priorized_matching = matching;
                       prio = matching->arch_priority;
-                      opkg_message(conf, OPKG_DEBUG, "Match with priority %i    %s\n", prio, matching->name);
+                      opkg_msg(DEBUG, "Match %s with priority %i.\n",
+				matching->name, prio);
                   }
               }
           
           }
 
-     if (conf->verbosity >= OPKG_INFO && matching_apkgs->len > 1) {
-	  opkg_message(conf, OPKG_INFO, "%s: for apkg=%s, %d matching pkgs\n",
-		       __FUNCTION__, apkg->name, matching_pkgs->len);
+     if (conf->verbosity >= INFO && matching_apkgs->len > 1) {
+	  opkg_msg(INFO, "%d matching pkgs for apkg=%s:\n",
+				matching_pkgs->len, apkg->name);
 	  for (i = 0; i < matching_pkgs->len; i++) {
 	       pkg_t *matching = matching_pkgs->pkgs[i];
-	       opkg_message(conf, OPKG_INFO, "    %s %s %s\n",
-			    matching->name, matching->version, matching->architecture);
+	       opkg_msg(INFO, "%s %s %s\n",
+			matching->name, matching->version,
+			matching->architecture);
 	  }
      }
 
@@ -304,25 +313,29 @@ pkg_hash_fetch_best_installation_candidate(abstract_pkg_t *apkg,
 	  return good_pkg_by_name;
      }
      if (held_pkg) {
-	  opkg_message(conf, OPKG_INFO, "  using held package %s\n", held_pkg->name);
+	  opkg_msg(INFO, "Using held package %s.\n", held_pkg->name);
 	  return held_pkg;
      }
      if (latest_installed_parent) {
-	  opkg_message(conf, OPKG_INFO, "  using latest version of installed package %s\n", latest_installed_parent->name);
+	  opkg_msg(INFO, "Using latest version of installed package %s.\n",
+			latest_installed_parent->name);
 	  return latest_installed_parent;
      }
      if (priorized_matching) {
-	  opkg_message(conf, OPKG_INFO, "  using priorized matching %s %s %s\n",
-		       priorized_matching->name, priorized_matching->version, priorized_matching->architecture);
+	  opkg_msg(INFO, "Using priorized matching %s %s %s.\n",
+			priorized_matching->name, priorized_matching->version,
+			priorized_matching->architecture);
 	  return priorized_matching;
      }
      if (nmatching > 1) {
-	  opkg_message(conf, OPKG_INFO, "  no matching pkg out of matching_apkgs=%d\n", nmatching);
+	  opkg_msg(INFO, "No matching pkg out of %d matching_apkgs.\n",
+			nmatching);
 	  return NULL;
      }
      if (latest_matching) {
-	  opkg_message(conf, OPKG_INFO, "  using latest matching %s %s %s\n",
-		       latest_matching->name, latest_matching->version, latest_matching->architecture);
+	  opkg_msg(INFO, "Using latest matching %s %s %s.\n",
+			latest_matching->name, latest_matching->version,
+			latest_matching->architecture);
 	  return latest_matching;
      }
      return NULL;

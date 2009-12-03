@@ -34,7 +34,7 @@ opkg_configure(pkg_t *pkg)
 
     err = pkg_run_script(pkg, "postinst", "configure");
     if (err) {
-	opkg_message(conf, OPKG_ERROR, "ERROR: %s.postinst returned %d\n", pkg->name, err);
+	opkg_msg(ERROR, "%s.postinst returned %d.\n", pkg->name, err);
 	return err;
     }
 

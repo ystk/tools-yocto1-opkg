@@ -131,18 +131,28 @@ pkg_hash_fetch_unsatisfied_dependencies(pkg_t * pkg, pkg_vec_t *unsatisfied,
 					    pkg_t *p = tmp_vec->pkgs[m];
 					    if (p->state_want == SW_INSTALL)
 						continue;
-					    opkg_message(conf, OPKG_DEBUG, "not installing %s due to requirement for %s\n", pkg_scout->name, p->name);
+					    opkg_msg(DEBUG,
+						"Not installing %s due"
+						" to requirement for %s.\n",
+						pkg_scout->name,
+						p->name);
 					    ok = 0;
 					    break;
 					}
 					pkg_vec_free (tmp_vec);
 					if (ok) {
 					    /* mark this one for installation */
-					    opkg_message(conf, OPKG_NOTICE, "Adding satisfier for greedy dependence: %s\n", pkg_scout->name);
+					    opkg_msg(NOTICE,
+						"Adding satisfier for greedy"
+						" dependence %s.\n",
+						pkg_scout->name);
 					    pkg_vec_insert(unsatisfied, pkg_scout);
 					}
 				   } else  {
-					opkg_message(conf, OPKG_DEBUG, "not installing %s due to broken depends \n", pkg_scout->name);
+					opkg_msg(DEBUG,
+						"Not installing %s due to "
+						"broken depends.\n",
+						pkg_scout->name);
 					free (newstuff);
 				   }
 			      }
@@ -168,7 +178,7 @@ pkg_hash_fetch_unsatisfied_dependencies(pkg_t * pkg, pkg_vec_t *unsatisfied,
 	              satisfying_pkg = NULL;
                   }
                }
-	       opkg_message(conf, OPKG_DEBUG, "%s:%d: satisfying_pkg=%p \n", __FILE__, __LINE__, satisfying_pkg);
+	       opkg_msg(DEBUG, "satisfying_pkg=%p\n", satisfying_pkg);
 	       if (satisfying_pkg != NULL) {
 		    found = 1;
 		    break;
@@ -197,12 +207,13 @@ pkg_hash_fetch_unsatisfied_dependencies(pkg_t * pkg, pkg_vec_t *unsatisfied,
 		    if (satisfying_pkg != NULL
 			&& (compound_depend->type == RECOMMEND || compound_depend->type == SUGGEST)
 			&& (satisfying_pkg->state_want == SW_DEINSTALL || satisfying_pkg->state_want == SW_PURGE)) {
-			 opkg_message (conf, OPKG_NOTICE, "%s: ignoring recommendation for %s at user request\n",
-				       pkg->name, satisfying_pkg->name);
+			 opkg_msg(NOTICE, "%s: ignoring recommendation for "
+					"%s at user request\n",
+					pkg->name, satisfying_pkg->name);
 			 continue;
 		    }
 
-		    opkg_message(conf, OPKG_DEBUG, "%s:%d: satisfying_pkg=%p\n", __FILE__, __LINE__, satisfying_pkg);
+		    opkg_msg(DEBUG, "satisfying_pkg=%p\n", satisfying_pkg);
 		    if (satisfying_pkg != NULL) {
 			 satisfier_entry_pkg = satisfying_pkg;
 			 break;
@@ -217,14 +228,16 @@ pkg_hash_fetch_unsatisfied_dependencies(pkg_t * pkg, pkg_vec_t *unsatisfied,
 		    if (compound_depend->type != RECOMMEND && compound_depend->type != SUGGEST)
 			 the_lost = add_unresolved_dep(pkg, the_lost, i);
 		    else
-			 opkg_message (conf, OPKG_NOTICE, "%s: unsatisfied recommendation for %s\n",
-				       pkg->name, compound_depend->possibilities[0]->pkg->name);
+			 opkg_msg(NOTICE,
+				"%s: unsatisfied recommendation for %s\n",
+				pkg->name,
+				compound_depend->possibilities[0]->pkg->name);
 	       }
 	       else {
 		    if (compound_depend->type == SUGGEST) {
 			 /* just mention it politely */
-			 opkg_message (conf, OPKG_NOTICE, "package %s suggests installing %s\n",
-				       pkg->name, satisfier_entry_pkg->name);
+			 opkg_msg(NOTICE, "package %s suggests installing %s\n",
+				pkg->name, satisfier_entry_pkg->name);
 		    } else {
 			 char ** newstuff = NULL;
 			 
@@ -265,7 +278,8 @@ int is_pkg_a_replaces(pkg_t *pkg_scout,pkg_t *pkg)
 
     for (i = 0; i < replaces_count; i++) {
         if (strcmp(pkg_scout->name,pkg->replaces[i]->name)==0) {      // Found
-            opkg_message(NULL, OPKG_DEBUG2, "Seems I've found a replace %s %s \n",pkg_scout->name,pkg->replaces[i]->name);
+            opkg_msg(DEBUG2, "Seems I've found a replace %s %s\n",
+			pkg_scout->name, pkg->replaces[i]->name);
             return 1;
         }
     }

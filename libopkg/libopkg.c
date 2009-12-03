@@ -24,7 +24,6 @@
 #include "file_util.h"
 
 #include "opkg_message.h"
-#include "opkg_error.h"
 
 /* This is used for backward compatibility */
 int

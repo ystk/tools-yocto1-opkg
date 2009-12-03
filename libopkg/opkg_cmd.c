@@ -38,7 +38,6 @@
 #include "opkg_upgrade.h"
 #include "opkg_remove.h"
 #include "opkg_configure.h"
-#include "opkg_message.h"
 #include "libopkg.h"
 #include "xsystem.h"
 
@@ -59,12 +58,11 @@ static void
 write_status_files_if_changed(void)
 {
      if (opkg_state_changed && !conf->noaction) {
-	  opkg_message(conf, OPKG_INFO,
-		       "  writing status file\n");
+	  opkg_msg(INFO, "Writing status file.\n");
 	  opkg_conf_write_status_files();
 	  pkg_write_changed_filelists();
      } else { 
-	  opkg_message(conf, OPKG_DEBUG, "Nothing to be done\n");
+	  opkg_msg(DEBUG, "Nothing to be done.\n");
      }
 }
 
@@ -72,8 +70,7 @@ static void
 sigint_handler(int sig)
 {
      signal(sig, SIG_DFL);
-     opkg_message(NULL, OPKG_NOTICE,
-		  "opkg: interrupted. writing out status database\n");
+     opkg_msg(NOTICE, "Interrupted. Writing out status database.\n");
      write_status_files_if_changed();
      exit(128 + sig);
 }
@@ -93,17 +90,13 @@ opkg_update_cmd(int argc, char **argv)
  
     if (! file_is_dir(lists_dir)) {
 	  if (file_exists(lists_dir)) {
-	       opkg_message(conf, OPKG_ERROR,
-			    "%s: ERROR: %s exists, but is not a directory\n",
-			    __FUNCTION__, lists_dir);
+	       opkg_msg(ERROR, "%s exists, but is not a directory.\n",
+			    lists_dir);
 	       free(lists_dir);
 	       return -1;
 	  }
 	  err = file_mkdir_hier(lists_dir, 0755);
 	  if (err) {
-	       opkg_message(conf, OPKG_ERROR,
-			    "%s: ERROR: failed to make directory %s: %s\n",
-			    __FUNCTION__, lists_dir, strerror(errno));
 	       free(lists_dir);
 	       return -1;
 	  }	
@@ -137,7 +130,7 @@ opkg_update_cmd(int argc, char **argv)
 	      sprintf_alloc (&tmp_file_name, "%s/%s.gz", tmp, src->name);
 	      err = opkg_download(url, tmp_file_name, NULL, NULL);
 	      if (err == 0) {
-		   opkg_message (conf, OPKG_NOTICE, "Inflating %s\n", url);
+		   opkg_msg(NOTICE, "Inflating %s.\n", url);
 		   in = fopen (tmp_file_name, "r");
 		   out = fopen (list_file_name, "w");
 		   if (in && out)
@@ -156,8 +149,7 @@ opkg_update_cmd(int argc, char **argv)
 	  if (err) {
 	       failures++;
 	  } else {
-	       opkg_message(conf, OPKG_NOTICE,
-			    "Updated list of available packages in %s\n",
+	       opkg_msg(NOTICE, "Updated list of available packages in %s.\n",
 			    list_file_name);
 	  }
 	  free(url);
@@ -180,14 +172,14 @@ opkg_update_cmd(int argc, char **argv)
               err = opkg_download(url, tmp_file_name, NULL, NULL);
               if (err) {
                   failures++;
-                  opkg_message (conf, OPKG_NOTICE, "Signature check failed\n");
+                  opkg_msg(NOTICE, "Signature check failed.\n");
               } else {
                   int err;
                   err = opkg_verify_file (list_file_name, tmp_file_name);
                   if (err == 0)
-                      opkg_message (conf, OPKG_NOTICE, "Signature check passed\n");
+                      opkg_msg(NOTICE, "Signature check passed.\n");
                   else
-                      opkg_message (conf, OPKG_NOTICE, "Signature check failed\n");
+                      opkg_msg(NOTICE, "Signature check failed.\n");
               }
               /* We shouldn't unlink the signature ! */
               // unlink (tmp_file_name);
@@ -311,8 +303,7 @@ opkg_recurse_pkgs_in_order(pkg_t *pkg, pkg_vec_t *all,
     /* If the  package has already been visited (by this function), skip it */
     for(j = 0; j < visited->len; j++) 
         if ( ! strcmp(visited->pkgs[j]->name, pkg->name)) {
-            opkg_message(conf, OPKG_INFO,
-                         "  pkg: %s already visited\n", pkg->name);
+            opkg_msg(INFO, "pkg %s already visited, skipping.\n", pkg->name);
             return 0;
         }
     
@@ -321,8 +312,7 @@ opkg_recurse_pkgs_in_order(pkg_t *pkg, pkg_vec_t *all,
     count = pkg->pre_depends_count + pkg->depends_count + \
         pkg->recommends_count + pkg->suggests_count;
 
-    opkg_message(conf, OPKG_INFO,
-                 "  pkg: %s\n", pkg->name);
+    opkg_msg(INFO, "pkg %s.\n", pkg->name);
 
     /* Iterate over all the dependencies of pkg. For each one, find a package 
        that is either installed or unpacked and satisfies this dependency.
@@ -337,8 +327,7 @@ opkg_recurse_pkgs_in_order(pkg_t *pkg, pkg_vec_t *all,
             l = 0;
             if (dependents != NULL)
                 while (l < abpkg->provided_by->len && dependents[l] != NULL) {
-                    opkg_message(conf, OPKG_INFO,
-                                 "  Descending on pkg: %s\n", 
+                    opkg_msg(INFO, "Descending on pkg %s.\n", 
                                  dependents [l]->name);
     
                     /* find whether dependent l is installed or unpacked,
@@ -378,8 +367,7 @@ opkg_configure_packages(char *pkg_name)
      opkg_intercept_t ic;
      int r, err = 0;
 
-     opkg_message(conf, OPKG_INFO,
-		  "Configuring unpacked packages\n");
+     opkg_msg(INFO, "Configuring unpacked packages.\n");
      fflush( stdout );
 
      all = pkg_vec_alloc();
@@ -388,8 +376,7 @@ opkg_configure_packages(char *pkg_name)
 
      /* Reorder pkgs in order to be configured according to the Depends: tag
         order */
-     opkg_message(conf, OPKG_INFO,
-                  "Reordering packages before configuring them...\n");
+     opkg_msg(INFO, "Reordering packages before configuring them...\n");
      ordered = pkg_vec_alloc();
      visited = pkg_vec_alloc();
      for(i = 0; i < all->len; i++) {
@@ -410,8 +397,7 @@ opkg_configure_packages(char *pkg_name)
 	       continue;
 
 	  if (pkg->state_status == SS_UNPACKED) {
-	       opkg_message(conf, OPKG_NOTICE,
-			    "Configuring %s\n", pkg->name);
+	       opkg_msg(NOTICE, "Configuring %s.\n", pkg->name);
 	       fflush( stdout );
 	       r = opkg_configure(pkg);
 	       if (r == 0) {
@@ -452,7 +438,7 @@ opkg_install_cmd(int argc, char **argv)
      for (i=0; i < argc; i++) {
 	  arg = argv[i];
 
-          opkg_message(conf, OPKG_DEBUG2, "Debug install_cmd: %s  \n",arg );
+          opkg_msg(DEBUG2, "%s\n", arg);
           err = opkg_prepare_url_for_install(arg, &argv[i]);
           if (err)
               return err;
@@ -463,7 +449,7 @@ opkg_install_cmd(int argc, char **argv)
 	  arg = argv[i];
           err = opkg_install_by_name(arg);
 	  if (err) {
-	       opkg_message(conf, OPKG_ERROR, "Cannot find package %s.\n", arg);
+	       opkg_msg(ERROR, "Cannot find package %s.\n", arg);
 	  }
      }
 
@@ -499,8 +485,7 @@ opkg_upgrade_cmd(int argc, char **argv)
 		    pkg = pkg_hash_fetch_installed_by_name_dest(argv[i],
 							conf->default_dest);
 		    if (pkg == NULL) {
-			 opkg_message(conf, OPKG_NOTICE,
-				      "Package %s not installed in %s\n",
+			 opkg_msg(NOTICE, "Package %s not installed in %s.\n",
 				      argv[i], conf->default_dest->name);
 			 continue;
 		    }
@@ -546,21 +531,16 @@ opkg_download_cmd(int argc, char **argv)
 
 	  pkg = pkg_hash_fetch_best_installation_candidate_by_name(arg);
 	  if (pkg == NULL) {
-	       opkg_message(conf, OPKG_ERROR,
-			    "Cannot find package %s.\n"
-			    "Check the spelling or perhaps run 'opkg update'\n",
-			    arg);
+	       opkg_msg(ERROR, "Cannot find package %s.\n", arg);
 	       continue;
 	  }
 
 	  err = opkg_download_pkg(pkg, ".");
 
 	  if (err) {
-	       opkg_message(conf, OPKG_ERROR,
-			    "Failed to download %s\n", pkg->name);
+	       opkg_msg(ERROR, "Failed to download %s.\n", pkg->name);
 	  } else {
-	       opkg_message(conf, OPKG_NOTICE,
-			    "Downloaded %s as %s\n",
+	       opkg_msg(NOTICE, "Downloaded %s as %s.\n",
 			    pkg->name, pkg->local_filename);
 	  }
      }
@@ -671,14 +651,13 @@ opkg_info_status_cmd(int argc, char **argv, int installed_only)
 
 	  pkg_formatted_info(stdout, pkg);
 
-	  if (conf->verbosity >= OPKG_NOTICE) {
+	  if (conf->verbosity >= NOTICE) {
 	       conffile_list_elt_t *iter;
 	       for (iter = nv_pair_list_first(&pkg->conffiles); iter; iter = nv_pair_list_next(&pkg->conffiles, iter)) {
 		    conffile_t *cf = (conffile_t *)iter->data;
 		    int modified = conffile_has_been_modified(cf);
 		    if (cf->value)
-		        opkg_message(conf, OPKG_INFO,
-				"conffile=%s md5sum=%s modified=%d\n",
+		        opkg_msg(INFO, "conffile=%s md5sum=%s modified=%d.\n",
 				 cf->name, cf->value, modified);
 	       }
 	  }
@@ -748,11 +727,11 @@ opkg_remove_cmd(int argc, char **argv)
             }
         
             if (pkg_to_remove == NULL) {
-	         opkg_message(conf, OPKG_ERROR, "Package %s is not installed.\n", pkg->name);
+	         opkg_msg(ERROR, "Package %s is not installed.\n", pkg->name);
 	         continue;
             }
             if (pkg->state_status == SS_NOT_INSTALLED) {    // Added the control, so every already removed package could be skipped
-	         opkg_message(conf, OPKG_ERROR, "Package seems to be %s not installed (STATUS = NOT_INSTALLED).\n", pkg->name);
+	         opkg_msg(ERROR, "Package %s not installed.\n", pkg->name);
                  continue;
             }
             opkg_remove_pkg(pkg_to_remove, 0);
@@ -763,7 +742,7 @@ opkg_remove_cmd(int argc, char **argv)
      pkg_vec_free(available);
 
      if (done == 0)
-        opkg_message(conf, OPKG_NOTICE, "No packages removed.\n");
+        opkg_msg(NOTICE, "No packages removed.\n");
 
      write_status_files_if_changed();
      return 0;
@@ -787,8 +766,7 @@ opkg_flag_cmd(int argc, char **argv)
 	  }
 
 	  if (pkg == NULL) {
-	       opkg_message(conf, OPKG_ERROR,
-			    "Package %s is not installed.\n", argv[i]);
+	       opkg_msg(ERROR, "Package %s is not installed.\n", argv[i]);
 	       continue;
 	  }
           if (( strcmp(flags,"hold")==0)||( strcmp(flags,"noprune")==0)||
@@ -805,8 +783,7 @@ opkg_flag_cmd(int argc, char **argv)
           }
 
 	  opkg_state_changed++;
-	  opkg_message(conf, OPKG_NOTICE,
-		       "Setting flags for package %s to %s\n",
+	  opkg_msg(NOTICE, "Setting flags for package %s to %s.\n",
 		       pkg->name, flags);
      }
 
@@ -828,8 +805,7 @@ opkg_files_cmd(int argc, char **argv)
 
      pkg = pkg_hash_fetch_installed_by_name(argv[0]);
      if (pkg == NULL) {
-	  opkg_message(conf, OPKG_ERROR,
-		       "Package %s not installed.\n", argv[0]);
+	  opkg_msg(ERROR, "Package %s not installed.\n", argv[0]);
 	  return 0;
      }
 
@@ -878,8 +854,7 @@ opkg_depends_cmd(int argc, char **argv)
 					pkg->recommends_count +
 					pkg->suggests_count;
 
-			opkg_message(conf, OPKG_NOTICE, "%s depends on:\n",
-				      pkg->name);
+			opkg_msg(NOTICE, "%s depends on:\n", pkg->name);
 
 			for (k=0; k<depends_count; k++) {
 				cdep = &pkg->depends[k];
@@ -888,7 +863,7 @@ opkg_depends_cmd(int argc, char **argv)
 				      continue;
 
 				str = pkg_depend_str(pkg, k);
-				opkg_message(conf, OPKG_NOTICE, "\t%s\n", str);
+				opkg_msg(NOTICE, "\t%s\n", str);
 				free(str);
 			}
 
@@ -950,7 +925,7 @@ opkg_what_depends_conflicts_cmd(enum depend_type what_field_type, int recursive,
 
 	/* mark the root set */
 	pkg_vec_clear_marks(available_pkgs);
-	opkg_message(conf, OPKG_NOTICE, "Root set:\n");
+	opkg_msg(NOTICE, "Root set:\n");
 	for (i = 0; i < argc; i++)
 	       pkg_vec_mark_if_matches(available_pkgs, argv[i]);
 
@@ -959,11 +934,11 @@ opkg_what_depends_conflicts_cmd(enum depend_type what_field_type, int recursive,
 	       if (pkg->state_flag & SF_MARKED) {
 		    /* mark the parent (abstract) package */
 		    pkg_mark_provides(pkg);
-		    opkg_message(conf, OPKG_NOTICE, "  %s\n", pkg->name);
+		    opkg_msg(NOTICE, "  %s\n", pkg->name);
 	       }
 	}
 
-	opkg_message(conf, OPKG_NOTICE, "What %s root set\n", rel_str);
+	opkg_msg(NOTICE, "What %s root set\n", rel_str);
 	do {
 		changed = 0;
 
@@ -1004,23 +979,21 @@ opkg_what_depends_conflicts_cmd(enum depend_type what_field_type, int recursive,
 					changed++;
 
 					ver = pkg_version_str_alloc(pkg); 
-				        opkg_message(conf, OPKG_NOTICE,
-							"\t%s %s\t%s %s",
+				        opkg_msg(NOTICE, "\t%s %s\t%s %s",
 							pkg->name,
 							ver,
 							rel_str,
 							possibility->pkg->name);
 					free(ver);
 					if (possibility->version) {
-						opkg_message(conf, OPKG_NOTICE,
-							" (%s%s)",
+						opkg_msg(NOTICE, " (%s%s)",
 							constraint_to_str(possibility->constraint),
 							possibility->version);
 					}
 					if (!pkg_dependence_satisfiable(possibility))
-						opkg_message(conf, OPKG_NOTICE,
+						opkg_msg(NOTICE,
 							" unsatisfiable");
-					opkg_message(conf, OPKG_NOTICE, "\n");
+					opkg_msg(NOTICE, "\n");
 					goto next_package;
 				}
 			}
@@ -1083,7 +1056,7 @@ opkg_what_provides_replaces_cmd(enum what_field_type what_field_type, int argc, 
 	       const char *target = argv[i];
 	       int j;
 
-	       opkg_message(conf, OPKG_ERROR, "What %s %s\n",
+	       opkg_msg(NOTICE, "What %s %s\n",
 			    rel_str, target);
 	       for (j = 0; j < available_pkgs->len; j++) {
 		    pkg_t *pkg = available_pkgs->pkgs[j];
@@ -1095,10 +1068,11 @@ opkg_what_provides_replaces_cmd(enum what_field_type what_field_type, int argc, 
 			       ? pkg->provides[k]
 			       : pkg->replaces[k]);
 			 if (fnmatch(target, apkg->name, 0) == 0) {
-			      opkg_message(conf, OPKG_ERROR, "    %s", pkg->name);
+			      opkg_msg(NOTICE, "    %s", pkg->name);
 			      if (strcmp(target, apkg->name) != 0)
-				   opkg_message(conf, OPKG_ERROR, "\t%s %s\n", rel_str, apkg->name);
-			      opkg_message(conf, OPKG_ERROR, "\n");
+				   opkg_msg(NOTICE, "\t%s %s\n",
+						   rel_str, apkg->name);
+			      opkg_msg(NOTICE, "\n");
 			 }
 		    }
 	       }
@@ -1168,7 +1142,7 @@ opkg_compare_versions_cmd(int argc, char **argv)
 	  parse_version(&p2, argv[2]); 
 	  return pkg_version_satisfied(&p1, &p2, argv[1]);
      } else {
-	  opkg_message(conf, OPKG_ERROR,
+	  opkg_msg(ERROR,
 		       "opkg compare_versions <v1> <op> <v2>\n"
 		       "<op> is one of <= >= << >> =\n");
 	  return -1;

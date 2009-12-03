@@ -18,13 +18,6 @@
 #ifndef OPKG_UTILS_H
 #define OPKG_UTILS_H
 
-#include "pkg.h"
-#include "opkg_error.h"
-
-void push_error_list(char * msg);
-void free_error_list(void);
-void print_error_list(void);
-
 unsigned long get_available_kbytes(char * filesystem);
 char *trim_xstrdup(const char *line);
 int line_is_blank(const char *line);
