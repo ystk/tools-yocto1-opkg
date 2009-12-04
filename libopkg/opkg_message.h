@@ -17,6 +17,9 @@
 #ifndef _OPKG_MESSAGE_H_
 #define _OPKG_MESSAGE_H_
 
+#include <string.h>
+#include <errno.h>
+
 typedef enum {
 	ERROR,	/* error conditions */
 	NOTICE,	/* normal but significant condition */
