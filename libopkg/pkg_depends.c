@@ -599,7 +599,7 @@ void buildProvides(abstract_pkg_t * ab_pkg, pkg_t * pkg)
 	free(pkg->provides_str);
 }
 
-void buildConflicts(abstract_pkg_t * ab_pkg, pkg_t * pkg)
+void buildConflicts(pkg_t * pkg)
 {
     int i;
     compound_depend_t * conflicts;

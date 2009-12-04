@@ -22,7 +22,7 @@
 #include "opkg_conf.h"
 
 int opkg_remove_pkg(pkg_t *pkg,int message);
-int pkg_has_installed_dependents(abstract_pkg_t *parent_apkg, pkg_t *pkg, abstract_pkg_t *** pdependents);
+int pkg_has_installed_dependents(pkg_t *pkg, abstract_pkg_t *** pdependents);
 void remove_data_files_and_list(pkg_t *pkg);
 void remove_maintainer_scripts(pkg_t *pkg);
 

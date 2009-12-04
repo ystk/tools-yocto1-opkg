@@ -351,8 +351,7 @@ pkg_remove_orphan_dependent(pkg_t *pkg, pkg_t *old_pkg)
 			if (!p->auto_installed)
 				continue;
 
-			n_deps = pkg_has_installed_dependents(NULL, p,
-					&dependents);
+			n_deps = pkg_has_installed_dependents(p, &dependents);
 			n_deps--; /* don't count old_pkg */
 
 			if (n_deps == 0) {

@@ -32,7 +32,7 @@
  * Every package implicitly provides itself.
  */
 int
-pkg_has_installed_dependents(abstract_pkg_t *parent_apkg, pkg_t *pkg, abstract_pkg_t *** pdependents)
+pkg_has_installed_dependents(pkg_t *pkg, abstract_pkg_t *** pdependents)
 {
      int nprovides = pkg->provides_count;
      abstract_pkg_t **provides = pkg->provides;
@@ -148,7 +148,7 @@ opkg_remove_dependent_pkgs(pkg_t *pkg, abstract_pkg_t **dependents)
 }
 
 static void
-print_dependents_warning(abstract_pkg_t *abpkg, pkg_t *pkg, abstract_pkg_t **dependents)
+print_dependents_warning(pkg_t *pkg, abstract_pkg_t **dependents)
 {
     abstract_pkg_t *dep_ab_pkg;
     opkg_msg(ERROR, "Package %s is depended upon by packages:\n", pkg->name);
@@ -199,8 +199,7 @@ remove_autoinstalled(pkg_t *pkg)
 			if (!p->auto_installed)
 				continue;
 
-			n_deps = pkg_has_installed_dependents(NULL, p,
-					&dependents);
+			n_deps = pkg_has_installed_dependents(p, &dependents);
 			if (n_deps == 0) {
 				 opkg_msg(NOTICE, "%s was autoinstalled and is "
 					       "now orphaned, removing.\n",
@@ -256,7 +255,7 @@ opkg_remove_pkg(pkg_t *pkg, int from_upgrade)
 	 && !(pkg->state_flag & SF_REPLACE)) {
 	  abstract_pkg_t **dependents;
 	  int has_installed_dependents = 
-	       pkg_has_installed_dependents(parent_pkg, pkg, &dependents);
+	       pkg_has_installed_dependents(pkg, &dependents);
 
 	  if (has_installed_dependents) {
 	       /*
@@ -265,7 +264,7 @@ opkg_remove_pkg(pkg_t *pkg, int from_upgrade)
 		*/
 
 	       if (!conf->force_removal_of_dependent_packages) {
-		    print_dependents_warning(parent_pkg, pkg, dependents);
+		    print_dependents_warning(pkg, dependents);
 		    free(dependents);
 		    return -1;
 	       }

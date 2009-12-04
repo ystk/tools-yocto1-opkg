@@ -559,7 +559,7 @@ hash_insert_pkg(pkg_t *pkg, int set_status)
 	/* Need to build the conflicts graph before replaces for correct
 	 * calculation of replaced_by relation.
 	 */
-	buildConflicts(ab_pkg, pkg);
+	buildConflicts(pkg);
 
 	buildReplaces(ab_pkg, pkg);
 

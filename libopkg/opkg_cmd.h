@@ -29,7 +29,7 @@ struct opkg_cmd
 typedef struct opkg_cmd opkg_cmd_t;
 
 opkg_cmd_t *opkg_cmd_find(const char *name);
-int opkg_cmd_exec(opkg_cmd_t *cmd, int argc, const char **argv, void *userdata);
+int opkg_cmd_exec(opkg_cmd_t *cmd, int argc, const char **argv);
 
 extern int opkg_state_changed;
 #endif

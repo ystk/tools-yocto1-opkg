@@ -603,7 +603,7 @@ opkg_list_installed_cmd(int argc, char **argv)
 }
 
 static int
-opkg_list_upgradable_cmd(int argc, char **argv) 
+opkg_list_upgradable_cmd(int argc, char **argv)
 {
     struct active_list *head = prepare_upgrade_list();
     struct active_list *node=NULL;
@@ -1213,7 +1213,7 @@ opkg_cmd_find(const char *name)
 }
 
 int
-opkg_cmd_exec(opkg_cmd_t *cmd, int argc, const char **argv, void *userdata)
+opkg_cmd_exec(opkg_cmd_t *cmd, int argc, const char **argv)
 {
 	int result;
 

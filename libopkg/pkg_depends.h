@@ -57,7 +57,7 @@ struct compound_depend{
 typedef struct compound_depend compound_depend_t;
 
 void buildProvides(abstract_pkg_t * ab_pkg, pkg_t * pkg);
-void buildConflicts(abstract_pkg_t * ab_pkg, pkg_t * pkg);
+void buildConflicts(pkg_t * pkg);
 void buildReplaces(abstract_pkg_t * ab_pkg, pkg_t * pkg);
 void buildDepends(pkg_t * pkg);
 

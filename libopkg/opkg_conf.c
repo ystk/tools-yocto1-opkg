@@ -80,7 +80,7 @@ opkg_option_t options[] = {
           { "ssl_ca_path", OPKG_OPT_TYPE_STRING, &_conf.ssl_ca_path },
           { "ssl_dont_verify_peer", OPKG_OPT_TYPE_BOOL, &_conf.ssl_dont_verify_peer },
 #endif
-	  { NULL }
+	  { NULL, 0, NULL }
 };
 
 static int
