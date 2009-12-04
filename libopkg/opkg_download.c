@@ -328,7 +328,7 @@ opkg_verify_file (char *text_file, char *sig_file)
     int status = -1;
     gpgme_ctx_t ctx;
     gpgme_data_t sig, text, key;
-    gpgme_error_t err = -1;
+    gpgme_error_t err;
     gpgme_verify_result_t result;
     gpgme_signature_t s;
     char *trusted_path = NULL;

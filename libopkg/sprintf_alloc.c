@@ -24,7 +24,8 @@
 int sprintf_alloc(char **str, const char *fmt, ...)
 {
     va_list ap;
-    int n, size = 100;
+    int n;
+    unsigned size = 100;
 
     if (!str) {
       fprintf(stderr, "Null string pointer passed to sprintf_alloc\n");

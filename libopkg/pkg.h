@@ -132,26 +132,26 @@ struct pkg
      pkg_state_flag_t state_flag;
      pkg_state_status_t state_status;
      char **depends_str;
-     int depends_count;
+     unsigned int depends_count;
      char **pre_depends_str;
-     int pre_depends_count;
+     unsigned int pre_depends_count;
      char **recommends_str;
-     int recommends_count;
+     unsigned int recommends_count;
      char **suggests_str;
-     int suggests_count;
+     unsigned int suggests_count;
      struct active_list list; /* Used for installing|upgrading */
      compound_depend_t * depends;
 
      char **conflicts_str;
      compound_depend_t * conflicts;
-     int conflicts_count;
+     unsigned int conflicts_count;
 	
      char **replaces_str;
-     int replaces_count;
+     unsigned int replaces_count;
      abstract_pkg_t ** replaces;
 
      char **provides_str;
-     int provides_count;
+     unsigned int provides_count;
      abstract_pkg_t ** provides;
 
      abstract_pkg_t *parent;

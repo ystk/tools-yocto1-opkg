@@ -524,7 +524,7 @@ static char *
 pkg_state_flag_to_str(pkg_state_flag_t sf)
 {
 	int i;
-	int len;
+	unsigned int len;
 	char *str;
 
 	/* clear the temporary flags before converting to string */
@@ -560,13 +560,15 @@ pkg_state_flag_from_str(const char *str)
 {
      int i;
      int sf = SF_OK;
+     const char *sfname;
+     unsigned int sfname_len;
 
      if (strcmp(str, "ok") == 0) {
 	  return SF_OK;
      }
      for (i=0; i < ARRAY_SIZE(pkg_state_flag_map); i++) {
-	  const char *sfname = pkg_state_flag_map[i].str;
-	  int sfname_len = strlen(sfname);
+	  sfname = pkg_state_flag_map[i].str;
+	  sfname_len = strlen(sfname);
 	  if (strncmp(str, sfname, sfname_len) == 0) {
 	       sf |= pkg_state_flag_map[i].value;
 	       str += sfname_len;
@@ -1083,7 +1085,7 @@ pkg_get_installed_files(pkg_t *pkg)
      FILE *list_file = NULL;
      char *line;
      char *installed_file_name;
-     int rootdirlen = 0;
+     unsigned int rootdirlen = 0;
 
      pkg->installed_files_ref_cnt++;
 

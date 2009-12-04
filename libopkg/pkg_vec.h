@@ -28,13 +28,13 @@ typedef struct abstract_pkg_vec abstract_pkg_vec_t;
 struct pkg_vec
 {
     pkg_t **pkgs;
-    int len;
+    unsigned int len;
 };
 
 struct abstract_pkg_vec
 {
     abstract_pkg_t **pkgs;
-    int len;
+    unsigned int len;
 };
 
 

@@ -648,7 +648,7 @@ void buildReplaces(abstract_pkg_t * ab_pkg, pkg_t * pkg)
 
 void buildDepends(pkg_t * pkg)
 {
-     int count;
+     unsigned int count;
      int i;
      compound_depend_t * depends;
 
@@ -721,7 +721,8 @@ constraint_to_str(enum version_constraint c)
 char *
 pkg_depend_str(pkg_t *pkg, int idx)
 {
-	int i, len;
+	int i;
+	unsigned int len;
 	char *str;
 	compound_depend_t *cdep;
 	depend_t *dep;
@@ -821,7 +822,7 @@ static int parseDepends(compound_depend_t *compound_depend,
 			char * depend_str)
 {
      char * pkg_name, buffer[2048];
-     int num_of_ors = 0;
+     unsigned int num_of_ors = 0;
      int i;
      char * src, * dest;
      depend_t ** possibilities;

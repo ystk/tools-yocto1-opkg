@@ -591,7 +591,7 @@ file_hash_set_file_owner(const char *file_name, pkg_t *owning_pkg)
 		return;
 
 	if (conf->offline_root) {
-		int len = strlen(conf->offline_root);
+		unsigned int len = strlen(conf->offline_root);
 		if (strncmp(file_name, conf->offline_root, len) == 0) {
 			file_name += len;
 		}

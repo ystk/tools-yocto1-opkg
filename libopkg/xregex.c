@@ -35,7 +35,7 @@ int xregcomp(regex_t *preg, const char *regex, int cflags)
 
 static void print_regcomp_err(const regex_t *preg, int err)
 {
-    int size;
+    unsigned int size;
     char *error;
     
     fprintf(stderr, "%s: Error compiling regex:", __FUNCTION__);

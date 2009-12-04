@@ -36,7 +36,7 @@ pkg_has_installed_dependents(pkg_t *pkg, abstract_pkg_t *** pdependents)
 {
      int nprovides = pkg->provides_count;
      abstract_pkg_t **provides = pkg->provides;
-     int n_installed_dependents = 0;
+     unsigned int n_installed_dependents = 0;
      int i;
      for (i = 0; i < nprovides; i++) {
 	  abstract_pkg_t *providee = provides[i];

@@ -63,9 +63,9 @@ char *
 file_read_line_alloc(FILE *fp)
 {
 	char buf[BUFSIZ];
-	int buf_len;
+	unsigned int buf_len;
 	char *line = NULL;
-	int line_size = 0;
+	unsigned int line_size = 0;
 	int got_nl = 0;
 
 	buf[0] = '\0';

@@ -42,7 +42,7 @@ parse_simple(const char *type, const char *line)
  * Parse a comma separated string into an array.
  */
 static char **
-parse_comma_separated(const char *raw, int *count)
+parse_comma_separated(const char *raw, unsigned int *count)
 {
 	char **depends = NULL;
 	const char *start, *end;
@@ -318,7 +318,7 @@ pkg_parse_from_stream_nomalloc(pkg_t *pkg, FILE *fp, uint mask,
 	buf[0] = '\0';
 
 	while (1) {
-		if (fgets(buf, buflen, fp) == NULL) {
+		if (fgets(buf, (int)buflen, fp) == NULL) {
 			if (ferror(fp)) {
 				fprintf(stderr, "%s: fgets: %s\n",
 					__FUNCTION__, strerror(errno));
