@@ -265,7 +265,8 @@ pkg_hash_fetch_unsatisfied_dependencies(pkg_t * pkg, pkg_vec_t *unsatisfied,
   really conflicts 
   returns 0 if conflicts <> replaces or 1 if conflicts == replaces 
 */
-int is_pkg_a_replaces(pkg_t *pkg_scout,pkg_t *pkg)
+static int
+is_pkg_a_replaces(pkg_t *pkg_scout,pkg_t *pkg)
 {
     int i ;
     int replaces_count = pkg->replaces_count;

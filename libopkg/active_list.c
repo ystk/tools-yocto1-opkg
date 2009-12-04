@@ -119,7 +119,7 @@ void active_list_add(struct active_list *head, struct active_list *node) {
     node->depended  = head;
 }
 
-struct active_list * active_list_head_new() {
+struct active_list * active_list_head_new(void) {
     struct active_list * head = xcalloc(1, sizeof(struct active_list));
     active_list_init(head);
     return head;

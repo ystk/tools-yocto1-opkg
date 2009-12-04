@@ -18,6 +18,7 @@
 
 #include "includes.h"
 #include "opkg_install.h"
+#include "opkg_upgrade.h"
 #include "opkg_message.h"
 
 int

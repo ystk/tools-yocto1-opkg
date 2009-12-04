@@ -26,7 +26,7 @@ void void_list_elt_init(void_list_elt_t *elt, void *data)
     elt->data = data;
 }
 
-void_list_elt_t * void_list_elt_new (void *data) {
+static void_list_elt_t * void_list_elt_new (void *data) {
     void_list_elt_t *elt;
     /* freed in void_list_elt_deinit */
     elt = xcalloc(1, sizeof(void_list_elt_t));

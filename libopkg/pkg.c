@@ -1334,7 +1334,7 @@ pkg_arch_supported(pkg_t *pkg)
      return 0;
 }
 
-int
+static int
 pkg_get_arch_priority(const char *archname)
 {
      nv_pair_list_elt_t *l;
@@ -1410,7 +1410,7 @@ struct pkg_write_filelist_data {
      FILE *stream;
 };
 
-void
+static void
 pkg_write_filelist_helper(const char *key, void *entry_, void *data_)
 {
      struct pkg_write_filelist_data *data = data_;
