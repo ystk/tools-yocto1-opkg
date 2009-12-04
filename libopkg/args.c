@@ -193,7 +193,7 @@ int args_parse(args_t *args, int argc, char *argv[])
      }
 }
 
-void args_usage(char *complaint)
+void args_usage(const char *complaint)
 {
      if (complaint) {
 	  printf("opkg: %s\n", complaint);

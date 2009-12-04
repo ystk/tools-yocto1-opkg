@@ -74,7 +74,7 @@ print_error_list(void)
 }
 
 void
-opkg_message (message_level_t level, char *fmt, ...)
+opkg_message (message_level_t level, const char *fmt, ...)
 {
 	va_list ap;
 

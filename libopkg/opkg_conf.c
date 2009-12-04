@@ -463,7 +463,7 @@ opkg_conf_init(const args_t *args)
      if (conf->offline_root)
 	  sprintf_alloc(&etc_opkg_conf_pattern, "%s/etc/opkg/*.conf", conf->offline_root);
      else {
-	  char *conf_file_dir = getenv("OPKG_CONF_DIR");
+	  const char *conf_file_dir = getenv("OPKG_CONF_DIR");
 	  if (conf_file_dir == NULL)
 		  conf_file_dir = ARGS_DEFAULT_CONF_FILE_DIR;
 	  sprintf_alloc(&etc_opkg_conf_pattern, "%s/*.conf", conf_file_dir);

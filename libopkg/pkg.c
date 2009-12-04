@@ -38,8 +38,8 @@
 typedef struct enum_map enum_map_t;
 struct enum_map
 {
-     int value;
-     char *str;
+     unsigned int value;
+     const char *str;
 };
 
 static const enum_map_t pkg_state_want_map[] = {
@@ -488,7 +488,7 @@ set_flags_from_control(pkg_t *pkg){
      return;
 }
 
-static char *
+static const char *
 pkg_state_want_to_str(pkg_state_want_t sw)
 {
      int i;
@@ -581,7 +581,7 @@ pkg_state_flag_from_str(const char *str)
      return sf;
 }
 
-static char *
+static const char *
 pkg_state_status_to_str(pkg_state_status_t ss)
 {
      int i;

@@ -36,6 +36,6 @@ typedef struct args args_t;
 void args_init(args_t *args);
 void args_deinit(args_t *args);
 int args_parse(args_t *args, int argc, char *argv[]);
-void args_usage(char *complaint);
+void args_usage(const char *complaint);
 
 #endif

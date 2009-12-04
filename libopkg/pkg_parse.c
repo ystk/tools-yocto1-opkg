@@ -25,7 +25,7 @@
 #include "libbb/libbb.h"
 
 static int
-is_field(char *type, const char *line)
+is_field(const char *type, const char *line)
 {
 	if (!strncmp(line, type, strlen(type)))
 		return 1;
@@ -33,7 +33,7 @@ is_field(char *type, const char *line)
 }
 
 static char *
-parse_simple(char *type, const char *line)
+parse_simple(const char *type, const char *line)
 {
 	return trim_xstrdup(line + strlen(type) + 1);
 }

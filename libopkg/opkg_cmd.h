@@ -22,7 +22,7 @@ typedef int (*opkg_cmd_fun_t)(int argc, const char **argv);
 
 struct opkg_cmd
 {
-    char *name;
+    const char *name;
     int requires_args;
     opkg_cmd_fun_t fun;
 };

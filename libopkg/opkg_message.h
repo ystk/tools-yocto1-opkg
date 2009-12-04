@@ -30,7 +30,7 @@ typedef enum {
 
 void free_error_list(void);
 void print_error_list(void);
-void opkg_message(message_level_t level, char *fmt, ...);
+void opkg_message(message_level_t level, const char *fmt, ...);
 
 #define opkg_msg(l, fmt, args...) \
 	do { \
