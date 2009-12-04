@@ -715,11 +715,11 @@ constraint_to_str(enum version_constraint c)
 }
 
 /*
- * Returns a printable string for pkg's dependency at the specified index. The
+ * Returns a printable string for pkg's dependency at the specified idx. The
  * resultant string must be passed to free() by the caller.
  */
 char *
-pkg_depend_str(pkg_t *pkg, int index)
+pkg_depend_str(pkg_t *pkg, int idx)
 {
 	int i, len;
 	char *str;
@@ -727,7 +727,7 @@ pkg_depend_str(pkg_t *pkg, int index)
 	depend_t *dep;
 
 	len = 0;
-	cdep = &pkg->depends[index];
+	cdep = &pkg->depends[idx];
 
 	/* calculate string length */
 	for (i=0; i<cdep->possibility_count; i++) {

@@ -211,7 +211,6 @@ pkg_hash_fetch_best_installation_candidate(abstract_pkg_t *apkg,
 	  /* now check for supported architecture */
 	  {
 	       int max_count = 0;
-	       int i;
 
 	       /* count packages matching max arch priority and keep track of last one */
 	       for (i = 0; i < vec->len; i++) {

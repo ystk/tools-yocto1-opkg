@@ -29,20 +29,20 @@
 int
 opkg_op (int argc, char *argv[])
 {
-	int err, optind;
+	int err, opts;
 	args_t args;
 	char *cmd_name;
 	opkg_cmd_t *cmd;
 
 	args_init (&args);
 
-	optind = args_parse (&args, argc, argv);
-	if (optind == argc || optind < 0)
+	opts = args_parse (&args, argc, argv);
+	if (opts == argc || opts < 0)
 	{
 		args_usage ("opkg must have one sub-command argument");
 	}
 
-	cmd_name = argv[optind++];
+	cmd_name = argv[opts++];
 
         if ( !strcmp(cmd_name,"print-architecture") ||
              !strcmp(cmd_name,"print_architecture") ||
@@ -80,7 +80,7 @@ opkg_op (int argc, char *argv[])
 		args_usage (NULL);
 	}
 
-	if (cmd->requires_args && optind == argc)
+	if (cmd->requires_args && opts == argc)
 	{
 		fprintf (stderr,
 			 "%s: the ``%s'' command requires at least one argument\n",
@@ -88,7 +88,7 @@ opkg_op (int argc, char *argv[])
 		args_usage (NULL);
 	}
 
-	err = opkg_cmd_exec (cmd, argc - optind, (const char **) (argv + optind), NULL);
+	err = opkg_cmd_exec (cmd, argc - opts, (const char **) (argv + opts), NULL);
 
 #ifdef HAVE_CURL
 	opkg_curl_cleanup();

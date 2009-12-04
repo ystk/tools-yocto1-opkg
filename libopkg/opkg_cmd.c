@@ -174,7 +174,6 @@ opkg_update_cmd(int argc, char **argv)
                   failures++;
                   opkg_msg(NOTICE, "Signature check failed.\n");
               } else {
-                  int err;
                   err = opkg_verify_file (list_file_name, tmp_file_name);
                   if (err == 0)
                       opkg_msg(NOTICE, "Signature check passed.\n");
