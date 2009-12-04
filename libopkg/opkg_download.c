@@ -401,7 +401,7 @@ opkg_verify_file (char *text_file, char *sig_file)
     openssl_init();
 
     // Set-up the key store
-    if(!(store = setup_verify(conf, conf->signature_ca_file, conf->signature_ca_path))){
+    if(!(store = setup_verify(conf->signature_ca_file, conf->signature_ca_path))){
         opkg_msg(ERROR, "Can't open CA certificates.\n");
         goto verify_file_end;
     }
