@@ -176,10 +176,10 @@ int args_parse(args_t *args, int argc, char *argv[])
 	       conf->noaction = 1;
 	       break;
 	  case ':':
-	       parse_err++;
+	       parse_err = -1;
 	       break;
 	  case '?':
-	       parse_err++;
+	       parse_err = -1;
 	       break;
 	  default:
 	       printf("Confusion: getopt_long returned %d\n", c);
@@ -187,7 +187,7 @@ int args_parse(args_t *args, int argc, char *argv[])
      }
     
      if (parse_err) {
-	  return -parse_err;
+	  return parse_err;
      } else {
 	  return optind;
      }
