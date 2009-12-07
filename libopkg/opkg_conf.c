@@ -98,7 +98,7 @@ opkg_conf_set_default_dest(const char *default_dest_name)
 	  }
      }
 
-     fprintf(stderr, "ERROR: Unknown dest name: `%s'\n", default_dest_name);
+     opkg_msg(ERROR, "Unknown dest name: `%s'.\n", default_dest_name);
 
      return 1;
 }
