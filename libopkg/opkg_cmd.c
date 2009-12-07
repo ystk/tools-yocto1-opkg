@@ -106,7 +106,7 @@ opkg_update_cmd(int argc, char **argv)
 
      sprintf_alloc(&tmp, "%s/update-XXXXXX", conf->tmp_dir);
      if (mkdtemp (tmp) == NULL) {
-	 perror ("mkdtemp");
+	 opkg_perror(ERROR, "Failed to make temp dir %s", conf->tmp_dir);
 	 return -1;
      }
 
@@ -218,7 +218,7 @@ opkg_prep_intercepts(void)
     sprintf_alloc(&ctx->statedir, "%s/opkg-intercept-XXXXXX", conf->tmp_dir);
 
     if (mkdtemp(ctx->statedir) == NULL) {
-        fprintf(stderr, "%s: mkdtemp: %s\n", __FUNCTION__, strerror(errno));
+        opkg_perror(ERROR,"Failed to make temp dir %s", ctx->statedir);
 	free(ctx->oldpath);
 	free(ctx->statedir);
         free(newpath);
@@ -260,7 +260,7 @@ opkg_finalize_intercepts(opkg_intercept_t ctx)
 	}
         closedir(dir);
     } else
-	perror (ctx->statedir);
+	opkg_perror(ERROR, "Failed to open dir %s", ctx->statedir);
 	
     rm_r(ctx->statedir);
     free (ctx->statedir);
@@ -448,7 +448,7 @@ opkg_install_cmd(int argc, char **argv)
 	  arg = argv[i];
           err = opkg_install_by_name(arg);
 	  if (err) {
-	       opkg_msg(ERROR, "Cannot find package %s.\n", arg);
+	       opkg_msg(ERROR, "Cannot install package %s.\n", arg);
 	  }
      }
 

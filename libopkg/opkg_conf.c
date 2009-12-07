@@ -175,9 +175,8 @@ opkg_conf_set_option(const char *name, const char *value)
 	       switch (options[i].type) {
 	       case OPKG_OPT_TYPE_BOOL:
 		    if (*(int *)options[i].value) {
-			    printf("%s: Duplicate boolean option %s, leaving "
-				"this option on.\n",
-				__FUNCTION__, name);
+			    opkg_msg(ERROR, "Duplicate boolean option %s, "
+				"leaving this option on.\n", name);
 			    return 0;
 		    }
 		    *((int * const)options[i].value) = 1;
@@ -185,33 +184,31 @@ opkg_conf_set_option(const char *name, const char *value)
 	       case OPKG_OPT_TYPE_INT:
 		    if (value) {
 			    if (*(int *)options[i].value) {
-				    printf("%s: Duplicate option %s, using "
-					"first seen value \"%d\".\n",
-					__FUNCTION__,
+				    opkg_msg(ERROR, "Duplicate option %s, "
+					"using first seen value \"%d\".\n",
 					name, *((int *)options[i].value));
 				    return 0;
 			    }
 			 *((int * const)options[i].value) = atoi(value);
 			 return 0;
 		    } else {
-			 printf("%s: Option %s need an argument\n",
-				__FUNCTION__, name);
+			 opkg_msg(ERROR, "Option %s needs an argument\n",
+				name);
 			 return -1;
 		    }		    
 	       case OPKG_OPT_TYPE_STRING:
 		    if (value) {
 			    if (*(char **)options[i].value) {
-				    printf("%s: Duplicate option %s, using "
-					"first seen value \"%s\".\n",
-					__FUNCTION__,
+				    opkg_msg(ERROR, "Duplicate option %s, "
+					"using first seen value \"%s\".\n",
 					name, *((char **)options[i].value));
 				    return 0;
 			    }
 			 *((char ** const)options[i].value) = xstrdup(value);
 			 return 0;
 		    } else {
-			 printf("%s: Option %s need an argument\n",
-				__FUNCTION__, name);
+			 opkg_msg(ERROR, "Option %s needs an argument\n",
+				name);
 			 return -1;
 		    }
 	       }
@@ -219,8 +216,7 @@ opkg_conf_set_option(const char *name, const char *value)
 	  i++;
      }
     
-     fprintf(stderr, "%s: Unrecognized option: %s=%s\n",
-	     __FUNCTION__, name, value);
+     opkg_msg(ERROR, "Unrecognized option: %s=%s\n", name, value);
      return -1;
 }
 
@@ -237,8 +233,7 @@ opkg_conf_parse_file(const char *filename,
 
      file = fopen(filename, "r");
      if (file == NULL) {
-	  fprintf(stderr, "%s: failed to open %s: %s\n",
-		  __FUNCTION__, filename, strerror(errno));
+	  opkg_perror(ERROR, "Failed to open %s", filename);
 	  return -1;
      }
 
@@ -271,7 +266,7 @@ opkg_conf_parse_file(const char *filename,
 	  }
 
 	  if (regexec(&valid_line_re, line, regmatch_size, regmatch, 0) == REG_NOMATCH) {
-	       fprintf(stderr, "%s:%d: Ignoring invalid line: `%s'\n",
+	       opkg_msg(ERROR, "%s:%d: Ignoring invalid line: `%s'\n",
 		       filename, line_num, line);
 	       goto NEXT_LINE;
 	  }
@@ -339,7 +334,7 @@ opkg_conf_parse_file(const char *filename,
 	       }
 	       nv_pair_list_append(&conf->arch_list, name, value);
 	  } else {
-	       fprintf(stderr, "WARNING: Ignoring unknown configuration "
+	       opkg_msg(ERROR, "Ignoring unknown configuration "
 		       "parameter: %s %s %s\n", type, name, value);
 	       return -1;
 	  }
@@ -378,8 +373,8 @@ opkg_conf_write_status_files(void)
 
           dest->status_fp = fopen(dest->status_file_name, "w");
           if (dest->status_fp == NULL) {
-               fprintf(stderr, "%s: Can't open status file: %s: %s\n",
-                    __FUNCTION__, dest->status_file_name, strerror(errno));
+               opkg_perror(ERROR, "Can't open status file %s",
+                    dest->status_file_name);
                ret = -1;
           }
      }
@@ -397,9 +392,8 @@ opkg_conf_write_status_files(void)
 	       continue;
 	  }
 	  if (pkg->dest == NULL) {
-	       fprintf(stderr, "%s: ERROR: Can't write status for "
-		       "package %s since it has a NULL dest\n",
-		       __FUNCTION__, pkg->name);
+	       opkg_msg(ERROR, "Internal error: package %s has a NULL dest\n",
+		       pkg->name);
 	       continue;
 	  }
 	  if (pkg->dest->status_fp)

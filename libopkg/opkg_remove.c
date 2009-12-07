@@ -90,8 +90,8 @@ opkg_remove_dependent_pkgs(pkg_t *pkg, abstract_pkg_t **dependents)
     abstract_pkg_t * ab_pkg;
 
     if((ab_pkg = pkg->parent) == NULL){
-	fprintf(stderr, "%s: unable to get dependent pkgs. pkg %s isn't in hash table\n",
-		__FUNCTION__, pkg->name);
+	opkg_msg(ERROR, "Internal error: pkg %s isn't in hash table\n",
+		pkg->name);
 	return 0;
     }
     
@@ -231,11 +231,12 @@ opkg_remove_pkg(pkg_t *pkg, int from_upgrade)
  */
      if (pkg->essential && !from_upgrade) {
 	  if (conf->force_removal_of_essential_packages) {
-	       fprintf(stderr, "WARNING: Removing essential package %s under your coercion.\n"
+	       opkg_msg(NOTICE,
+		       "Removing essential package %s under your coercion.\n"
 		       "\tIf your system breaks, you get to keep both pieces\n",
 		       pkg->name);
 	  } else {
-	       fprintf(stderr, "ERROR: Refusing to remove essential package %s.\n"
+	       opkg_msg(NOTICE, "Refusing to remove essential package %s.\n"
 		       "\tRemoving an essential package may lead to an unusable system, but if\n"
 		       "\tyou enjoy that kind of pain, you can force opkg to proceed against\n"
 		       "\tits will with the option: --force-removal-of-essential-packages\n",

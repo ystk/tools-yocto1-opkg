@@ -34,7 +34,7 @@ void active_list_init(struct active_list *ptr) {
 struct active_list * active_list_next(struct active_list *head, struct active_list *ptr) {
     struct active_list *next=NULL;
     if ( !head ) {
-        fprintf(stderr, "active_list_next head = %p, ptr = %p invalid value!!\n", head, ptr);
+        opkg_msg(ERROR, "Internal error: head=%p, ptr=%p\n", head, ptr);
         return NULL;
     }
     if ( !ptr )
@@ -56,7 +56,7 @@ struct active_list * active_list_next(struct active_list *head, struct active_li
 struct active_list * active_list_prev(struct active_list *head, struct active_list *ptr) {
     struct active_list *prev=NULL;
     if ( !head ) {
-        fprintf(stderr, "active_list_prev head = %p, ptr = %p invalid value!!\n", head, ptr);
+        opkg_msg(ERROR, "Internal error: head=%p, ptr=%p\n", head, ptr);
         return NULL;
     }
     if ( !ptr )

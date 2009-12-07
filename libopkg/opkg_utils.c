@@ -33,7 +33,7 @@ get_available_kbytes(char * filesystem)
     struct statvfs f;
 
     if (statvfs(filesystem, &f) == -1) {
-        perror_msg("%s: statvfs\n", __FUNCTION__);
+        opkg_perror(ERROR, "Failed to statvfs for %s", filesystem);
         return 0;
     }
 
@@ -44,7 +44,7 @@ get_available_kbytes(char * filesystem)
     else if (f.f_frsize > 0)
         return f.f_bavail / (1024 / f.f_frsize);
 
-    fprintf(stderr, "Unknown block size for target filesystem\n");
+    opkg_msg(ERROR, "Unknown block size for target filesystem.\n");
 
     return 0;
 }

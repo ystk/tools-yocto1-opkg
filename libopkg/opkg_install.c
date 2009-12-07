@@ -250,8 +250,7 @@ unpack_pkg_control_files(pkg_t *pkg)
     
      conffiles_file = fopen(conffiles_file_name, "r");
      if (conffiles_file == NULL) {
-	  fprintf(stderr, "%s: failed to open %s: %s\n",
-		  __FUNCTION__, conffiles_file_name, strerror(errno));
+	  opkg_perror(ERROR, "Failed to open %s", conffiles_file_name);
 	  free(conffiles_file_name);
 	  return -1;
      }

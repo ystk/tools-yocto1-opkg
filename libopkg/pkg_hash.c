@@ -83,8 +83,7 @@ pkg_hash_add_from_file(const char *file_name,
 
 	fp = fopen(file_name, "r");
 	if (fp == NULL) {
-		fprintf(stderr, "%s: fopen(%s): %s\n",
-			     __FUNCTION__, file_name, strerror(errno));
+		opkg_perror(ERROR, "Failed to open %s", file_name);
 		return -1;
 	}
 

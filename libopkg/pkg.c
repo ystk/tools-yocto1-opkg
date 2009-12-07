@@ -285,14 +285,14 @@ pkg_init_from_file(pkg_t *pkg, const char *filename)
                         basename(filename));
 	fd = mkstemp(control_path);
 	if (fd == -1) {
-		perror_msg("%s: mkstemp(%s)", __FUNCTION__, control_path);
+		opkg_perror(ERROR, "Failed to make temp file %s", control_path);
 		err = -1;
 		goto err0;
 	}
 
 	control_file = fdopen(fd, "r+");
 	if (control_file == NULL) {
-		perror_msg("%s: fdopen", __FUNCTION__, control_path);
+		opkg_perror(ERROR, "Failed to fdopen %s", control_path);
 		close(fd);
 		err = -1;
 		goto err1;
@@ -499,8 +499,7 @@ pkg_state_want_to_str(pkg_state_want_t sw)
 	  }
      }
 
-     fprintf(stderr, "%s: ERROR: Illegal value for state_want: %d\n",
-	     __FUNCTION__, sw);
+     opkg_msg(ERROR, "Internal error: state_want=%d\n", sw);
      return "<STATE_WANT_UNKNOWN>";
 }
 
@@ -515,8 +514,7 @@ pkg_state_want_from_str(char *str)
 	  }
      }
 
-     fprintf(stderr, "%s: ERROR: Illegal value for state_want string: %s\n",
-	     __FUNCTION__, str);
+     opkg_msg(ERROR, "Internal error: state_want=%s\n", str);
      return SW_UNKNOWN;
 }
 
@@ -594,8 +592,7 @@ pkg_state_status_to_str(pkg_state_status_t ss)
 	  }
      }
 
-     fprintf(stderr, "%s: ERROR: Illegal value for state_status: %d\n",
-	     __FUNCTION__, ss);
+     opkg_msg(ERROR, "Internal error: state_status=%d\n", ss);
      return "<STATE_STATUS_UNKNOWN>";
 }
 
@@ -610,8 +607,7 @@ pkg_state_status_from_str(const char *str)
 	  }
      }
 
-     fprintf(stderr, "%s: ERROR: Illegal value for state_status string: %s\n",
-	     __FUNCTION__, str);
+     opkg_msg(ERROR, "Internal error: state_status=%s\n", str);
      return SS_NOT_INSTALLED;
 }
 
@@ -853,7 +849,7 @@ pkg_formatted_field(FILE *fp, pkg_t *pkg, const char *field)
      return;
 
 UNKNOWN_FMT_FIELD:
-     fprintf(stderr, "%s: ERROR: Unknown field name: %s\n", __FUNCTION__, field);
+     opkg_msg(ERROR, "Internal error: field=%s\n", field);
 }
 
 void
@@ -1002,7 +998,7 @@ pkg_version_satisfied(pkg_t *it, pkg_t *ref, const char *op)
 	  return r == 0;
      }
 
-     fprintf(stderr, "unknown operator: %s", op);
+     opkg_msg(ERROR, "Unknown operator: %s.\n", op);
      return 0;
 }
 
@@ -1014,8 +1010,8 @@ pkg_name_version_and_architecture_compare(const void *p1, const void *p2)
      int namecmp;
      int vercmp;
      if (!a->name || !b->name) {
-       fprintf(stderr, "pkg_name_version_and_architecture_compare: a=%p a->name=%p b=%p b->name=%p\n",
-	       a, a->name, b, b->name);
+       opkg_msg(ERROR, "Internal error: a->name=%p, b->name=%p.\n",
+	       a->name, b->name);
        return 0;
      }
        
@@ -1026,8 +1022,8 @@ pkg_name_version_and_architecture_compare(const void *p1, const void *p2)
      if (vercmp)
 	  return vercmp;
      if (!a->arch_priority || !b->arch_priority) {
-       fprintf(stderr, "pkg_name_version_and_architecture_compare: a=%p a->arch_priority=%i b=%p b->arch_priority=%i\n",
-	       a, a->arch_priority, b, b->arch_priority);
+       opkg_msg(ERROR, "Internal error: a->arch_priority=%i b->arch_priority=%i.\n",
+	       a->arch_priority, b->arch_priority);
        return 0;
      }
      if (a->arch_priority > b->arch_priority)
@@ -1043,8 +1039,8 @@ abstract_pkg_name_compare(const void *p1, const void *p2)
      const abstract_pkg_t *a = *(const abstract_pkg_t **)p1;
      const abstract_pkg_t *b = *(const abstract_pkg_t **)p2;
      if (!a->name || !b->name) {
-       fprintf(stderr, "abstract_pkg_name_compare: a=%p a->name=%p b=%p b->name=%p\n",
-	       a, a->name, b, b->name);
+       opkg_msg(ERROR, "Internal error: a->name=%p b->name=%p.\n",
+	       a->name, b->name);
        return 0;
      }
      return strcmp(a->name, b->name);
@@ -1272,15 +1268,15 @@ pkg_run_script(pkg_t *pkg, const char *script, const char *args)
 	have scripts in pkg->tmp_unpack_dir. */
      if (pkg->state_status == SS_INSTALLED || pkg->state_status == SS_UNPACKED) {
 	  if (pkg->dest == NULL) {
-	       fprintf(stderr, "%s: ERROR: installed package %s has a NULL dest\n",
-		       __FUNCTION__, pkg->name);
+	       opkg_msg(ERROR, "Internal error: %s has a NULL dest.\n",
+		       pkg->name);
 	       return -1;
 	  }
 	  sprintf_alloc(&path, "%s/%s.%s", pkg->dest->info_dir, pkg->name, script);
      } else {
 	  if (pkg->tmp_unpack_dir == NULL) {
-	       fprintf(stderr, "%s: ERROR: uninstalled package %s has a NULL tmp_unpack_dir\n",
-		       __FUNCTION__, pkg->name);
+	       opkg_msg(ERROR, "Internal error: %s has a NULL tmp_unpack_dir.\n",
+		       pkg->name);
 	       return -1;
 	  }
 	  sprintf_alloc(&path, "%s/%s", pkg->tmp_unpack_dir, script);
@@ -1305,7 +1301,7 @@ pkg_run_script(pkg_t *pkg, const char *script, const char *args)
      free(cmd);
 
      if (err) {
-	  fprintf(stderr, "%s script returned status %d\n", script, err);
+	  opkg_msg(ERROR, "%s script returned status %d.\n", script, err);
 	  return err;
      }
 

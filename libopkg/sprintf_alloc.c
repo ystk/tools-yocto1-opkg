@@ -28,11 +28,11 @@ int sprintf_alloc(char **str, const char *fmt, ...)
     unsigned size = 100;
 
     if (!str) {
-      fprintf(stderr, "Null string pointer passed to sprintf_alloc\n");
+      opkg_msg(ERROR, "Internal error: str=NULL.\n");
       return -1;
     }
     if (!fmt) {
-      fprintf(stderr, "Null fmt string passed to sprintf_alloc\n");
+      opkg_msg(ERROR, "Internal error: fmt=NULL.\n");
       return -1;
     }
 

@@ -67,7 +67,7 @@ pkg_hash_fetch_unsatisfied_dependencies(pkg_t * pkg, pkg_vec_t *unsatisfied,
       * which are marked at the abstract_pkg level
       */
      if (!(ab_pkg = pkg->parent)) {
-	  fprintf(stderr, "%s:%d: something terribly wrong with pkg %s\n", __FUNCTION__, __LINE__, pkg->name);
+	  opkg_msg(ERROR, "Internal error, with pkg %s.\n", pkg->name);
 	  *unresolved = NULL;
 	  return 0;
      }
@@ -306,7 +306,7 @@ pkg_vec_t * pkg_hash_fetch_conflicts(pkg_t * pkg)
      * which are marked at the abstract_pkg level
      */
     if(!(ab_pkg = pkg->parent)){
-	fprintf(stderr, "dependency check error.  pkg %s isn't in hash table\n", pkg->name);
+	opkg_msg(ERROR, "Internal error: %s not in hash table\n", pkg->name);
 	return (pkg_vec_t *)NULL;
     }
 
@@ -329,9 +329,9 @@ pkg_vec_t * pkg_hash_fetch_conflicts(pkg_t * pkg)
 	for(j = 0; j < conflicts->possibility_count; j++){
             possible_satisfier = possible_satisfiers[j];
             if (!possible_satisfier)
-                fprintf(stderr, "%s:%d: possible_satisfier is null\n", __FUNCTION__, __LINE__);
+                opkg_msg(ERROR, "Internal error: possible_satisfier=NULL\n");
             if (!possible_satisfier->pkg)
-                fprintf(stderr, "%s:%d: possible_satisfier->pkg is null\n", __FUNCTION__, __LINE__);
+                opkg_msg(ERROR, "Internal error: possible_satisfier->pkg=NULL\n");
 	    test_vec = possible_satisfier->pkg->pkgs;
 	    if (test_vec) {
                 /* pkg_vec found, it is an actual package conflict
@@ -340,7 +340,7 @@ pkg_vec_t * pkg_hash_fetch_conflicts(pkg_t * pkg)
 		for(k = 0; k < test_vec->len; k++){
                     pkg_scout = pkg_scouts[k];
                     if (!pkg_scout) {
-                        fprintf(stderr,  "%s: null pkg scout\n", __FUNCTION__);
+                        opkg_msg(ERROR,  "Internal error: pkg_scout=NULL\n");
                         continue; 
                     }
 		    if ((pkg_scout->state_status == SS_INSTALLED || pkg_scout->state_want == SW_INSTALL) &&

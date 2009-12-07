@@ -972,8 +972,7 @@ extern int unzip(FILE *l_in_file, FILE *l_out_file)
 	}
 
 	if (method < 0) {
-		printf("it failed\n");
-		return(exit_code);		/* error message already emitted */
+		return(exit_code);
 	}
 
 	make_crc_table();

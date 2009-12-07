@@ -84,7 +84,7 @@ opkg_op (int argc, char *argv[])
 	{
 		fprintf (stderr,
 			 "%s: the ``%s'' command requires at least one argument\n",
-			 __FUNCTION__, cmd_name);
+			 argv[0], cmd_name);
 		args_usage (NULL);
 	}
 

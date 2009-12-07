@@ -90,8 +90,8 @@ parse_status(pkg_t *pkg, const char *sstr)
 
 	if (sscanf(sstr, "Status: %63s %63s %63s",
 				sw_str, sf_str, ss_str) != 3) {
-		fprintf(stderr, "%s: failed to parse Status line for %s\n",
-				__FUNCTION__, pkg->name);
+		opkg_msg(ERROR, "Failed to parse Status line for %s\n",
+				pkg->name);
 		return;
 	}
 
@@ -106,8 +106,8 @@ parse_conffiles(pkg_t *pkg, const char *cstr)
 	char file_name[1024], md5sum[35];
 
 	if (sscanf(cstr, "%1023s %34s", file_name, md5sum) != 2) {
-		fprintf(stderr, "%s: failed to parse Conffiles line for %s\n",
-				__FUNCTION__, pkg->name);
+		opkg_msg(ERROR, "Failed to parse Conffiles line for %s\n",
+				pkg->name);
 		return;
 	}
 
@@ -130,8 +130,7 @@ parse_version(pkg_t *pkg, const char *vstr)
 		errno = 0;
 		pkg->epoch = strtoul(vstr, NULL, 10);
 		if (errno) {
-			fprintf(stderr, "%s: %s: invalid epoch: %s\n",
-				__FUNCTION__, pkg->name, strerror(errno));
+			opkg_perror(ERROR, "%s: invalid epoch", pkg->name);
 		}
 		vstr = ++colon;
 	} else {
@@ -320,13 +319,11 @@ pkg_parse_from_stream_nomalloc(pkg_t *pkg, FILE *fp, uint mask,
 	while (1) {
 		if (fgets(buf, (int)buflen, fp) == NULL) {
 			if (ferror(fp)) {
-				fprintf(stderr, "%s: fgets: %s\n",
-					__FUNCTION__, strerror(errno));
+				opkg_perror(ERROR, "fgets");
 				ret = -1;
 			} else if (strlen(*buf0) == buf0len-1) {
-				fprintf(stderr, "%s: missing new line character"
-						" at end of file!\n",
-					__FUNCTION__);
+				opkg_msg(ERROR, "Missing new line character"
+						" at end of file!\n");
 				pkg_parse_line(pkg, *buf0, mask);
 			}
 			break;
@@ -340,16 +337,15 @@ pkg_parse_from_stream_nomalloc(pkg_t *pkg, FILE *fp, uint mask,
 				 * missing a newline, but we won't know until
 				 * fgets fails to read more data.
 				 */
-				fprintf(stderr, "%s: missing new line character"
-						" at end of file!\n",
-					__FUNCTION__);
+				opkg_msg(ERROR, "Missing new line character"
+						" at end of file!\n");
 				pkg_parse_line(pkg, *buf0, mask);
 				break;
 			}
 			if (buf0len >= EXCESSIVE_LINE_LEN) {
-				fprintf(stderr, "%s: excessively long line at "
+				opkg_msg(ERROR, "Excessively long line at "
 					"%d. Corrupt file?\n",
-					__FUNCTION__, lineno);
+					lineno);
 				ret = -1;
 				break;
 			}
