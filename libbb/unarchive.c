@@ -185,7 +185,7 @@ extract_archive(FILE *src_stream, FILE *out_stream,
 						goto cleanup;
 					}
 					archive_offset += file_entry->size;
-					copy_file_chunk(src_stream, dst_stream, file_entry->size);			
+					*err = copy_file_chunk(src_stream, dst_stream, file_entry->size);			
 					fclose(dst_stream);
 				}
 				break;
