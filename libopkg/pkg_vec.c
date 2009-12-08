@@ -76,25 +76,21 @@ pkg_t *pkg_vec_insert_merge(pkg_vec_t *vec, pkg_t *pkg, int set_status)
           pkg_vec_insert(vec, pkg);
 	  return pkg;
      }
+
      /* update the one that we have */
-     else {
-          opkg_msg(DEBUG2, "Merging %s %s arch=%s, set_status=%d.\n",
+     opkg_msg(DEBUG2, "Merging %s %s arch=%s, set_status=%d.\n",
 			pkg->name, pkg->version, pkg->architecture, set_status);
-	  if (set_status) {
-	       /* this is from the status file, so need to merge with existing database */
-	       pkg_merge(vec->pkgs[i], pkg);
-	       /* XXX: CLEANUP: It's not so polite to free something here
-		  that was passed in from above. */
-	       pkg_deinit(pkg);
-	       free(pkg);
-	  } else {
-	       /* just overwrite the old one */
-	       pkg_deinit(vec->pkgs[i]);
-	       free(vec->pkgs[i]);
-	       vec->pkgs[i] = pkg;
-	  }
-	  return vec->pkgs[i];
+     if (set_status) {
+          /* this is from the status file, so need to merge with existing database */
+          pkg_merge(pkg, vec->pkgs[i]);
      }
+
+     /* overwrite the old one */
+     pkg_deinit(vec->pkgs[i]);
+     free(vec->pkgs[i]);
+     vec->pkgs[i] = pkg;
+
+     return vec->pkgs[i];
 }
 
 void pkg_vec_insert(pkg_vec_t *vec, const pkg_t *pkg)

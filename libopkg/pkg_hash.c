@@ -564,9 +564,6 @@ hash_insert_pkg(pkg_t *pkg, int set_status)
 
 	buildDependedUponBy(pkg, ab_pkg);
 
-	/* pkg_vec_insert_merge might munge package, but it returns an
-	 * unmunged pkg.
-	 */
 	pkg = pkg_vec_insert_merge(ab_pkg->pkgs, pkg, set_status);
 	pkg->parent = ab_pkg;
 

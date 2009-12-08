@@ -321,13 +321,6 @@ err0:
 }
 
 /* Merge any new information in newpkg into oldpkg */
-/* XXX: CLEANUP: This function shouldn't actually modify anything in
-   newpkg, but should leave it usable. This rework is so that
-   pkg_hash_insert doesn't clobber the pkg that you pass into it. */
-/* 
- * uh, i thought that i had originally written this so that it took 
- * two pkgs and returned a new one?  we can do that again... -sma
- */
 int
 pkg_merge(pkg_t *oldpkg, pkg_t *newpkg)
 {
@@ -352,11 +345,6 @@ pkg_merge(pkg_t *oldpkg, pkg_t *newpkg)
 	  oldpkg->maintainer = xstrdup(newpkg->maintainer);
      if(!oldpkg->description)
 	  oldpkg->description = xstrdup(newpkg->description);
-
-     /* merge the state_flags from the new package */
-     oldpkg->state_want = newpkg->state_want;
-     oldpkg->state_status = newpkg->state_status;
-     oldpkg->state_flag = newpkg->state_flag;
 
      if (!oldpkg->depends_count && !oldpkg->pre_depends_count && !oldpkg->recommends_count && !oldpkg->suggests_count) {
 	  oldpkg->depends_count = newpkg->depends_count;
@@ -421,15 +409,17 @@ pkg_merge(pkg_t *oldpkg, pkg_t *newpkg)
 	  oldpkg->priority = xstrdup(newpkg->priority);
      if (!oldpkg->source)
 	  oldpkg->source = xstrdup(newpkg->source);
+
      if (nv_pair_list_empty(&oldpkg->conffiles)){
 	  list_splice_init(&newpkg->conffiles.head, &oldpkg->conffiles.head);
-	  conffile_list_init(&newpkg->conffiles);
      }
+
      if (!oldpkg->installed_files){
 	  oldpkg->installed_files = newpkg->installed_files;
 	  oldpkg->installed_files_ref_cnt = newpkg->installed_files_ref_cnt;
 	  newpkg->installed_files = NULL;
      }
+
      if (!oldpkg->essential)
 	  oldpkg->essential = newpkg->essential;
 
