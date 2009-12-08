@@ -329,7 +329,7 @@ err0:
  * two pkgs and returned a new one?  we can do that again... -sma
  */
 int
-pkg_merge(pkg_t *oldpkg, pkg_t *newpkg, int set_status)
+pkg_merge(pkg_t *oldpkg, pkg_t *newpkg)
 {
      if (oldpkg == newpkg) {
 	  return 0;
@@ -352,18 +352,11 @@ pkg_merge(pkg_t *oldpkg, pkg_t *newpkg, int set_status)
 	  oldpkg->maintainer = xstrdup(newpkg->maintainer);
      if(!oldpkg->description)
 	  oldpkg->description = xstrdup(newpkg->description);
-     if (set_status) {
-	  /* merge the state_flags from the new package */
-	  oldpkg->state_want = newpkg->state_want;
-	  oldpkg->state_status = newpkg->state_status;
-	  oldpkg->state_flag = newpkg->state_flag;
-     } else {
-	  if (oldpkg->state_want == SW_UNKNOWN)
-	       oldpkg->state_want = newpkg->state_want;
-	  if (oldpkg->state_status == SS_NOT_INSTALLED)
-	       oldpkg->state_status = newpkg->state_status;
-	  oldpkg->state_flag |= newpkg->state_flag;
-     }
+
+     /* merge the state_flags from the new package */
+     oldpkg->state_want = newpkg->state_want;
+     oldpkg->state_status = newpkg->state_status;
+     oldpkg->state_flag = newpkg->state_flag;
 
      if (!oldpkg->depends_count && !oldpkg->pre_depends_count && !oldpkg->recommends_count && !oldpkg->suggests_count) {
 	  oldpkg->depends_count = newpkg->depends_count;

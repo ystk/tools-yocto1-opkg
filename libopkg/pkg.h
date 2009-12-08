@@ -193,9 +193,9 @@ abstract_pkg_t *abstract_pkg_new(void);
 
 /* 
  * merges fields from newpkg into oldpkg.
- * Forcibly sets oldpkg state_status, state_want and state_flags if set_status is nonzero 
+ * Forcibly sets oldpkg state_status, state_want and state_flags
  */
-int pkg_merge(pkg_t *oldpkg, pkg_t *newpkg, int set_status);
+int pkg_merge(pkg_t *oldpkg, pkg_t *newpkg);
 
 char *pkg_version_str_alloc(pkg_t *pkg);
 

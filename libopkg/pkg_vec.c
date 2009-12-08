@@ -82,7 +82,7 @@ pkg_t *pkg_vec_insert_merge(pkg_vec_t *vec, pkg_t *pkg, int set_status)
 			pkg->name, pkg->version, pkg->architecture, set_status);
 	  if (set_status) {
 	       /* this is from the status file, so need to merge with existing database */
-	       pkg_merge(vec->pkgs[i], pkg, set_status);
+	       pkg_merge(vec->pkgs[i], pkg);
 	       /* XXX: CLEANUP: It's not so polite to free something here
 		  that was passed in from above. */
 	       pkg_deinit(pkg);
