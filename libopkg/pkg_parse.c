@@ -153,6 +153,9 @@ pkg_parse_line(pkg_t *pkg, const char *line, uint mask)
 	static int reading_conffiles = 0, reading_description = 0;
 	int ret = 0;
 
+	/* Flip the semantics of the mask. */
+	mask ^= PFM_ALL;
+
 	switch (*line) {
 	case 'A':
 		if ((mask & PFM_ARCHITECTURE ) && is_field("Architecture", line))

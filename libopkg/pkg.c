@@ -307,7 +307,7 @@ pkg_init_from_file(pkg_t *pkg, const char *filename)
 
 	rewind(control_file);
 
-	if (pkg_parse_from_stream(pkg, control_file, PFM_ALL))
+	if (pkg_parse_from_stream(pkg, control_file, 0))
 		err = -1;
 
 err2:
@@ -478,7 +478,7 @@ set_flags_from_control(pkg_t *pkg){
 
      free(file_name);
 
-     if (pkg_parse_from_stream(pkg, fp, PFM_ESSENTIAL)) {
+     if (pkg_parse_from_stream(pkg, fp, PFM_ALL ^ PFM_ESSENTIAL)) {
         opkg_msg(DEBUG, "Unable to read control file for %s. May be empty.\n",
 			pkg->name);
      }

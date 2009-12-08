@@ -94,7 +94,7 @@ pkg_hash_add_from_file(const char *file_name,
 		pkg->src = src;
 		pkg->dest = dest;
 
-		ret = pkg_parse_from_stream_nomalloc(pkg, fp, PFM_ALL,
+		ret = pkg_parse_from_stream_nomalloc(pkg, fp, 0,
 				&buf, len);
 		if (ret) {
 			pkg_deinit (pkg);
