@@ -32,7 +32,7 @@ void pkg_hash_fetch_available(pkg_vec_t *available);
 
 int pkg_hash_add_from_file(const char *file_name, pkg_src_t *src,
 		pkg_dest_t *dest, int is_status_file);
-pkg_t *hash_insert_pkg(pkg_t *pkg, int set_status);
+void hash_insert_pkg(pkg_t *pkg, int set_status);
 
 abstract_pkg_t * ensure_abstract_pkg_by_name(const char * pkg_name);
 void pkg_hash_fetch_all_installed(pkg_vec_t *installed);

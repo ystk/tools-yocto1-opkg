@@ -530,28 +530,22 @@ ensure_abstract_pkg_by_name(const char *pkg_name)
 	return ab_pkg;
 }
 
-pkg_t *
+void
 hash_insert_pkg(pkg_t *pkg, int set_status)
 {
 	abstract_pkg_t * ab_pkg;
 
-	if(!pkg)
-		return pkg;
-
-	buildDepends(pkg);
-
 	ab_pkg = ensure_abstract_pkg_by_name(pkg->name);
+	if (!ab_pkg->pkgs)
+		ab_pkg->pkgs = pkg_vec_alloc();
 
-	if (set_status) {
-		if (pkg->state_status == SS_INSTALLED) {
-			ab_pkg->state_status = SS_INSTALLED;
-		} else if (pkg->state_status == SS_UNPACKED) {
-			ab_pkg->state_status = SS_UNPACKED;
-		}
+	if (pkg->state_status == SS_INSTALLED) {
+		ab_pkg->state_status = SS_INSTALLED;
+	} else if (pkg->state_status == SS_UNPACKED) {
+		ab_pkg->state_status = SS_UNPACKED;
 	}
 
-	if(!ab_pkg->pkgs)
-		ab_pkg->pkgs = pkg_vec_alloc();
+	buildDepends(pkg);
 
 	buildProvides(ab_pkg, pkg);
 
@@ -564,10 +558,8 @@ hash_insert_pkg(pkg_t *pkg, int set_status)
 
 	buildDependedUponBy(pkg, ab_pkg);
 
-	pkg = pkg_vec_insert_merge(ab_pkg->pkgs, pkg, set_status);
+	pkg_vec_insert_merge(ab_pkg->pkgs, pkg, set_status);
 	pkg->parent = ab_pkg;
-
-	return pkg;
 }
 
 

@@ -48,7 +48,7 @@ void pkg_vec_free(pkg_vec_t *vec)
  *             so identical versions have identical version strings,
  *             implying identical packages; let's marry these
  */
-pkg_t *pkg_vec_insert_merge(pkg_vec_t *vec, pkg_t *pkg, int set_status)
+void pkg_vec_insert_merge(pkg_vec_t *vec, pkg_t *pkg, int set_status)
 {
      int i;
      int found = 0;
@@ -74,14 +74,15 @@ pkg_t *pkg_vec_insert_merge(pkg_vec_t *vec, pkg_t *pkg, int set_status)
           opkg_msg(DEBUG2, "Adding new pkg=%s version=%s arch=%s.\n",
 			pkg->name, pkg->version, pkg->architecture);
           pkg_vec_insert(vec, pkg);
-	  return pkg;
+	  return;
      }
 
      /* update the one that we have */
      opkg_msg(DEBUG2, "Merging %s %s arch=%s, set_status=%d.\n",
 			pkg->name, pkg->version, pkg->architecture, set_status);
      if (set_status) {
-          /* this is from the status file, so need to merge with existing database */
+          /* This is from the status file,
+	   * so need to merge with existing database */
           pkg_merge(pkg, vec->pkgs[i]);
      }
 
@@ -89,8 +90,6 @@ pkg_t *pkg_vec_insert_merge(pkg_vec_t *vec, pkg_t *pkg, int set_status)
      pkg_deinit(vec->pkgs[i]);
      free(vec->pkgs[i]);
      vec->pkgs[i] = pkg;
-
-     return vec->pkgs[i];
 }
 
 void pkg_vec_insert(pkg_vec_t *vec, const pkg_t *pkg)
