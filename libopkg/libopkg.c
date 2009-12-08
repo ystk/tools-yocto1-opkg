@@ -62,6 +62,15 @@ opkg_op (int argc, char *argv[])
              !strcmp(cmd_name,"status") )
            args.noreadfeedsfile = 1;
 
+	cmd = opkg_cmd_find (cmd_name);
+	if (cmd == NULL)
+	{
+		fprintf (stderr, "%s: unknown sub-command %s\n", argv[0],
+			 cmd_name);
+		args_usage (NULL);
+	}
+
+	conf->pfm = cmd->pfm;
 
 	err = opkg_conf_init (&args);
 	args_deinit (&args);
@@ -70,14 +79,6 @@ opkg_op (int argc, char *argv[])
 		print_error_list();
 		free_error_list();
 		return err;
-	}
-
-	cmd = opkg_cmd_find (cmd_name);
-	if (cmd == NULL)
-	{
-		fprintf (stderr, "%s: unknown sub-command %s\n", argv[0],
-			 cmd_name);
-		args_usage (NULL);
 	}
 
 	if (cmd->requires_args && opts == argc)

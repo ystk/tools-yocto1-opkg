@@ -51,6 +51,8 @@ struct opkg_conf
      char *tmp_dir;
      char *lists_dir;
 
+     uint pfm; /* package field mask */
+
      /* options */
      int autoremove;
      int force_depends;
