@@ -86,6 +86,8 @@ opkg_download(const char *src, const char *dest_file_name,
     char *src_base = basename(src_basec);
     char *tmp_file_location;
 
+    free(src_basec);
+
     opkg_msg(NOTICE,"Downloading %s.\n", src);
 	
     if (str_starts_with(src, "file:")) {
@@ -93,7 +95,6 @@ opkg_download(const char *src, const char *dest_file_name,
 	opkg_msg(INFO, "Copying %s to %s...", file_src, dest_file_name);
 	err = file_copy(file_src, dest_file_name);
 	opkg_msg(INFO, "Done.\n");
-        free(src_basec);
 	return err;
     }
 
@@ -102,7 +103,6 @@ opkg_download(const char *src, const char *dest_file_name,
     if (err && errno != ENOENT) {
 	opkg_perror(ERROR, "Failed to unlink %s\n", tmp_file_location);
 	free(tmp_file_location);
-        free(src_basec);
 	return -1;
     }
 
@@ -141,7 +141,6 @@ opkg_download(const char *src, const char *dest_file_name,
 	    opkg_msg(ERROR, "Failed to download %s: %s.\n",
 		    src, curl_easy_strerror(res));
 	    free(tmp_file_location);
-            free(src_basec);
 	    return res;
 	}
 
@@ -149,7 +148,6 @@ opkg_download(const char *src, const char *dest_file_name,
     else
     {
 	free(tmp_file_location);
-        free(src_basec);
 	return -1;
     }
 #else
@@ -173,7 +171,6 @@ opkg_download(const char *src, const char *dest_file_name,
       if (res) {
 	opkg_msg(ERROR, "Failed to download %s, wget returned %d.\n", src, res);
 	free(tmp_file_location);
-        free(src_basec);
 	return res;
       }
     }
@@ -182,7 +179,6 @@ opkg_download(const char *src, const char *dest_file_name,
     err = file_move(tmp_file_location, dest_file_name);
 
     free(tmp_file_location);
-    free(src_basec);
 
     return err;
 }
