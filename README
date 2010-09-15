@@ -1,0 +1,5 @@
+A very simple gtk+ frontend to opkg. This is probably more useful as
+instruction on how to interface with opkg than it is as a standalone
+application.
+
+-Graham
