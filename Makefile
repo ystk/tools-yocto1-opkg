@@ -10,5 +10,9 @@ CC=gcc
 $(PROG): $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $(PROG) $(LIBS)
 
+install: $(PROG)
+	install -d $(DESTDIR)/usr/bin
+	install -m 0755 $(PROG) $(DESTDIR)/usr/bin/$(PROG)
+
 clean:
 	rm -f $(OBJS) $(PROG)
