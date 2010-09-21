@@ -417,14 +417,13 @@ main(int argc, char **argv)
 	conf->pfm = PFM_SOURCE;
 	conf->verbosity = NOTICE;
 	conf->autoremove = 1;	/* i think this is generally what users want */
-	conf->opkg_vmessage = vmessage;
 
 	if (opkg_new()) {
-		popupf("opkg sucks", "You're lucky we didn't segfault, \n"
-				"opkg_new() failed!\n");
+		fprintf(stderr, "Failed to initialise libopkg, bailing.\n");
 		return -1;
 	}
 
+	conf->opkg_vmessage = vmessage;
 
 
 	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
